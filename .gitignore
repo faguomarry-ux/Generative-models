@@ -1,0 +1,37 @@
+# Local LaTeX build products
+/build/
+/tmp/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex
+*.synctex.gz
+*.synctex.gz(busy)
+*.toc
+*.xdv
+/main.pdf
+
+# Publish the current reading edition
+/output/*
+!/output/pdf/
+/output/pdf/*
+!/output/pdf/model-study.pdf
+
+# Machine-local fonts and editor files
+/fonts/
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db
+*~

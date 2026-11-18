@@ -1,0 +1,116 @@
+\chapter{生成阶段的理论与数学推导}
+
+\section{DDPM 的生成理论}
+
+\subsection{反向条件概率的形式}
+
+\subsection{反向均值的推导\requiredderivation}
+
+\subsection{反向方差与随机噪声}
+
+\subsection{完整去噪递推公式\requiredderivation}
+
+\subsection{DDPM 生成过程与 Langevin Dynamics 的联系}
+
+\section{DDIM 的生成理论}
+
+\subsection{DDIM 采样更新公式的推导\requiredderivation}
+
+\subsection{随机参数 \texorpdfstring{\(\eta\)}{η} 的作用}
+
+\subsection{\texorpdfstring{\(\eta=0\)}{η=0} 时的确定性生成}
+
+\subsection{时间步子序列与跳步采样}
+
+\subsection{DDIM 与 Probability Flow ODE 的连续时间联系}
+
+\section{Score-based SDE 的生成理论}
+
+\subsection{反向时间扩散过程的数学条件}
+
+\subsection{Reverse-time SDE 的推导\requiredderivation}
+
+\subsection{Probability Flow ODE 的推导\requiredderivation}
+\label{subsec:probability-flow}
+
+\subsection{SDE 与 ODE 共享边缘分布的证明\requiredderivation}
+
+\subsection{Predictor--Corrector 采样}
+
+\subsection{Langevin Corrector 的原理}
+
+\section{CNF 与 Flow Matching 的生成理论}
+
+\subsection{从学习的速度场构造初值 ODE}
+
+\subsection{流映射与概率密度演化}
+
+\subsection{生成轨迹与训练条件插值路径的区别}
+
+\subsection{密度变化及对数似然计算}
+
+\subsection{流的可逆性、存在性与唯一性}
+
+\section{Rectified Flow 的生成理论}
+
+\subsection{速度场定义下的 ODE 生成}
+
+\subsection{直线插值与非直线真实轨迹}
+
+\subsection{轨迹曲率与数值积分误差}
+
+\subsection{Reflow 后的采样}
+
+\subsection{少步生成与一步 Euler 近似的局限}
+
+\section{Schrödinger Bridge 的生成理论}
+
+\subsection{最优控制漂移的构造}
+
+\subsection{Doob \texorpdfstring{\(h\)}{h}-transform 的作用\requiredderivation}
+
+\subsection{正向与反向桥过程}
+
+\subsection{Schrödinger Bridge 的 Fokker--Planck 方程}
+
+\subsection{桥过程与参考扩散过程的区别}
+
+\subsection{端点分布约束与生成误差}
+
+\section{Stochastic Interpolants 的生成理论}
+
+\subsection{从插值边缘分布构造连续性方程}
+
+\subsection{与相同边缘分布对应的 ODE}
+
+\subsection{可调扩散强度下的 SDE 构造}
+
+\subsection{正向与反向随机生成过程}
+
+\subsection{确定性生成与随机生成的统一}
+
+\section{生成算法的数值分析}
+
+\subsection{Euler、Heun、Runge--Kutta 方法}
+
+\subsection{Euler--Maruyama 与随机数值方法}
+
+\subsection{局部截断误差与全局误差}
+
+\subsection{SDE 的强收敛与弱收敛}
+
+\subsection{求解器误差与模型估计误差}
+
+\subsection{时间步选择与自适应求解}
+
+\section{生成质量及计算复杂度}
+
+\subsection{采样步数、NFE 与计算成本}
+
+\subsection{训练目标误差对生成分布的影响}
+
+\subsection{KL、Wasserstein、MMD 等分布误差}
+
+\subsection{确定性与随机生成的质量比较}
+
+\subsection{生成稳定性、似然与样本多样性}

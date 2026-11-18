@@ -1,0 +1,30 @@
+% 在项目根目录编译：latexmk -xelatex main.tex
+\documentclass[language=chinese,margin=right]{lumenbook}
+
+\title{生成模型的数学理论}
+\subtitle{概率路径、训练目标与生成动力学}
+\notebookseries{生成模型理论讲义}
+\author{}
+\date{第 0 章初稿}
+
+\newcommand{\requiredderivation}{\texorpdfstring{\enspace\ensuremath{\star}}{ *}}
+
+\begin{document}
+\frontmatter
+\maketitle
+\tableofcontents
+\input{frontmatter/derivation-guide}
+
+\mainmatter
+% 第 0 章对应 README 的 Part 0；其余章节按顺序自动编号。
+\setcounter{chapter}{-1}
+\include{chapters/00-foundations}
+\include{chapters/01-model-overview}
+\include{chapters/02-training}
+\include{chapters/03-generation}
+\include{chapters/04-score-velocity-drift}
+\include{chapters/05-unified-theory}
+
+\backmatter
+\input{references}
+\end{document}

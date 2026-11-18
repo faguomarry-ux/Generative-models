@@ -1,0 +1,97 @@
+\chapter{各生成模型的训练---生成整体框架}
+
+\section{DDPM：离散扩散概率模型}
+
+\subsection{原始数据、噪声先验与离散时间链}
+
+\subsection{前向加噪马尔可夫过程}
+
+\subsection{噪声预测网络与训练损失}
+
+\subsection{反向去噪马尔可夫链}
+
+\subsection{DDPM 的完整训练与生成算法}
+
+\section{DDIM：隐式扩散生成模型}
+
+\subsection{DDIM 与 DDPM 的共同训练目标}
+
+\subsection{非马尔可夫前向过程}
+
+\subsection{确定性与随机采样参数}
+
+\subsection{时间步跳跃与采样加速}
+
+\subsection{DDPM 与 DDIM 的核心差异}
+
+\section{Score-based Diffusion / Score SDE}
+
+\subsection{Score-based 生成模型的基本思想}
+
+\subsection{VE、VP、sub-VP 等正向 SDE}
+
+\subsection{Score 网络的训练目标}
+
+\subsection{Reverse-time SDE 生成}
+
+\subsection{Probability Flow ODE 生成}
+
+\section{Continuous Normalizing Flow}
+
+\subsection{Normalizing Flow 与可逆映射}
+
+\subsection{连续时间流映射}
+
+\subsection{速度场参数化}
+
+\subsection{CNF 的似然训练}
+
+\subsection{CNF 的 ODE 采样}
+
+\section{Flow Matching 与 Conditional Flow Matching}
+
+\subsection{概率路径设计}
+
+\subsection{条件概率路径与条件速度场}
+
+\subsection{FM 与 CFM 的损失函数}
+
+\subsection{条件训练与边缘速度场之间的关系}
+
+\subsection{训练阶段与生成阶段的区别}
+
+\section{Rectified Flow 与 OT-CFM}
+
+\subsection{线性随机插值}
+
+\subsection{Rectified Flow 的速度回归}
+
+\subsection{Reflow 与轨迹整直}
+
+\subsection{独立耦合与 OT 耦合}
+
+\subsection{路径几何与生成步数的关系}
+
+\section{Schrödinger Bridge}
+
+\subsection{给定初始分布与终端分布的桥接问题}
+
+\subsection{参考随机过程与路径空间 KL 最小化}
+
+\subsection{Schrödinger Potentials}
+
+\subsection{正向与反向动力学}
+
+\subsection{Diffusion Schrödinger Bridge 的训练与生成流程}
+
+\section{Stochastic Interpolants}
+
+\subsection{两个端点随机变量的联合耦合}
+
+\subsection{随机插值路径的定义}
+
+\subsection{速度场与 Score 的学习}
+
+\subsection{对应的 ODE 与 SDE 生成}
+
+\subsection{与 Flow Matching 和 Diffusion Models 的关系}

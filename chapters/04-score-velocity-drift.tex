@@ -1,0 +1,101 @@
+\chapter{Score、Velocity、Drift 的计算、估计与相互转换}
+
+\section{Score 函数的基本理论}
+
+\subsection{Score 的定义及几何意义}
+
+\subsection{高斯分布 Score 的显式计算\requiredderivation}
+
+\subsection{条件 Score 与边缘 Score}
+
+\subsection{Score 的积分恒等式}
+
+\subsection{Score 在概率密度高维估计中的作用}
+
+\section{Score Matching 的数学推导}
+
+\subsection{Fisher Divergence 展开}
+
+\subsection{分部积分消除未知真实 Score\requiredderivation}
+
+\subsection{Denoising Score Matching 的条件期望推导\requiredderivation}
+
+\subsection{Sliced Score Matching}
+
+\subsection{隐式与显式 Score Matching 的区别}
+
+\section{Score 与噪声预测之间的关系}
+
+\subsection{高斯扰动核的条件 Score}
+
+\subsection{噪声预测网络的最优目标}
+
+\subsection{Tweedie 公式的推导\requiredderivation}
+\label{subsec:tweedie}
+
+\subsection{Score、Noise 与 Clean Data 之间的转换}
+
+\subsection{DDPM 中的 \texorpdfstring{\(v\)}{v}-prediction 与 Flow Velocity 的区别}
+
+\section{Velocity Field 的数学推导}
+
+\subsection{速度场的定义与连续性方程}
+
+\subsection{条件速度与边缘速度的关系}
+
+\subsection{高斯条件路径的速度目标\requiredderivation}
+
+\subsection{Flow Matching 速度场的条件期望表示}
+
+\subsection{速度场的非唯一性与规范选择}
+
+\section{Drift Field 与 Score 的关系}
+
+\subsection{SDE 中 Drift 的定义}
+
+\subsection{Drift、Diffusion 与概率流}
+
+\subsection{各向同性时 Drift 与 Velocity 的转换\requiredderivation}
+
+\subsection{状态依赖各向异性扩散中的修正项\requiredderivation}
+\label{subsec:anisotropic-current}
+
+\subsection{反向 SDE 中的 Score 修正}
+
+\section{Flow Matching 与 Score Matching 的联系}
+
+\subsection{高斯插值路径的 Score}
+
+\subsection{高斯插值路径的 Velocity}
+
+\subsection{在非退化条件下由 Score 表示 Velocity\requiredderivation}
+
+\subsection{由 Velocity 恢复 Score 的条件}
+
+\subsection{Flow Matching 与 Diffusion 共享概率路径的构造}
+
+\section{Schrödinger Bridge 中的 Score 与漂移}
+
+\subsection{Schrödinger Potentials 的对数梯度}
+
+\subsection{最优控制 Drift 的表示}
+
+\subsection{正向与反向漂移的关系}
+
+\subsection{桥过程 Score 与边缘密度}
+
+\subsection{Score 估计误差对桥接过程的影响}
+
+\section{Score 及向量场的计算实现}
+
+\subsection{已知解析密度时的自动微分}
+
+\subsection{未知密度时的神经网络估计}
+
+\subsection{条件样本回归与 Monte Carlo 估计}
+
+\subsection{向量场的 Jacobian、散度与 Hessian}
+
+\subsection{高维散度估计与 Hutchinson 方法}
+
+\subsection{Score 与 Velocity 的数值验证}

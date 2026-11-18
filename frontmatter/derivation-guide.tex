@@ -1,0 +1,14 @@
+\chapter{核心推导索引}
+
+全书的端点约定、时间方向和原论文记号对照见第~\ref{sec:notation}~节。
+带 \(\star\) 的小节安排完整推导。以下六组推导按主题链接至相应小节。
+\mn{\marginheading{推导记录}先列出假设与所用恒等式，再逐步推导。涉及时间反演时，写明时间方向及相应的初始分布。}
+
+\begin{description}[leftmargin=2em,labelsep=0.7em,itemsep=0.7em]
+  \item[A] DDPM 任意时间步的闭式加噪分布（第~\ref{subsec:ddpm-forward-marginal}~小节）
+  \item[B] 噪声预测与边缘 Score 的关系（第~\ref{subsec:tweedie}~小节）
+  \item[C] 从 Fokker--Planck 方程构造概率流 ODE（第~\ref{subsec:probability-flow}~小节）
+  \item[D] Flow Matching 的条件速度回归（第~\ref{subsec:cfm-loss}~小节）
+  \item[E] 各向异性扩散的概率流速度（第~\ref{subsec:anisotropic-current}~小节）
+  \item[F] Schrödinger Bridge 的路径相对熵与控制代价（第~\ref{subsec:girsanov-cost}~小节）
+\end{description}

@@ -1,0 +1,108 @@
+\chapter{训练阶段的理论与数学推导}
+
+\section{DDPM 的训练理论}
+
+\subsection{前向马尔可夫链的联合概率分解}
+
+\subsection{\texorpdfstring{\(q(x_t\mid x_0)\)}{q(x\_t | x\_0)} 的闭式推导\requiredderivation}
+\label{subsec:ddpm-forward-marginal}
+
+\subsection{\texorpdfstring{\(q(x_{t-1}\mid x_t,x_0)\)}{q(x\_(t-1) | x\_t,x\_0)} 的后验推导\requiredderivation}
+
+\subsection{ELBO 的构造、KL 项分解与化简\requiredderivation}
+
+\subsection{从 ELBO 到噪声预测 MSE 损失\requiredderivation}
+
+\subsection{\texorpdfstring{\(\epsilon\)}{ε}-prediction、\texorpdfstring{\(x_0\)}{x\_0}-prediction 与 \texorpdfstring{\(v\)}{v}-prediction}
+
+\section{DDIM 的训练理论}
+
+\subsection{共享 DDPM 边缘加噪分布的条件}
+
+\subsection{非马尔可夫前向联合分布的构造}
+
+\subsection{DDIM 训练目标与 DDPM 简化损失的联系}
+
+\subsection{不同路径与相同边缘分布的区别}
+
+\subsection{采样方式改变是否要求重新训练}
+
+\section{Score-based Models 的训练理论}
+
+\subsection{Fisher Divergence 与 Score Matching}
+
+\subsection{Hyvärinen Score Matching 的推导\requiredderivation}
+
+\subsection{Denoising Score Matching 的推导\requiredderivation}
+
+\subsection{多噪声尺度与连续时间损失}
+
+\subsection{时间权重与网络优化目标}
+
+\section{Flow Matching 的训练理论}
+
+\subsection{连续性方程约束下的速度场学习}
+
+\subsection{概率路径 \texorpdfstring{\(p_t\)}{p\_t} 的指定}
+
+\subsection{边缘速度场与条件速度场}
+
+\subsection{Flow Matching 理想损失的推导}
+
+\subsection{Conditional Flow Matching 损失的推导\requiredderivation}
+\label{subsec:cfm-loss}
+
+\subsection{CFM 与 FM 梯度等价的证明\requiredderivation}
+
+\section{Rectified Flow 与 OT-CFM 的训练理论}
+
+\subsection{线性插值的条件速度目标}
+
+\subsection{直线插值与真实 ODE 轨迹的区别}
+
+\subsection{Rectified Flow 的条件期望表达式\requiredderivation}
+
+\subsection{轨迹整直的理论与 Reflow}
+
+\subsection{最优耦合与训练目标之间的关系}
+
+\section{Schrödinger Bridge 的训练理论}
+
+\subsection{路径空间相对熵的定义}
+
+\subsection{Schrödinger Bridge 约束优化问题}
+
+\subsection{Girsanov 定理与漂移控制代价\requiredderivation}
+\label{subsec:girsanov-cost}
+
+\subsection{Schrödinger 系统及其势函数}
+
+\subsection{Iterative Proportional Fitting（IPF）}
+
+\subsection{Diffusion Schrödinger Bridge 的迭代训练}
+
+\section{Stochastic Interpolants 的训练理论}
+
+\subsection{随机插值函数及端点条件}
+
+\subsection{插值变量的时间导数}
+
+\subsection{速度场的条件期望表示\requiredderivation}
+
+\subsection{Score 的条件回归表示}
+
+\subsection{二次回归损失与其最优解\requiredderivation}
+
+\subsection{不同耦合与随机插值系数的影响}
+
+\section{训练目标之间的等价性与差异}
+
+\subsection{噪声预测与 Score Matching}
+
+\subsection{Score Matching 与 Denoising Score Matching}
+
+\subsection{Flow Matching 与 Conditional Flow Matching}
+
+\subsection{Drift Matching、Velocity Matching 与 Score Matching}
+
+\subsection{各类训练目标的适用条件与不等价情形}
