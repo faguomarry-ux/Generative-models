@@ -12,6 +12,8 @@
 
 **自动发布 PDF**　[最新 Release](https://github.com/faguomarry-ux/Generative-models/releases/tag/latest) · [完整讲义下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study.pdf) · [快速版下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study-quick.pdf) · [构建记录](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml)。
 
+[![PDF 自动发布状态](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml/badge.svg?branch=main)](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml)
+
 <a name="contents"></a>
 
 ## 章节目录
