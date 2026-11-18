@@ -1,0 +1,1365 @@
+# 第 0 章　统一数学基础与符号体系
+
+[返回项目目录](../README.md#contents) · [PDF 版](../output/pdf/model-study.pdf) · [LaTeX 源码](../chapters/00-foundations.tex)
+
+[0.1 概率论与条件概率](#sec-0-1) · [0.2 确定性动力系统与概率输运](#sec-0-2) · [0.3 随机过程与随机微分方程](#sec-0-3) · [0.4 Fokker–Planck 方程](#sec-0-4) · [0.5 最优传输与变分方法](#sec-0-5) · [0.6 统一时间与符号约定](#sec-0-6)
+
+设 $`X_t\in\mathbb{R}^d`$，以 $`\mu_t`$ 表示它的概率律。有 Lebesgue 密度时，记
+$`\mu_t(\mathop{}\!\mathrm{d} x)=p_t(x)\,\mathop{}\!\mathrm{d} x`$。全书以 $`t\in[0,1]`$ 表示从数据到噪声的时间，
+以 $`\tau=1-t`$ 表示从噪声到数据的生成时间。令 $`Y_\tau=X_{1-\tau}`$，记其密度为
+$`\rho_\tau=p_{1-\tau}`$。实际模型的端点近似与论文记号对照见第 [0.6](#sec-0-6) 节。
+
+> **边注 · 端点约定**
+>
+> 正文中的 $`X_0`$ 是数据，$`X_1`$ 是噪声端点。采样从 $`Y_0`$ 出发， 在 $`Y_1`$ 得到生成样本。
+
+**学习目标**
+
+- 从条件期望的正交投影性质推导噪声回归与速度回归的理想最优解。
+- 从 ODE 流和 Itô 公式分别推导连续性方程与 Fokker–Planck 方程。
+- 从反向转移核推导反向漂移，说明概率流 ODE 的边缘等价条件。
+- 用耦合、动能和路径相对熵区分最优传输、熵正则化与 Schrödinger Bridge。
+
+<a name="sec-0-1"></a>
+
+## 0.1 概率论与条件概率
+
+<a name="sec-0-1-1"></a>
+
+### 0.1.1 随机变量、概率密度、联合分布与边缘分布
+
+在概率空间 $`(\Omega,\mathcal F,\mathbb P)`$ 上，随机向量 $`X`$ 是取值于
+$`\mathbb{R}^d`$ 的可测映射。其概率律 $`\mu_X`$ 由
+$`\mu_X(A)=\mathbb P(X\in A)`$ 定义。若 $`\mu_X`$ 对 Lebesgue 测度绝对连续，
+密度 $`p_X`$ 满足
+
+```math
+\mathbb P(X\in A)=\int_A p_X(x)\,\mathop{}\!\mathrm{d} x,\qquad
+p_X\ge 0,\qquad \int_{\mathbb{R}^d} p_X(x)\,\mathop{}\!\mathrm{d} x=1.
+```
+
+若 $`(X,Z)`$ 有联合密度 $`p_{X,Z}`$，积分消去 $`Z`$ 得
+$`p_X(x)=\int p_{X,Z}(x,z)\,\mathop{}\!\mathrm{d} z`$。同一对边缘律可以对应多种联合律。
+例如 $`X,Z`$ 各服从标准高斯时，既可以独立采样，也可以取 $`Z=X`$。
+后一种联合律集中在对角线上，仍具有两个高斯边缘，但没有联合 Lebesgue 密度。
+生成建模中的数据分布可以是经验测度。因此定义路径端点时用 $`\mu_0`$，
+讨论 Score 时再明确 $`p_t`$ 的存在与可微性。
+
+<a name="sec-0-1-2"></a>
+
+### 0.1.2 条件概率密度、Bayes 公式与全概率公式
+
+若联合密度存在，则在 $`p_Z(z)>0`$ 处可取
+
+```math
+p_{X\mid Z}(x\mid z)=\frac{p_{X,Z}(x,z)}{p_Z(z)}.
+```
+
+用一般的条件概率核 $`\mu_{X\mid Z=z}`$ 可以处理离散标签或奇异边缘。
+对可测集合 $`A`$，全概率公式为
+$`\mu_X(A)=\int\mu_{X\mid Z=z}(A)\,\mu_Z(\mathop{}\!\mathrm{d} z)`$。
+如果条件核有密度 $`k(x\mid z)`$，由 Tonelli 定理得到
+
+<a name="eq-foundations-bayes"></a>
+
+```math
+\begin{aligned}
+p_X(x)&=\int k(x\mid z)\,\mu_Z(\mathop{}\!\mathrm{d} z),\\
+\mu_{Z\mid X=x}(\mathop{}\!\mathrm{d} z)&=\frac{k(x\mid z)}{p_X(x)}\,\mu_Z(\mathop{}\!\mathrm{d} z)
+\quad (p_X(x)>0).
+\end{aligned}
+\tag{0.1}
+```
+
+第二式可由右侧乘回 $`p_X(x)\,\mathop{}\!\mathrm{d} x`$ 并与联合律比较得到。
+对加噪核 $`k_t(x\mid x_0)`$，它把训练时能采样的条件分布
+与生成时所需的边缘统计量联系起来。若 $`k_t`$ 关于 $`x`$ 可微，
+且导数受可积函数控制以便交换积分和微分，则
+
+<a name="eq-foundations-score-identity"></a>
+
+```math
+\begin{align}
+\nabla_x p_t(x)
+&=\int \nabla_x k_t(x\mid x_0)\,\mu_0(\mathop{}\!\mathrm{d} x_0), \notag\\
+s_t(x):=\nabla_x\log p_t(x)
+&=\mathbb E[\nabla_x\log k_t(x\mid X_0)\mid X_t=x].
+\tag{0.2}
+\end{align}
+```
+
+第二式在 $`p_t(x)>0`$ 且条件 Score 有定义并可积时成立，
+其中将 $`\nabla k_t=k_t\nabla\log k_t`$ 代入第一式再使用
+[(0.1)](#eq-foundations-bayes)。
+
+<a name="sec-0-1-3"></a>
+
+### 0.1.3 数学期望、条件期望与条件期望的投影性质 ★
+
+对可积向量 $`U`$，以 $`Z`$ 为条件的期望 $`m(Z)=\mathbb E[U\mid Z]`$
+是 $`\sigma(Z)`$-可测向量，满足
+$`\mathbb E[m(Z)\mathbf 1_A]=\mathbb E[U\mathbf 1_A]`$
+对所有 $`A\in\sigma(Z)`$ 成立。取 $`A=\Omega`$ 得到平均值守恒
+$`\mathbb E\,m(Z)=\mathbb E\,U`$。
+当 $`U\in L^2`$ 时，由条件 Jensen 不等式可知 $`m(Z)\in L^2`$。
+
+**命题 · 条件均值最小化均方误差**
+
+对任意平方可积的 $`h(Z)`$，有
+
+<a name="eq-foundations-regression"></a>
+
+```math
+\mathbb E\lVert U-h(Z) \rVert^2
+=\mathbb E\lVert U-m(Z) \rVert^2
++\mathbb E\lVert m(Z)-h(Z) \rVert^2.
+\tag{0.3}
+```
+
+因此最优回归函数在 $`Z`$ 的概率律下几乎处处唯一，等于条件均值。
+
+**证明**
+
+将误差写成 $`[U-m(Z)]+[m(Z)-h(Z)]`$，展开平方。
+记 $`H=m(Z)-h(Z)`$。若 $`H`$ 有界，则逐分量条件化得
+$`\mathbb E[(U-m(Z))^\top H] =\mathbb E\{H^\top\mathbb E[U-m(Z)\mid Z]\}=0`$。
+一般 $`H\in L^2`$ 可用有界截断逼近，Cauchy–Schwarz 不等式保证内积收敛。
+于是交叉项消失，得到 [(0.3)](#eq-foundations-regression)。
+
+训练时常取 $`Z=(t,X_t)`$。在噪声预测中取 $`U=\varepsilon`$，在速度回归中取
+$`U=\dot X_t`$（指可微的条件插值样本）。后者的均方误差比拟合
+$`\mathbb E[\dot X_t\mid X_t,t]`$ 多出一个与预测器无关的项。
+这也解释了为何每次只采一条条件路径，回归的理想目标仍是边缘速度场。
+
+<a name="sec-0-1-4"></a>
+
+### 0.1.4 高斯分布、多元高斯分布与条件高斯分布 ★
+
+若 $`X\sim\mathcal N(m,\Sigma)`$ 且 $`\Sigma`$ 正定，则
+
+```math
+p_X(x)=\frac{\exp[-(x-m)^\top\Sigma^{-1}(x-m)/2]}
+{(2\pi)^{d/2}(\det\Sigma)^{1/2}},
+\qquad \nabla\log p_X(x)=-\Sigma^{-1}(x-m).
+```
+
+若 $`\Sigma`$ 半正定，可由 $`m+\Sigma^{1/2}\xi`$ 定义该高斯律，
+其中 $`\xi\sim\mathcal N(0,I_d)`$。当 $`\Sigma`$ 奇异时，
+这个表示仍然成立，Lebesgue 密度公式只适用于正定情形。
+
+设 $`(U,V)`$ 联合高斯，均值为 $`(m_U,m_V)`$，其协方差为
+
+```math
+\begin{pmatrix}\Sigma_{UU}&\Sigma_{UV}\\\Sigma_{VU}&\Sigma_{VV}\end{pmatrix},
+\qquad \Sigma_{VV}\text{ 正定。}
+```
+
+令 $`B=\Sigma_{UV}\Sigma_{VV}^{-1}`$ 并定义
+$`R=U-m_U-B(V-m_V)`$。直接计算
+
+```math
+\operatorname{Cov}(R,V)=\Sigma_{UV}-B\Sigma_{VV}=0,\quad
+\operatorname{Cov}(R)=\Sigma_{UU}-\Sigma_{UV}\Sigma_{VV}^{-1}\Sigma_{VU}.
+```
+
+因为 $`(R,V)`$ 仍是联合高斯，零交叉协方差使其联合特征函数分解，
+故 $`R`$ 与 $`V`$ 独立。给定 $`V=v`$ 即得
+
+<a name="eq-foundations-conditional-gaussian"></a>
+
+```math
+U\mid V=v\sim\mathcal N\bigl(
+m_U+B(v-m_V),\
+\Sigma_{UU}-\Sigma_{UV}\Sigma_{VV}^{-1}\Sigma_{VU}
+\bigr).
+\tag{0.4}
+```
+
+**例 · 高斯加噪与去噪回归**
+
+令 $`X_t=\alpha_tX_0+\sigma_t\varepsilon`$，其中
+$`\varepsilon\sim\mathcal N(0,I_d)`$ 与 $`X_0`$ 独立，且 $`\sigma_t>0`$。
+给定 $`X_0=x_0`$ 即得 $`k_t(\cdot\mid x_0)=\mathcal N(\alpha_tx_0,\sigma_t^2I_d)`$。
+将该高斯的 Score 代入 [(0.2)](#eq-foundations-score-identity) 得
+
+<a name="eq-foundations-score-noise"></a>
+<a name="eq-foundations-tweedie"></a>
+
+```math
+\begin{align}
+s_t(x)
+&=-\frac{1}{\sigma_t}\,\mathbb E[\varepsilon\mid X_t=x],
+\tag{0.5}\\
+\mathbb E[X_0\mid X_t=x]
+&=\frac{x+\sigma_t^2s_t(x)}{\alpha_t}
+\quad(\alpha_t\ne 0).
+\tag{0.6}
+\end{align}
+```
+
+第二式来自 $`x=\alpha_t\mathbb E[X_0\mid X_t=x]+\sigma_t\mathbb E[\varepsilon\mid X_t=x]`$，
+在 $`X_0`$ 可积时使用。这些公式允许 $`X_0`$ 非高斯。
+若另有 $`X_0\sim\mathcal N(m,\Sigma)`$，记 $`S_t=\alpha_t^2\Sigma+\sigma_t^2I_d`$，
+则 $`s_t(x)=-S_t^{-1}(x-\alpha_tm)`$。将其代回
+[(0.6)](#eq-foundations-tweedie) 得
+
+```math
+\mathbb E[X_0\mid X_t=x]
+=m+\alpha_t\Sigma S_t^{-1}(x-\alpha_tm).
+```
+
+这也由 [(0.4)](#eq-foundations-conditional-gaussian) 给出，因为
+$`\operatorname{Cov}(X_0,X_t)=\alpha_t\Sigma`$。
+
+<a name="sec-0-1-5"></a>
+
+### 0.1.5 KL 散度、相对熵、交叉熵与变分下界 ★
+
+若 $`P\ll Q`$，相对熵定义为
+$`D_{\mathrm{KL}}(P\|Q)=\int r\log r\,\mathop{}\!\mathrm{d} Q`$，其中
+$`r=\mathop{}\!\mathrm{d} P/\mathop{}\!\mathrm{d} Q`$ 且 $`0\log 0=0`$。若 $`P\not\ll Q`$，定义值为 $`+\infty`$。
+由 $`r\log r-r+1\ge0`$ 及 $`\int r\,\mathop{}\!\mathrm{d} Q=1`$ 得 $`D_{\mathrm{KL}}\ge0`$，
+等号当且仅当 $`P=Q`$。有密度且相关积分有限时，
+
+```math
+\begin{gathered}
+H(p)=-\int p\log p\,\mathop{}\!\mathrm{d} x,\qquad H(p,q)=-\int p\log q\,\mathop{}\!\mathrm{d} x,\\
+D_{\mathrm{KL}}(p\|q)=H(p,q)-H(p).
+\end{gathered}
+```
+
+连续变量的微分熵 $`H(p)`$ 可以为负。期望负对数似然是交叉熵。
+在数据密度固定且上述分解有限时，它与最小化 $`D_{\mathrm{KL}}(p\|q)`$
+拥有相同的最优解。
+
+为计算高斯 KL，令 $`P=\mathcal N(m_P,\Sigma_P)`$，
+$`Q=\mathcal N(m_Q,\Sigma_Q)`$，两协方差均正定。
+把高斯对数密度相减后取 $`P`$ 期望。对 $`X\sim P`$，
+
+```math
+\begin{aligned}
+\mathbb E[(X-m_P)^\top\Sigma_P^{-1}(X-m_P)] &=d,\\
+\mathbb E[(X-m_Q)^\top\Sigma_Q^{-1}(X-m_Q)]
+&=\operatorname{tr}(\Sigma_Q^{-1}\Sigma_P)\\
+&\quad+\lVert \Sigma_Q^{-1/2}(m_P-m_Q) \rVert^2 .
+\end{aligned}
+```
+
+后一式先把 $`X-m_Q`$ 分解为 $`X-m_P`$ 与均值差，再用中心项期望为零。
+因此
+
+<a name="eq-foundations-gaussian-kl"></a>
+
+```math
+D_{\mathrm{KL}}(P\|Q)=\frac12\left[
+\log\frac{\det\Sigma_Q}{\det\Sigma_P}
++\operatorname{tr}(\Sigma_Q^{-1}\Sigma_P)-d
++\lVert \Sigma_Q^{-1/2}(m_P-m_Q) \rVert^2
+\right].
+\tag{0.7}
+```
+
+例如两者协方差同为 $`\sigma^2 I_d`$ 时，仅余
+$`\lVert m_P-m_Q \rVert^2/(2\sigma^2)`$，这是固定反向方差的 DDPM 训练项
+化为带权均方误差的原因之一 〔[1](#ref-ho2020ddpm)〕。
+
+设 $`p_\theta(x,z)`$ 是潜变量模型，$`q(z\mid x)`$ 是辅助分布。
+当 $`p_\theta(x)>0`$，且 $`q(\cdot\mid x)\ll p_\theta(\cdot\mid x)`$、
+下列各项有限时，将分子写成 $`p_\theta(x)p_\theta(z\mid x)`$ 得到
+
+<a name="eq-foundations-elbo"></a>
+
+```math
+\begin{align}
+\mathcal E_\theta(x;q)
+&:=\mathbb E_{q(z\mid x)}
+[\log p_\theta(x,z)-\log q(z\mid x)] \notag\\
+&=\log p_\theta(x)
+-D_{\mathrm{KL}}(q(\cdot\mid x)\|p_\theta(\cdot\mid x))
+\ \le\ \log p_\theta(x).
+\tag{0.8}
+\end{align}
+```
+
+这就是证据下界（ELBO）。取 $`x=x_0`$、$`z=x_{1:K}`$ 时，
+DDPM 用前向加噪路径作为辅助分布。后续章节将利用两条链的概率分解
+逐项展开这个下界。
+
+<a name="sec-0-2"></a>
+
+## 0.2 确定性动力系统与概率输运
+
+<a name="sec-0-2-1"></a>
+
+### 0.2.1 常微分方程与时间依赖向量场
+
+在数据到噪声的 $`t`$ 坐标中，以 $`u_t:\mathbb{R}^d\to\mathbb{R}^d`$ 表示确定性速度场，
+考虑初值问题
+
+<a name="eq-foundations-ode-initial"></a>
+
+```math
+\dot X_t=u_t(X_t),\qquad X_s=x,\qquad
+X_t=x+\int_s^t u_r(X_r)\,\mathop{}\!\mathrm{d} r .
+\tag{0.9}
+```
+
+例如假设 $`u_t(x)`$ 关于 $`(t,x)`$ 连续、空间上一致全局 Lipschitz，
+并且 $`u_t(0)`$ 在时间区间有界。Picard 迭代给出局部解，
+线性增长界使解可以延拓到闭区间。若 Lipschitz 常数为 $`L`$，
+从积分方程相减并用 Grönwall 不等式得到
+
+```math
+\lVert \Phi_{s,t}(x)-\Phi_{s,t}(y) \rVert
+\le e^{L|t-s|}\lVert x-y \rVert,
+```
+
+其中 $`\Phi_{s,t}(x)`$ 表示在时刻 $`s`$ 取值 $`x`$ 的解在时刻 $`t`$ 的值。
+该估计同时给出唯一性和对初值的稳定性。若场只有局部 Lipschitz 性，
+还需要额外的非爆炸条件才能得到全局流。
+
+<a name="sec-0-2-2"></a>
+
+### 0.2.2 流映射、轨迹、初值问题与终值问题
+
+唯一性给出
+$`\Phi_{s,s}=\mathrm{id}`$、
+$`\Phi_{r,t}\circ\Phi_{s,r}=\Phi_{s,t}`$ 和 $`\Phi_{s,t}^{-1}=\Phi_{t,s}`$。
+这里的第一个下标始终表示输入时刻。实际生成可以把已知的 $`X_1=z`$ 作为
+[(0.9)](#eq-foundations-ode-initial) 的终值，从 $`t=1`$ 积分到 $`t=0`$。
+令 $`Y_\tau=X_{1-\tau}`$，链式法则给出等价的正步长初值问题
+
+<a name="eq-foundations-velocity-reversal"></a>
+
+```math
+\frac{\mathop{}\!\mathrm{d} Y_\tau}{\mathop{}\!\mathrm{d}\tau}=v_\tau(Y_\tau),\qquad
+v_\tau(x)=-u_{1-\tau}(x),\qquad Y_0=z .
+\tag{0.10}
+```
+
+例如 $`u_t(x)=b(t)x`$ 时，$`\Phi_{s,t}(x)=\exp(\int_s^t b(r)\,\mathop{}\!\mathrm{d} r)x`$。
+把积分上下限交换就得到反向流，与将速度取负后用 $`\tau`$ 正向积分一致。
+
+<a name="sec-0-2-3"></a>
+
+### 0.2.3 概率密度的 Pushforward 与变量变换
+
+给定 $`X_s\sim\mu_s`$，随机初值经过确定性映射后
+$`\mu_t=(\Phi_{s,t})_\#\mu_s`$。
+这里 $`(F_\#\mu)(A)=\mu(F^{-1}(A))`$，等价地
+
+```math
+\int\varphi(y)\,(F_\#\mu)(\mathop{}\!\mathrm{d} y)=\int\varphi(F(x))\,\mu(\mathop{}\!\mathrm{d} x)
+```
+
+对任意有界可测函数 $`\varphi`$ 成立。
+若 $`F=\Phi_{s,t}`$ 是 $`C^1`$ 微分同胚且 $`\mu_s`$ 有密度，
+将右侧积分作变量替换 $`y=F(x)`$，得到
+
+<a name="eq-foundations-change-variables"></a>
+
+```math
+p_t(y)=p_s(\Phi_{t,s}(y))\,\lvert \det D_y\Phi_{t,s}(y) \rvert .
+\tag{0.11}
+```
+
+例如 $`F(x)=b x`$ 且 $`b>0`$，则 $`p_t(y)=b^{-d}p_s(y/b)`$，
+其中 $`b^{-d}`$ 正好补偿 $`d`$ 维体积扩大 $`b^d`$ 倍。
+推前定义也适用于奇异测度。若整个流在端点都是微分同胚，
+一个有密度的噪声律经该流仍有密度。若目标是有限训练集的经验测度，
+精确抵达该端点须允许端点极限或改用经过平滑的连续目标。
+
+<a name="sec-0-2-4"></a>
+
+### 0.2.4 连续性方程与 Liouville 方程 ★
+
+取 $`\varphi\in C_c^\infty(\mathbb{R}^d)`$。在可交换期望与时间微分的条件下，
+沿 ODE 轨迹用链式法则得到
+
+<a name="eq-foundations-continuity-weak"></a>
+
+```math
+\begin{align}
+\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\int \varphi(x)\,\mu_t(\mathop{}\!\mathrm{d} x)
+&=\mathbb E[\nabla\varphi(X_t)\cdot u_t(X_t)]\notag\\
+&=\int \nabla\varphi(x)\cdot u_t(x)\,\mu_t(\mathop{}\!\mathrm{d} x).
+\tag{0.12}
+\end{align}
+```
+
+这给出了连续性方程的弱形式，即使 $`\mu_t`$ 没有密度也可使用。
+若 $`\mu_t=p_t\,\mathop{}\!\mathrm{d} x`$ 且 $`p_t`$ 光滑，对第二行作空间分部积分，
+由于 $`\varphi`$ 紧支撑，无需保留边界项。比较任意测试函数得到
+
+<a name="eq-foundations-continuity"></a>
+
+```math
+\boxed{\partial_t p_t+\nabla\cdot(p_tu_t)=0.}
+\tag{0.13}
+```
+
+把乘积求导展开即
+$`\partial_t p_t+u_t\cdot\nabla p_t=-(\nabla\cdot u_t)p_t`$。
+这是密度沿特征线演化的 Liouville 形式。若 $`u_t`$ 无散度，
+密度值沿轨迹保持恒定。
+
+对给定的可微随机插值 $`I_t`$，同样先计算
+$`\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\mathbb E[\varphi(I_t)] =\mathbb E[\nabla\varphi(I_t)\cdot\dot I_t]`$。
+若 $`\dot I_t`$ 的可积性允许上述交换，再以 $`I_t`$ 为条件，右侧变为
+$`\mathbb E[\nabla\varphi(I_t)\cdot\mathbb E[\dot I_t\mid I_t]]`$。
+所以令 $`u_t(x)=\mathbb E[\dot I_t\mid I_t=x]`$，插值边缘便满足
+[(0.12)](#eq-foundations-continuity-weak)。在相应 ODE 存在且
+连续性方程以给定初值唯一可解时，ODE 的边缘与插值边缘相同。
+生成时求解的是条件均值场的 ODE，训练插值的整条样本路径可以有不同的联合律
+〔[5](#ref-lipman2023fm), [8](#ref-albergo2025si)〕。
+
+<a name="sec-0-2-5"></a>
+
+### 0.2.5 Jacobian 行列式与瞬时变量变换公式 ★
+
+进一步假设 $`u_t`$ 对 $`x`$ 连续可微，空间导数有界。固定初值 $`x`$，
+记 $`A_t=D_x\Phi_{s,t}(x)`$，对 ODE 关于 $`x`$ 求导得到变分方程
+$`\dot A_t=(D u_t)(\Phi_{s,t}(x))A_t`$，$`A_s=I_d`$。
+流有可微逆，故 $`\det A_t\ne0`$，由连续性和 $`\det A_s=1`$ 得
+$`\det A_t>0`$。Jacobi 公式和迹的循环性质给出
+
+```math
+\begin{aligned}
+\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\log\det A_t
+&=\operatorname{tr}(A_t^{-1}\dot A_t)\\
+&=\operatorname{tr}\bigl((D u_t)(\Phi_{s,t}(x))\bigr)
+=\nabla\cdot u_t(\Phi_{s,t}(x)).
+\end{aligned}
+```
+
+由 [(0.11)](#eq-foundations-change-variables)，
+$`p_t(\Phi_{s,t}(x))\det A_t=p_s(x)`$。
+在密度为正的轨迹上取对数并求导，得到连续归一化流的瞬时变量变换公式
+〔[4](#ref-chen2018neuralode)〕
+
+<a name="eq-foundations-instant-change"></a>
+
+```math
+\boxed{\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\log p_t(X_t)=-\nabla\cdot u_t(X_t).}
+\tag{0.14}
+```
+
+也可把 $`\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}p_t(X_t)=\partial_t p_t(X_t)+u_t(X_t)\cdot\nabla p_t(X_t)`$
+代入 [(0.13)](#eq-foundations-continuity)，得到同一结果。
+
+> **边注 · 似然的符号**
+>
+> 正向数据映射到噪声时，将散度积分加到终点对数密度上，即得到数据对数密度。
+
+若 CNF 把数据点 $`x_0`$ 映到 $`x_1=\Phi_{0,1}(x_0)`$，并指定了先验密度
+$`p_1=p_{\mathrm{prior}}`$，积分 [(0.14)](#eq-foundations-instant-change) 得
+
+<a name="eq-foundations-cnf-likelihood"></a>
+
+```math
+\log p_0(x_0)
+=\log p_{\mathrm{prior}}(x_1)+\int_0^1\nabla\cdot u_t(X_t)\,\mathop{}\!\mathrm{d} t .
+\tag{0.15}
+```
+
+用生成时钟写同一式，右侧变为
+$`\log p_{\mathrm{prior}}(Y_0)-\int_0^1\nabla\cdot v_\tau(Y_\tau)\,\mathop{}\!\mathrm{d}\tau`$，
+因为 $`\nabla\cdot v_\tau=-\nabla\cdot u_{1-\tau}`$。
+
+<a name="sec-0-3"></a>
+
+## 0.3 随机过程与随机微分方程
+
+<a name="sec-0-3-1"></a>
+
+### 0.3.1 Brownian Motion、Wiener 过程与马尔可夫过程
+
+设 $`(\mathcal F_t)_{0\le t\le1}`$ 是记录随时间累积信息的滤过。
+$`m`$ 维标准 Brownian 运动（Wiener 过程）$`W_t`$ 是适应于该滤过的连续过程，
+满足 $`W_0=0`$，且对 $`s<t`$，增量 $`W_t-W_s`$ 独立于 $`\mathcal F_s`$，
+服从 $`\mathcal N(0,(t-s)I_m)`$。于是
+$`\mathbb E[W_sW_t^\top]=\min(s,t)I_m`$，
+并且一步噪声的典型尺度为 $`\sqrt{t-s}`$。
+沿细分求和的二次变差满足
+$`[W^i,W^j]_t=\delta_{ij}t`$，其中对同一分量，
+每段增量平方的期望恰为该段长度。
+
+对时间非齐次马尔可夫过程，以 $`P_{s,t}(x,A)`$ 记从 $`(s,x)`$
+到时刻 $`t`$ 落入 $`A`$ 的概率。当已知当前状态 $`X_s`$ 时，
+未来的条件概率只由 $`s,X_s`$ 决定。由迭代条件期望得到
+
+```math
+P_{s,t}(x,A)=\int P_{r,t}(z,A)\,P_{s,r}(x,\mathop{}\!\mathrm{d} z),
+\qquad s\le r\le t .
+```
+
+这是 Chapman–Kolmogorov 方程。由初始律与这些核可依次构造有限维联合分布。
+每个时刻的边缘律只记录单时刻统计量，尚需转移核才能确定这些联合分布。
+
+<a name="sec-0-3-2"></a>
+
+### 0.3.2 Itô 积分与 Itô 公式
+
+对简单适应过程 $`H_r=\sum_k H_k\mathbf 1_{(t_k,t_{k+1}]}(r)`$，
+其中 $`H_k`$ 是 $`\mathcal F_{t_k}`$-可测的矩阵，定义
+$`\int H_r\,\mathop{}\!\mathrm{d} W_r=\sum_k H_k(W_{t_{k+1}}-W_{t_k})`$。
+每项先对 $`\mathcal F_{t_k}`$ 条件化可知其期望为零。
+当 $`i<j`$ 时，在内积的第 $`j`$ 项对 $`\mathcal F_{t_j}`$ 条件化，
+交叉项也为零。剩下的对角项等于
+$`\sum_k\mathbb E\lVert H_k \rVert_{\mathrm F}^2(t_{k+1}-t_k)`$。
+由此得到 Itô 等距
+
+```math
+\mathbb E\left\lVert\int_0^t H_r\,\mathop{}\!\mathrm{d} W_r\right\rVert^2
+=\mathbb E\int_0^t \lVert H_r \rVert_{\mathrm F}^2\,\mathop{}\!\mathrm{d} r .
+```
+
+它把积分连续延拓到平方可积的可预测过程。
+
+设 $`\mathop{}\!\mathrm{d} X_t=f_t(X_t)\,\mathop{}\!\mathrm{d} t+G_t(X_t)\,\mathop{}\!\mathrm{d} W_t`$，并记
+$`a_t(x)=G_t(x)G_t(x)^\top`$。在下式中，系数及导数均在 $`(t,X_t)`$ 求值。
+对于 $`\varphi\in C^{1,2}`$，Itô 公式为
+
+<a name="eq-foundations-ito"></a>
+
+```math
+\begin{aligned}
+\mathop{}\!\mathrm{d}\varphi(t,X_t)
+&=\left(\partial_t\varphi+f_t\cdot\nabla\varphi
++\tfrac12\operatorname{tr}(a_t D_x^2\varphi)\right)\mathop{}\!\mathrm{d} t\\
+&\quad+\nabla\varphi^\top G_t\,\mathop{}\!\mathrm{d} W_t .
+\end{aligned}
+\tag{0.16}
+```
+
+在 Taylor 展开中，$`\Delta W^i\Delta W^j`$ 沿细分求和产生
+$`\delta_{ij}\mathop{}\!\mathrm{d} t`$。因此 $`\Delta X^i\Delta X^j`$ 的累积项由
+$`(a_t)_{ij}\mathop{}\!\mathrm{d} t`$ 给出。作为符号检查，标量 Brownian 运动满足
+$`\mathop{}\!\mathrm{d}(W_t^2)=2W_t\,\mathop{}\!\mathrm{d} W_t+\mathop{}\!\mathrm{d} t`$，取期望便得到
+$`\mathbb E W_t^2=t`$。
+
+<a name="sec-0-3-3"></a>
+
+### 0.3.3 随机微分方程中 Drift 与 Diffusion 的含义
+
+Itô SDE 的积分形式是
+
+```math
+X_t=X_0+\int_0^t f_r(X_r)\,\mathop{}\!\mathrm{d} r+\int_0^t G_r(X_r)\,\mathop{}\!\mathrm{d} W_r .
+```
+
+若 $`f,G`$ 在空间上一致全局 Lipschitz、满足线性增长，且初值平方可积并与
+未来 Brownian 增量独立，则有唯一非爆炸强解。在足够连续且有相应矩界时，
+给定 $`X_t=x`$ 的短时间增量有展开
+
+```math
+\begin{aligned}
+\mathbb E[X_{t+h}-X_t\mid X_t=x] &= f_t(x)h+o(h),\\
+\operatorname{Cov}(X_{t+h}-X_t\mid X_t=x) &= a_t(x)h+o(h).
+\end{aligned}
+```
+
+第一式来自漂移积分与随机积分的零条件均值。
+第二式来自 Itô 等距及 $`G_{t+r}(X_{t+r})`$ 在短时内趋向 $`G_t(x)`$。
+漂移平方为 $`O(h^2)`$，漂移与噪声的交叉项为 $`o(h)`$。
+因此 $`f_t`$ 是局部平均增量率，$`G_t`$ 作用在 Brownian 增量上，
+$`a_t`$ 是局部协方差率。
+
+**例 · 方差保持扩散的条件分布**
+
+取 $`\beta(t)\ge0`$，令 $`B_t=\int_0^t\beta(r)\,\mathop{}\!\mathrm{d} r`$。
+对 $`\mathop{}\!\mathrm{d} X_t=-\frac12\beta(t)X_t\,\mathop{}\!\mathrm{d} t+\sqrt{\beta(t)}\,\mathop{}\!\mathrm{d} W_t`$，
+对 $`e^{B_t/2}X_t`$ 使用乘积法则，漂移抵消，得到
+
+```math
+X_t=e^{-B_t/2}X_0+
+e^{-B_t/2}\int_0^t e^{B_r/2}\sqrt{\beta(r)}\,\mathop{}\!\mathrm{d} W_r .
+```
+
+确定性被积函数使积分服从高斯律，且与 $`X_0`$ 独立。
+其在上式中的协方差为
+$`e^{-B_t}\int_0^t e^{B_r}\beta(r)\,\mathop{}\!\mathrm{d} r\,I_d=(1-e^{-B_t})I_d`$。
+因此 $`\alpha_t=e^{-B_t/2}`$、$`\sigma_t^2=1-e^{-B_t}`$，
+即 $`\alpha_t^2+\sigma_t^2=1`$。这给出 Score SDE 中 VP 扩散的条件核，
+并使标准高斯初始律在任意时刻保持标准高斯 〔[3](#ref-song2021sde)〕。
+
+<a name="sec-0-3-4"></a>
+
+### 0.3.4 SDE 的生成元与 Kolmogorov 方程
+
+对与时间无关的测试函数 $`\varphi`$，定义瞬时生成元
+$`\mathcal L_t\varphi=\lim_{h\downarrow0}(P_{t,t+h}\varphi-\varphi)/h`$，
+其中 $`P_{s,t}\varphi(x):=\int\varphi(y)P_{s,t}(x,\mathop{}\!\mathrm{d} y)`$。
+在允许对 Itô 公式取期望并取极限的条件下，
+
+<a name="eq-foundations-generator"></a>
+
+```math
+\mathcal L_t\varphi(x)
+=f_t(x)\cdot\nabla\varphi(x)
++\tfrac12\sum_{i,j=1}^d a_{ij}(x,t)\partial_{ij}\varphi(x).
+\tag{0.17}
+```
+
+固定观测时间 $`b`$ 和终值函数 $`\varphi`$，令 $`F(s,x)=P_{s,b}\varphi(x)`$。
+由 $`F(s,\cdot)=P_{s,s+h}F(s+h,\cdot)`$，
+在 $`F`$ 足够光滑时将右侧展开至一阶，得到后向 Kolmogorov 方程
+
+```math
+\partial_s F+\mathcal L_s F=0,\qquad F(b,x)=\varphi(x).
+```
+
+固定初始分布并演化终止时刻的律则得到前向方程。用
+$`\langle\varphi,\mu\rangle:=\int\varphi\,\mathop{}\!\mathrm{d}\mu`$ 表示配对，有
+$`\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\langle\varphi,\mu_t\rangle =\langle\mathcal L_t\varphi,\mu_t\rangle`$。
+密度形式 $`\partial_t p_t=\mathcal L_t^*p_t`$ 的各项在下一节逐项推出。
+后向 Kolmogorov 方程描述条件期望随输入时刻变化。下面的反向过程使用
+反向条件核，其漂移还取决于已知的边缘律。
+
+<a name="sec-0-3-5"></a>
+
+### 0.3.5 时间反演与反向随机过程
+
+考虑内点 $`0<t<1`$。假设前向扩散非爆炸，系数和严格为正的
+边缘密度足够光滑，转移核有密度并允许下述短时间展开。
+一般的扩散反演定理及其较弱条件见 Haussmann 与 Pardoux
+〔[9](#ref-haussmann1986time)，定理 2.1〕。
+对生成时间 $`\tau=1-t`$，用 Bayes 公式写出一步反向转移核
+
+<a name="eq-foundations-reverse-kernel"></a>
+
+```math
+\mathbb P(Y_{\tau+h}\in\mathop{}\!\mathrm{d} x\mid Y_\tau=y)
+= \frac{p_{t-h}(x)k_{t-h,t}(y\mid x)}{p_t(y)}\,\mathop{}\!\mathrm{d} x ,
+\tag{0.18}
+```
+
+其中 $`k_{t-h,t}`$ 是前向转移密度。由马尔可夫性，给定 $`X_t`$ 后，
+早于 $`t`$ 的状态与晚于 $`t`$ 的路径条件独立。
+所以这些反向条件核也构成马尔可夫过程。
+
+对测试函数 $`\varphi`$，反向一步条件期望为
+$`P_{t-h,t}^*(p_{t-h}\varphi)(y)/p_t(y)`$。
+用 $`p_{t-h}=p_t-h\mathcal L_t^*p_t+o(h)`$ 与
+$`P_{t-h,t}^*q=q+h\mathcal L_t^*q+o(h)`$ 展开，得到
+
+```math
+\begin{aligned}
+P_{t-h,t}^*(p_{t-h}\varphi)
+&=p_t\varphi
++h\,[\mathcal L_t^*(p_t\varphi)-\varphi\mathcal L_t^*p_t]+o(h),\\
+\mathcal L_\tau^{\mathrm{rev}}\varphi
+&=\frac{\mathcal L_t^*(p_t\varphi)-\varphi\mathcal L_t^*p_t}{p_t}.
+\end{aligned}
+```
+
+漂移项的乘积展开给出 $`-f_t\cdot\nabla\varphi`$。
+二阶项利用 $`a_{ij}=a_{ji}`$，其对 $`\partial_i\varphi`$ 的系数为
+$`p_t^{-1}\sum_j\partial_j(a_{ij}p_t)`$，二阶导数项仍是
+$`\tfrac12\sum_{i,j}a_{ij}\partial_{ij}\varphi`$。
+定义矩阵的行散度 $`(\operatorname{div}a_t)_i=\sum_j\partial_ja_{ij}`$，
+于是反向 SDE（$`\tau`$ 递增）的表示为
+
+<a name="eq-foundations-reverse-sde"></a>
+
+```math
+\begin{aligned}
+\mathop{}\!\mathrm{d} Y_\tau
+&=b_\tau^{\mathrm{rev}}(Y_\tau)\,\mathop{}\!\mathrm{d}\tau
++G_t(Y_\tau)\,\mathop{}\!\mathrm{d}\overline W_\tau, \qquad t=1-\tau,\\
+b_\tau^{\mathrm{rev}}(x)
+&=-f_t(x)+\operatorname{div}a_t(x)+a_t(x)s_t(x),
+\qquad Y_0\sim\mu_1 .
+\end{aligned}
+\tag{0.19}
+```
+
+这里 $`\overline W`$ 在反向 SDE 的滤过下是 Brownian 运动，
+反向扩散协方差为 $`a_{1-\tau}`$。
+各向同性且 $`a_t=g(t)^2I_d`$ 时，
+$`b_\tau^{\mathrm{rev}}=-f_t+g(t)^2s_t`$。
+如果沿原来的 $`t`$ 坐标从 $`1`$ 向 $`0`$ 积分，漂移系数写成
+$`f_t-g(t)^2s_t`$，此时每一步满足 $`\Delta t<0`$，
+随机增量的协方差用 $`g(t)^2|\Delta t|I_d`$ 〔[3](#ref-song2021sde)〕。
+
+> **边注 · 反向步长**
+>
+> 用 $`\tau`$ 时先换漂移再取正步长。 用 $`t`$ 时扩散步的噪声尺度取 $`\sqrt{|\Delta t|}`$。
+
+<a name="sec-0-4"></a>
+
+## 0.4 Fokker–Planck 方程
+
+<a name="sec-0-4-1"></a>
+
+### 0.4.1 从 Itô 公式推导 Fokker–Planck 方程 ★
+
+对与时间无关的 $`\varphi\in C_c^\infty(\mathbb{R}^d)`$，积分
+[(0.16)](#eq-foundations-ito)，再取期望。在随机积分为真鞅、漂移积分可积时，
+
+<a name="eq-foundations-fp-weak"></a>
+
+```math
+\int\varphi\,\mathop{}\!\mathrm{d}\mu_t-\int\varphi\,\mathop{}\!\mathrm{d}\mu_0
+=\int_0^t\int\mathcal L_r\varphi(x)\,\mu_r(\mathop{}\!\mathrm{d} x)\,\mathop{}\!\mathrm{d} r .
+\tag{0.20}
+```
+
+这是 Fokker–Planck 方程的积分弱形式。
+假设 $`\mu_t=p_t\,\mathop{}\!\mathrm{d} x`$ 且存在足够的导数。对 $`t`$ 求导后，
+分别对漂移项和扩散项分部积分，得到
+
+```math
+\begin{aligned}
+\int \sum_i f_i p_t\,\partial_i\varphi\,\mathop{}\!\mathrm{d} x
+&=-\int\varphi\sum_i\partial_i(f_i p_t)\,\mathop{}\!\mathrm{d} x,\\
+\int \sum_{i,j}a_{ij}p_t\,\partial_{ij}\varphi\,\mathop{}\!\mathrm{d} x
+&=\int\varphi\sum_{i,j}\partial_{ij}(a_{ij}p_t)\,\mathop{}\!\mathrm{d} x .
+\end{aligned}
+```
+
+二阶项分部积分两次，负号相消。$`a_{ij}`$ 随 $`x`$ 变化时也在导数作用范围内。
+由测试函数的任意性，在密度形式下得到
+
+<a name="eq-foundations-fp"></a>
+
+```math
+\boxed{
+\partial_t p_t=-\nabla\cdot(f_tp_t)
++\tfrac12\sum_{i,j=1}^d\partial_{ij}(a_{ij}p_t).}
+\tag{0.21}
+```
+
+若密度不够光滑，这个等式仍可在分布意义下理解。
+给定初始律而密度只在 $`t>0`$ 存在时，初始条件写成
+$`\mu_t\rightharpoonup\mu_0`$（$`t\downarrow0`$）。
+
+<a name="sec-0-4-2"></a>
+
+### 0.4.2 概率流密度与守恒律
+
+定义概率流密度 $`J_t`$ 的分量
+
+<a name="eq-foundations-current"></a>
+
+```math
+(J_t)_i=f_i p_t-\tfrac12\sum_j\partial_j(a_{ij}p_t).
+\tag{0.22}
+```
+
+代入 [(0.21)](#eq-foundations-fp) 可得 $`\partial_t p_t+\nabla\cdot J_t=0`$。
+对光滑有界区域 $`D`$ 积分并使用散度定理，
+
+```math
+\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\int_D p_t(x)\,\mathop{}\!\mathrm{d} x
+=-\int_{\partial D}J_t\cdot n\,\mathop{}\!\mathrm{d} S .
+```
+
+$`n`$ 为外法向，所以正的外向通量使区域内概率下降。
+若在全空间取扩张区域，且无穷远总通量趋于零，便得到总质量守恒。
+在有边界模型中，$`J_t\cdot n=0`$ 是无通量边界条件。
+同时，$`\nabla\cdot J_t=0`$ 即可使密度静止，局部 $`J_t`$ 仍可非零。
+例如对标准二维高斯叠加刚体旋转漂移 $`(-x_2,x_1)`$，
+旋转场无散度，且与径向的 $`\nabla p`$ 垂直，故旋转流的散度为零。
+
+<a name="sec-0-4-3"></a>
+
+### 0.4.3 各向同性与各向异性扩散
+
+当 $`a_t=g(t)^2I_d`$ 时，扩散各向同性，二阶项化为
+$`\frac12 g(t)^2\Delta p_t`$。
+当 $`a_t`$ 是与位置无关的对角矩阵
+$`\operatorname{diag}(g_1(t)^2,\ldots,g_d(t)^2)`$ 时，
+相应项为 $`\frac12\sum_i g_i(t)^2\partial_{ii}p_t`$。
+非对角元素对应坐标增量的相关性。对称矩阵可逐点正交对角化，
+特征向量给出局部扩散方向，特征值给出各方向的方差率。
+若对角化的基底依赖空间，不能直接用固定坐标下的常系数公式替代
+[(0.21)](#eq-foundations-fp)。
+
+例如 $`f=0`$ 且 $`G=G(t)`$ 为确定性矩阵时，
+$`X_t-X_0=\int_0^t G_r\,\mathop{}\!\mathrm{d} W_r`$ 为独立于 $`X_0`$ 的高斯增量，
+协方差为 $`\int_0^t a_r\,\mathop{}\!\mathrm{d} r`$。
+若协方差正定，$`p_t`$ 由 $`\mu_0`$ 与该高斯核卷积得到。
+若某些方向的累计特征值为零，仍应先用测度描述该高斯增量。
+
+<a name="sec-0-4-4"></a>
+
+### 0.4.4 常系数与状态依赖扩散矩阵
+
+把概率流中的乘积展开。在 $`p_t(x)>0`$ 处，
+
+<a name="eq-foundations-matrix-div"></a>
+
+```math
+\begin{align}
+\sum_j\partial_j(a_{ij}p_t)
+&=p_t\sum_j\partial_j a_{ij}+\sum_j a_{ij}\partial_j p_t,\notag\\
+\operatorname{div}(a_t p_t)
+&=p_t\bigl(\operatorname{div}a_t+a_t s_t\bigr).
+\tag{0.23}
+\end{align}
+```
+
+只随时间变化的矩阵满足 $`\operatorname{div}a_t=0`$。
+若各向同性但强度随位置变化，即 $`a_t(x)=g(x,t)^2I_d`$，
+则 $`\operatorname{div}a_t=\nabla(g(x,t)^2)`$，二阶项为
+$`\frac12\Delta(g^2p_t)`$。
+
+> **边注 · 矩阵散度**
+>
+> $`\operatorname{div}(a p)`$ 是向量，其第 $`i`$ 项沿矩阵第 $`i`$ 行求散度。
+
+**例 · 检验状态依赖项的符号**
+
+在一维取 $`a(x)=1+x^2`$，令 $`p`$ 为标准正态密度。
+由 $`s(x)=-x`$ 得 $`(ap)'/p=2x-(1+x^2)x=x-x^3`$。
+取 $`f(x)=\tfrac12(x-x^3)`$，代入 [(0.22)](#eq-foundations-current) 得
+$`J=0`$，因而 $`p`$ 满足稳态 Fokker–Planck 方程。
+若在计算中漏掉 $`a'=2x`$，会得到错误的概率流 $`J=xp`$。
+
+<a name="sec-0-4-5"></a>
+
+### 0.4.5 Fokker–Planck 方程与连续性方程之间的联系 ★
+
+在 $`p_t>0`$ 处，将 $`J_t`$ 除以密度，得到概率流速度
+
+<a name="eq-foundations-probability-velocity"></a>
+
+```math
+\boxed{
+u_t(x)=f_t(x)-\tfrac12\operatorname{div}a_t(x)-\tfrac12 a_t(x)s_t(x).
+}
+\tag{0.24}
+```
+
+由 $`J_t=p_tu_t`$，[(0.21)](#eq-foundations-fp) 转为
+[(0.13)](#eq-foundations-continuity)。因此若定义
+$`\dot Z_t=u_t(Z_t)`$ 并取 $`Z_s\sim\mu_s`$，
+在 ODE 存在且其连续性方程在同一初值下唯一时，
+每个 $`t`$ 上的 $`Z_t`$ 与前向扩散 $`X_t`$ 具有相同的边缘律。
+例如 $`u_t`$ 在所考虑的闭时间区间上全局 Lipschitz、至多线性增长，
+并满足本章使用的光滑性时，可以用唯一流的特征线验证这一结论。
+当 Score 在端点奇异时，先在区间内部使用上述论证，
+再另行证明边缘的端点极限。
+
+时间依赖标量扩散给出常用的 $`u_t=f_t-\tfrac12g(t)^2s_t`$
+〔[3](#ref-song2021sde)〕。生成时把同一个边缘族改为 $`\rho_\tau=p_{1-\tau}`$，
+则概率流 ODE 写成
+
+<a name="eq-foundations-generation-ode"></a>
+
+```math
+\begin{aligned}
+\frac{\mathop{}\!\mathrm{d} Z_\tau^{\mathrm{gen}}}{\mathop{}\!\mathrm{d}\tau}
+&=v_\tau(Z_\tau^{\mathrm{gen}}),\qquad Z_0^{\mathrm{gen}}\sim\mu_1,\\
+v_\tau
+&=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12 a_t s_t,
+\qquad t=1-\tau .
+\end{aligned}
+\tag{0.25}
+```
+
+比较 [(0.19)](#eq-foundations-reverse-sde)，反向 SDE 保留扩散项，
+其漂移中的两项修正皆为生成 ODE 对应项的两倍。
+例如标准高斯初始律下的平稳 VP 扩散有 $`s_t(x)=-x`$ 和 $`u_t=0`$。
+因此对应的 ODE 轨迹为常数，而若 $`\beta(t)>0`$，扩散轨迹的二次变差非零。
+两者每个时刻都服从 $`\mathcal N(0,I_d)`$，路径律可由二次变差区分。
+
+给定一条边缘密度路径，仅凭连续性方程一般也无法唯一确定速度。
+若 $`\nabla\cdot(p_t w_t)=0`$，则 $`u_t+w_t`$ 满足同一个方程。
+式 [(0.24)](#eq-foundations-probability-velocity) 选取的是与原 SDE
+概率流 [(0.22)](#eq-foundations-current) 逐点对应的速度。
+
+<a name="sec-0-5"></a>
+
+## 0.5 最优传输与变分方法
+
+<a name="sec-0-5-1"></a>
+
+### 0.5.1 Wasserstein 距离与运输映射
+
+给定具有有限 $`p`$ 阶矩的概率律 $`\mu_0,\mu_1`$，其中 $`p\ge1`$，
+记 $`\Pi(\mu_0,\mu_1)`$ 为以它们为第一、第二边缘的联合概率律集合。
+Wasserstein 距离定义为
+
+```math
+W_p(\mu_0,\mu_1)
+=\left(\inf_{\pi\in\Pi(\mu_0,\mu_1)}
+\int\lVert x-y \rVert^p\,\pi(\mathop{}\!\mathrm{d} x,\mathop{}\!\mathrm{d} y)\right)^{1/p}.
+```
+
+若限定 $`y=T(x)`$，并要求 $`T_\#\mu_0=\mu_1`$，便得到 Monge 映射问题，
+其诱导耦合为 $`(\mathrm{id},T)_\#\mu_0`$。
+本节沿 $`t`$ 把数据端作为起点。若求出耦合 $`\pi`$，
+交换两坐标得到生成方向的耦合，且对称代价 $`\lVert x-y \rVert^p`$ 不变。
+对于平方距离且 $`\mu_0`$ 绝对连续，Brenier 定理给出由凸函数梯度
+诱导的最优映射 〔[10](#ref-brenier1991polar)〕。遇到原子型初始律时，
+直接从耦合定义出发仍然可行。
+
+**例 · 一维高斯的最优耦合**
+
+设两端分别服从 $`\mathcal N(m_0,s_0^2)`$ 和 $`\mathcal N(m_1,s_1^2)`$，
+其中 $`s_i>0`$。任意耦合满足
+
+```math
+\mathbb E|X_1-X_0|^2
+=(m_1-m_0)^2+s_0^2+s_1^2-2\operatorname{Cov}(X_0,X_1).
+```
+
+由 Cauchy–Schwarz 不等式，最后一项中的协方差至多为 $`s_0s_1`$。
+选择同一个标准高斯 $`\xi`$，令 $`X_i=m_i+s_i\xi`$，可达到该上界。
+所以 $`W_2^2=(m_1-m_0)^2+(s_1-s_0)^2`$，
+而独立耦合的代价为 $`(m_1-m_0)^2+s_1^2+s_0^2`$。
+在最优耦合下，线性插值的标准差为 $`(1-t)s_0+ts_1`$。
+在独立耦合下，方差为 $`(1-t)^2s_0^2+t^2s_1^2`$。
+这给出端点相同而中间边缘不同的显式例子。
+
+<a name="sec-0-5-2"></a>
+
+### 0.5.2 Kantorovich 最优耦合问题
+
+Kantorovich 形式对联合律 $`\pi`$ 直接优化
+$`\inf_{\pi\in\Pi(\mu_0,\mu_1)}\int c\,\mathop{}\!\mathrm{d}\pi`$。
+从 $`\pi`$ 的条件核看，每个 $`x`$ 可以把质量分给多个 $`y`$。
+例如 $`\mu_0=\delta_0`$，
+$`\mu_1=(\delta_{-1}+\delta_1)/2`$ 时，任何确定性映射只能把一个原子变成一个原子，
+而耦合 $`\delta_0\otimes\mu_1`$ 可以满足端点约束。
+对离散支撑 $`x_i,y_j`$ 与边缘权重 $`r_i,c_j`$，问题成为线性规划
+
+```math
+\min_{\pi_{ij}\ge0}\sum_{i,j} C_{ij}\pi_{ij},
+\qquad \sum_j\pi_{ij}=r_i,\quad \sum_i\pi_{ij}=c_j,
+\qquad C_{ij}=c(x_i,y_j).
+```
+
+在 OT-CFM 中，耦合用于组织训练端点对。
+同一训练批中用最优传输配对，是对总体耦合的一种近似。
+由该耦合给出的端点对与训练后 ODE 最终实现的端点耦合还需分别验证
+〔[7](#ref-tong2024otcfm)〕。
+
+<a name="sec-0-5-3"></a>
+
+### 0.5.3 Benamou–Brenier 动态最优传输
+
+二次代价允许用连续性方程表述动态最优传输 〔[11](#ref-benamou2000ot)〕。
+其最优值满足
+
+<a name="eq-foundations-bb"></a>
+
+```math
+W_2^2(\mu_0,\mu_1)=
+\inf_{(\nu_t,u_t)}
+\int_0^1\int \lVert u_t(x) \rVert^2\,\nu_t(\mathop{}\!\mathrm{d} x)\,\mathop{}\!\mathrm{d} t .
+\tag{0.26}
+```
+
+约束为二阶矩有限的概率测度路径 $`\nu_t`$ 弱连续，
+满足 $`\partial_t\nu_t+\nabla\cdot(u_t\nu_t)=0`$ 的分布形式，以及
+$`\nu_0=\mu_0,\nu_1=\mu_1`$。这里动能归一化取 $`\lVert u \rVert^2`$，
+所以等式左侧为 $`W_2^2`$。
+
+可以直接看到两侧界限如何出现。若 $`Z_t`$ 是由足够正则的候选 ODE 场生成的轨迹，
+
+```math
+\mathbb E\lVert Z_1-Z_0 \rVert^2
+=\mathbb E\left\lVert\int_0^1u_t(Z_t)\,\mathop{}\!\mathrm{d} t\right\rVert^2
+\le\int_0^1\int\lVert u_t \rVert^2\,\mathop{}\!\mathrm{d}\nu_t\,\mathop{}\!\mathrm{d} t .
+```
+
+$`(Z_0,Z_1)`$ 是一个耦合，左边至少为 $`W_2^2`$。
+一般弱解的同一界限需要用连续性方程的叠加原理表示绝对连续轨迹。
+反向的界限从最优耦合 $`(X_0,X_1)`$ 出发，令
+$`I_t=(1-t)X_0+tX_1`$、
+$`u_t(x)=\mathbb E[X_1-X_0\mid I_t=x]`$。
+其边缘满足连续性方程。由条件 Jensen，
+$`\mathbb E\lVert u_t(I_t) \rVert^2\le\mathbb E\lVert X_1-X_0 \rVert^2=W_2^2`$。
+对时间积分后，右侧不超过最优耦合的代价。
+这一构造体现了最优端点配对与条件速度回归之间的联系。
+
+<a name="sec-0-5-4"></a>
+
+### 0.5.4 熵正则化最优传输与 Sinkhorn 算法
+
+设上面的离散边缘权重皆为正、代价有限，考虑
+
+<a name="eq-foundations-entropic-ot"></a>
+
+```math
+\min_{\pi\in\Pi(r,c)}
+\left[\sum_{i,j}C_{ij}\pi_{ij}
++\lambda D_{\mathrm{KL}}(\pi\|r\otimes c)\right],
+\qquad \lambda>0 .
+\tag{0.27}
+```
+
+对固定边缘，KL 项与 $`\sum_{i,j}\pi_{ij}\log\pi_{ij}`$ 仅相差常数。
+正权重与有限代价下，最优解各项为正。给行列约束引入乘子 $`A_i,B_j`$，
+对 $`\pi_{ij}`$ 的一阶条件为
+$`C_{ij}+\lambda(1+\log(\pi_{ij}/(r_i c_j)))=A_i+B_j`$。
+将只依赖行、列的因子归入缩放向量 $`h,k`$，得到
+$`\pi_{ij}=h_iK_{ij}k_j`$，其中 $`K_{ij}=\exp(-C_{ij}/\lambda)`$。
+固定 $`k`$ 时强制满足行约束，固定 $`h`$ 时强制满足列约束，
+就得到 Sinkhorn 迭代 〔[12](#ref-cuturi2013sinkhorn)〕。依次更新
+
+```math
+h_i\gets\frac{r_i}{(Kk)_i},\qquad
+k_j\gets\frac{c_j}{(K^\top h)_j}.
+```
+
+在这一有限正核情形下，缩放得到满足边缘约束的最优耦合。
+$`\lambda`$ 越小，目标越强调运输代价。此时数值上常在对数域用
+log-sum-exp 计算缩放，避免 $`K`$ 的小元素下溢。
+
+<a name="sec-0-5-5"></a>
+
+### 0.5.5 相对熵最小化与随机控制
+
+设 $`R`$ 是连续路径空间 $`\mathcal C([0,1],\mathbb{R}^d)`$ 上的参考扩散律。
+Schrödinger Bridge 按端点约束选择路径律
+
+<a name="eq-foundations-sb"></a>
+
+```math
+\inf_{\substack{P:\,P_0=\mu_0\\ P_1=\mu_1}}
+D_{\mathrm{KL}}(P\|R).
+\tag{0.28}
+```
+
+这里 $`P_0,P_1`$ 表示路径律 $`P`$ 的两个端点边缘。
+若用 $`P_{01},R_{01}`$ 表示端点联合律，
+并用 $`P^{xy},R^{xy}`$ 表示给定端点的条件路径律，KL 链式法则给出
+
+<a name="eq-foundations-sb-chain"></a>
+
+```math
+\begin{aligned}
+D_{\mathrm{KL}}(P\|R)
+&=D_{\mathrm{KL}}(P_{01}\|R_{01})\\
+&\quad+\int D_{\mathrm{KL}}(P^{xy}\|R^{xy})\,P_{01}(\mathop{}\!\mathrm{d} x,\mathop{}\!\mathrm{d} y).
+\end{aligned}
+\tag{0.29}
+```
+
+当路径 KL 有限时，将 $`\mathop{}\!\mathrm{d} P/\mathop{}\!\mathrm{d} R`$ 分解为端点密度比与条件密度比，
+再对对数取 $`P`$ 期望便得到上式。
+对固定端点耦合，取 $`P^{xy}=R^{xy}`$ 可使第二项为零，
+所以还可以先求端点联合律上的静态桥问题，再混合参考桥
+〔[13](#ref-leonard2014schrodinger)〕。
+
+为看到路径相对熵为何产生控制能量，先设 $`P_0=R_0`$。
+设参考漂移为 $`f_t`$，受控漂移为 $`f_t+G_t h_t`$，扩散系数同为
+可逆的方阵 $`G_t`$。在参考律下写 Girsanov 密度
+
+```math
+M_1=\exp\left(\int_0^1 h_t^\top\,\mathop{}\!\mathrm{d} W_t^R
+-\tfrac12\int_0^1\lVert h_t \rVert^2\,\mathop{}\!\mathrm{d} t\right).
+```
+
+假设 $`h`$ 适应，指数过程是真鞅且由 $`M_1`$ 定义的 $`P`$
+满足 $`\mathbb E_P\int_0^1\lVert h_t \rVert^2\,\mathop{}\!\mathrm{d} t<\infty`$。
+在 $`P`$ 下有 $`\mathop{}\!\mathrm{d} W_t^R=\mathop{}\!\mathrm{d} W_t^P+h_t\,\mathop{}\!\mathrm{d} t`$。
+把它代入 $`\log M_1`$，对 $`P`$ 取期望，随机积分为零，得到
+
+<a name="eq-foundations-control-energy"></a>
+
+```math
+D_{\mathrm{KL}}(P\|R)
+=\mathbb E_P\log M_1
+=\tfrac12\mathbb E_P\int_0^1\lVert h_t \rVert^2\,\mathop{}\!\mathrm{d} t .
+\tag{0.30}
+```
+
+若起始律也改变，在可对初始状态做条件分解并成立相应绝对连续性时，
+须加 $`D_{\mathrm{KL}}(P_0\|R_0)`$。
+当 $`G_t`$ 可逆，记漂移改变量为 $`\delta f_t=G_th_t`$，则控制能量的被积函数为
+$`\lVert h_t \rVert^2=\delta f_t^\top a_t^{-1}\delta f_t`$。
+桥约束选择的是控制后的端点边缘，而参考扩散 $`R`$ 可以具有其他端点边缘。
+
+<a name="sec-0-6"></a>
+
+## 0.6 统一时间与符号约定
+
+<a name="sec-0-6-1"></a>
+
+### 0.6.1 数据分布、先验分布与中间边缘分布
+
+以下端点约定用于后续各章。精确端点的理想模型满足
+
+<a name="eq-foundations-endpoints"></a>
+
+```math
+\mu_0=\mu_{\mathrm{data}},\qquad
+\mu_1=\mu_{\mathrm{prior}},\qquad
+\mu_{\mathrm{prior}}\text{ 通常取 }\mathcal N(0,I_d).
+\tag{0.31}
+```
+
+噪声端点可以是其他容易采样的先验。例如何时可在端点用高斯初始化，
+可直接从 Gaussian path $`X_t=\alpha_tX_0+\sigma_t\varepsilon`$ 判断。
+若 $`(\alpha_0,\sigma_0)=(1,0)`$ 且
+$`(\alpha_1,\sigma_1)=(0,1)`$，则 $`X_0`$ 是原始数据，$`X_1=\varepsilon`$。
+若 $`\alpha_1\ne0`$，终点仍可能保留数据信息。用同一个 $`\varepsilon`$
+把 $`X_1`$ 与标准高斯耦合，在数据有有限二阶矩时得到
+
+<a name="eq-foundations-prior-bound"></a>
+
+```math
+W_2^2(\mu_1,\mathcal N(0,I_d))
+\le \alpha_1^2\mathbb E\lVert X_0 \rVert^2+d\,(\sigma_1-1)^2 .
+\tag{0.32}
+```
+
+交叉项因独立性以及 $`\mathbb E\varepsilon=0`$ 消失。
+因此有限噪声安排下，应区分前向过程的实际终止律和采样时指定的简单先验。
+反演公式精确复现前向边缘的初始条件是 $`Y_0\sim\mu_1`$。
+选用近似先验会引入端点误差。
+
+例如 VP SDE 若 $`\int_0^1\beta(r)\,\mathop{}\!\mathrm{d} r<\infty`$，
+就有 $`\alpha_1>0`$，一般只近似纯噪声。
+若用 VP 系数族实现 $`\alpha_t\to0`$、$`\sigma_t\to1`$，
+例如令 $`\alpha_t=\cos(\pi t/2)`$，对应的
+$`\beta(t)=-2\alpha_t'/\alpha_t=\pi\tan(\pi t/2)`$ 在 $`t=1`$ 发散。
+此时系数公式在 $`t<1`$ 使用，协方差的极限给出噪声端边缘。
+以同一个 $`\varepsilon`$ 写出的条件插值与该 SDE 共享单时刻边缘，
+两者在端点的路径行为需要各自分析。
+
+<a name="sec-0-6-2"></a>
+
+### 0.6.2 加噪时间与生成时间的方向
+
+| 时间坐标 | 起点 | 终点 |
+| --- | --- | --- |
+| 加噪 $`t`$ | $`t=0`$ 原始数据 | $`t=1`$ 噪声端点 |
+| 生成 $`	au=1-t`$ | $`	au=0`$ 噪声先验 | $`	au=1`$ 生成样本 |
+
+#### DDPM 与 DDIM
+原始记号以 $`x_0`$ 表示干净数据，以 $`x_k`$ 表示第 $`k`$ 步的加噪状态。
+本书以 $`K`$ 表示离散总步数，原文常用 $`T`$。令 $`t_k=k/K`$。
+若 $`\beta_j`$ 是第 $`j`$ 步噪声方差，记
+$`\bar\alpha_k=\prod_{j=1}^k(1-\beta_j)`$，则第 $`k`$ 步的
+边缘加噪系数为
+$`\alpha_{t_k}=\sqrt{\bar\alpha_k}`$、$`\sigma_{t_k}=\sqrt{1-\bar\alpha_k}`$。
+这两个系数可由一步条件均值与方差递推得到。
+若 $`X_k^{\mathrm{disc}}=\sqrt{1-\beta_k}\,X_{k-1}^{\mathrm{disc}} +\sqrt{\beta_k}\xi_k`$，且每步的 $`\xi_k`$ 是独立标准高斯，
+则条件均值系数乘 $`\sqrt{1-\beta_k}`$，
+条件方差系数满足 $`V_k=(1-\beta_k)V_{k-1}+\beta_k`$，$`V_0=0`$。
+因 $`1-V_k=(1-\beta_k)(1-V_{k-1})`$，解得 $`V_k=1-\bar\alpha_k`$。
+DDIM 保留这一族条件边缘，可使用不同的联合过程和采样更新。
+两者都从大 $`k`$ 向小 $`k`$ 生成 〔[1](#ref-ho2020ddpm), [2](#ref-song2021ddim)〕。
+
+#### Score-based SDE
+原始正向时间由数据走向噪声，与本书 $`t`$ 同向。采样既可用
+递减的原时间实现，也可用递增的 $`\tau`$ 实现
+[(0.19)](#eq-foundations-reverse-sde) 或 [(0.25)](#eq-foundations-generation-ode)
+〔[3](#ref-song2021sde)〕。
+
+#### CNF
+生成方向将先验推前为模型分布。计算似然时可沿 $`t`$
+从数据积分到先验，使用 [(0.15)](#eq-foundations-cnf-likelihood)
+同时累计密度变化 〔[4](#ref-chen2018neuralode)〕。
+
+#### Flow Matching 与 Rectified Flow
+Flow Matching 原论文把先验放在原文 $`0`$，数据侧放在原文 $`1`$，
+因此原文时间对应本书 $`\tau`$。原论文的高斯条件路径示例可在数据端
+保留很小的 $`\sigma_{\min}>0`$，此时数据侧边缘是平滑后的数据分布。
+Rectified Flow 可以连接一般的源分布和目标分布。用于噪声到数据的
+生成时，以噪声作为源，原文插值时间也对应 $`\tau`$
+〔[5](#ref-lipman2023fm), [6](#ref-liu2023rectified)〕。
+
+#### Schrödinger Bridge 与 Stochastic Interpolants
+两者允许指定一般的两端边缘。讨论生成时，本书将数据与噪声
+分别安放在 $`t=0`$ 与 $`t=1`$，将连接这两个端点的采样过程写在
+$`\tau`$ 坐标中。桥的反向漂移来自相应正向桥律的时间反演
+〔[14](#ref-debortoli2021dsb), [8](#ref-albergo2025si)〕。
+
+<a name="sec-0-6-3"></a>
+
+### 0.6.3 $`t,\tau,T`$ 与 $`t\leftrightarrow T-t`$ 的变换
+
+若某论文的物理时间为 $`r\in[0,T]`$ 且数据在 $`r=0`$，
+令 $`t=r/T`$，$`\tau=(T-r)/T`$。
+在 $`[0,T]`$ 内直接计生成时间时则用 $`T-r`$。
+若原 ODE 是 $`\mathop{}\!\mathrm{d} X_r/\mathop{}\!\mathrm{d} r=F_r(X_r)`$，归一化后的 $`t`$ 速度为
+$`TF_{Tt}`$，从噪声向数据的归一化速度为 $`-TF_{T(1-\tau)}`$。
+对于原 Itô SDE
+$`\mathop{}\!\mathrm{d} X_r=F_r(X_r)\,\mathop{}\!\mathrm{d} r+H_r(X_r)\,\mathop{}\!\mathrm{d} W_r`$，
+利用 $`\widetilde W_t=T^{-1/2}W_{Tt}`$ 仍是标准 Brownian 运动，
+正向归一化模型满足
+
+<a name="eq-foundations-time-rescaling"></a>
+
+```math
+\begin{aligned}
+\mathop{}\!\mathrm{d} X^{\mathrm{norm}}_t
+&=T F_{Tt}(X^{\mathrm{norm}}_t)\,\mathop{}\!\mathrm{d} t\\
+&\quad+\sqrt T H_{Tt}(X^{\mathrm{norm}}_t)\,\mathop{}\!\mathrm{d}\widetilde W_t .
+\end{aligned}
+\tag{0.33}
+```
+
+漂移与扩散协方差率乘 $`T`$，扩散因子乘 $`\sqrt T`$。
+当进一步换到 $`\tau`$ 时，ODE 速度按
+[(0.10)](#eq-foundations-velocity-reversal) 取负，SDE 使用
+[(0.19)](#eq-foundations-reverse-sde) 的反向漂移。
+
+#### 用一步 Euler 更新核对方向
+若 $`h>0`$、$`t=1-\tau`$，则
+
+```math
+y_{\tau+h}\approx y_\tau+h\,v_\tau(y_\tau)
+=y_\tau-h\,u_t(y_\tau)
+\approx x_{t-h}.
+```
+
+对离散扩散，$`k`$ 向 $`k-1`$ 走时 $`\Delta t=-1/K`$、
+$`\Delta\tau=1/K`$。若训练接口用 $`t`$ 作为网络输入而采样器遍历
+$`\tau`$，传入网络的时刻应为 $`1-\tau`$。
+
+<a name="sec-0-6-4"></a>
+
+### 0.6.4 条件标签、路径端点与样本耦合
+
+用 $`C`$ 表示类别、文本等外部条件，用 $`Z`$ 表示路径构造中用于条件化的变量。
+例如 Gaussian path 可取 $`Z=X_0`$。配对的线性路径可取 $`Z=(X_0,X_1)`$。
+条件生成以 $`\mu_{\mathrm{data}}(\cdot\mid C=c)`$ 为目标，
+所用的边缘密度与 Score 也按 $`c`$ 条件化，仍可用
+$`\mathcal N(0,I_d)`$ 作为与 $`C`$ 独立的先验。
+路径条件 $`Z`$ 的作用是定义可采样的条件训练目标，对它边缘化后，
+速度或 Score 可只依赖当前状态、时间以及所保留的外部条件 $`C`$。
+
+例如取一对端点 $`(X_0,X_1)\sim\pi\in\Pi(\mu_{\mathrm{data}},\mu_{\mathrm{prior}})`$。
+在数据到噪声的坐标中定义 $`I_t=(1-t)X_0+tX_1`$，则
+
+<a name="eq-foundations-linear-fm"></a>
+
+```math
+\begin{aligned}
+u_t(x)&=\mathbb E[X_1-X_0\mid I_t=x],\\
+I_{1-\tau}&=(1-\tau)X_1+\tau X_0,\\
+v_\tau(x)&=\mathbb E[X_0-X_1\mid I_{1-\tau}=x]=-u_{1-\tau}(x).
+\end{aligned}
+\tag{0.34}
+```
+
+端点独立采样时 $`\pi=\mu_0\otimes\mu_1`$，
+OT-CFM 则可选取最优耦合或其近似。
+如果构造随机插值时还引入独立高斯 $`\zeta`$，
+例如 $`I_t=(1-t)X_0+tX_1+\gamma(t)\zeta`$，需令
+$`\gamma(0)=\gamma(1)=0`$ 保持端点。此时条件回归目标多出
+$`\gamma'(t)\zeta`$，而端点噪声 $`X_1`$ 与附加扰动 $`\zeta`$
+扮演不同角色。
+
+**例 · 独立高斯端点下核对 Flow Matching 的速度**
+
+令 $`X_0\sim\mathcal N(m_0,\Sigma_0)`$，$`X_1\sim\mathcal N(0,I_d)`$，
+取独立耦合。中间均值为 $`(1-t)m_0`$，协方差为
+$`S_t=(1-t)^2\Sigma_0+t^2I_d`$。因为
+$`\operatorname{Cov}(X_1-X_0,I_t)=tI_d-(1-t)\Sigma_0`$，
+代入 [(0.4)](#eq-foundations-conditional-gaussian) 得
+
+```math
+u_t(x)=-m_0+\bigl[tI_d-(1-t)\Sigma_0\bigr]S_t^{-1}
+\bigl[x-(1-t)m_0\bigr]
+\quad(0<t<1).
+```
+
+若用这个场演化 ODE，则均值解满足 $`\dot m=-m_0`$（在
+$`m=(1-t)m_0`$ 上求值）。记线性部分为 $`A_t`$，高斯协方差满足
+$`\dot S_t=A_tS_t+S_tA_t^\top=2[tI_d-(1-t)\Sigma_0]`$，
+恰为插值协方差的导数。用生成时钟时改变的是速度符号及系数求值时刻。
+
+<a name="sec-0-6-5"></a>
+
+### 0.6.5 Score、Drift、Velocity、Noise 的符号区分
+
+#### Score $`s_t(x)`$
+$`p_t`$ 关于状态的对数梯度 $`\nabla_x\log p_t(x)`$。
+改用 $`\tau`$ 后，$`\nabla_x\log\rho_\tau(x)=s_{1-\tau}(x)`$，
+因为空间微分不引入时间变换的负号。
+
+#### 漂移 $`f_t(x)`$
+$`t`$ 坐标下 Itô SDE 的条件均值率。
+在 $`\tau`$ 下反演后的漂移记 $`b_\tau^{\mathrm{rev}}`$。
+
+#### 速度 $`u_t(x),v_\tau(x)`$
+连续性方程与 ODE 中的速度。$`u_t`$ 对应 $`t`$，
+$`v_\tau=-u_{1-\tau}`$ 对应 $`\tau`$。
+从扩散得到的 $`u_t`$ 由 [(0.24)](#eq-foundations-probability-velocity) 计算。
+
+#### 噪声 $`\varepsilon,W_t,G_t`$
+$`\varepsilon`$ 是条件加噪样本中的标准高斯向量，
+$`W_t`$ 是 Brownian 过程，$`G_t`$ 作用在其增量上，
+$`a_t=G_tG_t^\top`$ 是瞬时协方差率。
+使用同一个 $`\varepsilon`$ 生成所有 $`X_t`$ 往往只保证单时刻条件边缘，
+其跨时间联合分布由具体构造决定。
+
+常见扩散网络还用 $`v`$-prediction。为与 ODE 的 $`v_\tau`$ 区分，
+本书把该训练目标写作 $`v_t^{\mathrm{pred}}`$。
+在 VP 参数化 $`\alpha_t^2+\sigma_t^2=1`$ 中
+〔[15](#ref-salimans2022distill)〕，
+
+<a name="eq-foundations-vpred"></a>
+
+```math
+\begin{pmatrix}X_t\\v_t^{\mathrm{pred}}\end{pmatrix}
+=\begin{pmatrix}\alpha_t & \sigma_t\\-\sigma_t & \alpha_t\end{pmatrix}
+\begin{pmatrix}X_0\\\varepsilon\end{pmatrix}.
+\tag{0.35}
+```
+
+转置这个正交矩阵，可得 $`X_0=\alpha_tX_t-\sigma_t v_t^{\mathrm{pred}}`$ 和
+$`\varepsilon=\sigma_tX_t+\alpha_t v_t^{\mathrm{pred}}`$。
+若 $`(\alpha_t,\sigma_t)=(\cos\theta(t),\sin\theta(t))`$，
+在固定配对 $`(X_0,\varepsilon)`$ 下有
+$`\dot X_t=\theta'(t)v_t^{\mathrm{pred}}`$。
+在这一插值构造中，边缘速度还要对 $`X_t=x`$ 取条件均值，
+换生成坐标时再应用 [(0.10)](#eq-foundations-velocity-reversal)。
+
+<a name="references"></a>
+
+## 参考文献
+
+<a name="ref-ho2020ddpm"></a>
+**[1]** Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising Diffusion Probabilistic Models. NeurIPS, 2020. [arXiv:2006.11239](https://arxiv.org/abs/2006.11239).
+
+<a name="ref-song2021ddim"></a>
+**[2]** Jiaming Song, Chenlin Meng, and Stefano Ermon. Denoising Diffusion Implicit Models. ICLR, 2021. [arXiv:2010.02502](https://arxiv.org/abs/2010.02502).
+
+<a name="ref-song2021sde"></a>
+**[3]** Yang Song, Jascha Sohl-Dickstein, Diederik P. Kingma, Abhishek Kumar, Stefano Ermon, and Ben Poole. Score-Based Generative Modeling through Stochastic Differential Equations. ICLR, 2021. [arXiv:2011.13456](https://arxiv.org/abs/2011.13456).
+
+<a name="ref-chen2018neuralode"></a>
+**[4]** Ricky T. Q. Chen, Yulia Rubanova, Jesse Bettencourt, and David Duvenaud. Neural Ordinary Differential Equations. NeurIPS, 2018. [arXiv:1806.07366](https://arxiv.org/abs/1806.07366v1).
+
+<a name="ref-lipman2023fm"></a>
+**[5]** Yaron Lipman, Ricky T. Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le. Flow Matching for Generative Modeling. ICLR, 2023. [arXiv:2210.02747](https://arxiv.org/abs/2210.02747).
+
+<a name="ref-liu2023rectified"></a>
+**[6]** Xingchao Liu, Chengyue Gong, and Qiang Liu. Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow. ICLR, 2023. [arXiv:2209.03003](https://arxiv.org/abs/2209.03003).
+
+<a name="ref-tong2024otcfm"></a>
+**[7]** Alexander Tong, Kilian Fatras, Nikolay Malkin, Guillaume Huguet, Yanlei Zhang, Jarrid Rector-Brooks, Guy Wolf, and Yoshua Bengio. Improving and Generalizing Flow-Based Generative Models with Minibatch Optimal Transport. Transactions on Machine Learning Research, 2024. [arXiv:2302.00482](https://arxiv.org/abs/2302.00482).
+
+<a name="ref-albergo2025si"></a>
+**[8]** Michael S. Albergo, Nicholas M. Boffi, and Eric Vanden-Eijnden. Stochastic Interpolants: A Unifying Framework for Flows and Diffusions. Journal of Machine Learning Research, 26(209), 2025. [论文](https://jmlr.org/papers/v26/23-1605.html).
+
+<a name="ref-haussmann1986time"></a>
+**[9]** U. G. Haussmann and É. Pardoux. Time Reversal of Diffusions. The Annals of Probability, 14(4), 1188–1205, 1986. [论文](https://www.i2m.univ-amu.fr/perso/etienne.pardoux/_media/trd.pdf).
+
+<a name="ref-brenier1991polar"></a>
+**[10]** Yann Brenier. Polar Factorization and Monotone Rearrangement of Vector-Valued Functions. Communications on Pure and Applied Mathematics, 44(4), 375–417, 1991. [DOI](https://doi.org/10.1002/cpa.3160440402).
+
+<a name="ref-benamou2000ot"></a>
+**[11]** Jean-David Benamou and Yann Brenier. A Computational Fluid Mechanics Solution to the Monge–Kantorovich Mass Transfer Problem. Numerische Mathematik, 84, 375–393, 2000. [DOI](https://doi.org/10.1007/s002110050002).
+
+<a name="ref-cuturi2013sinkhorn"></a>
+**[12]** Marco Cuturi. Sinkhorn Distances: Lightspeed Computation of Optimal Transport. NeurIPS, 2013. [论文](https://proceedings.neurips.cc/paper_files/paper/2013/hash/af21d0c97db2e27e13572cbf59eb343d-Abstract.html).
+
+<a name="ref-leonard2014schrodinger"></a>
+**[13]** Christian Léonard. A Survey of the Schrödinger Problem and Some of Its Connections with Optimal Transport. Discrete and Continuous Dynamical Systems, 34(4), 1533–1574, 2014. [arXiv:1308.0215](https://arxiv.org/abs/1308.0215).
+
+<a name="ref-debortoli2021dsb"></a>
+**[14]** Valentin De Bortoli, James Thornton, Jeremy Heng, and Arnaud Doucet. Diffusion Schrödinger Bridge with Applications to Score-Based Generative Modeling. NeurIPS, 2021. [论文](https://proceedings.neurips.cc/paper/2021/hash/940392f5f32a7ade1cc201767cf83e31-Abstract.html).
+
+<a name="ref-salimans2022distill"></a>
+**[15]** Tim Salimans and Jonathan Ho. Progressive Distillation for Fast Sampling of Diffusion Models. ICLR, 2022. [arXiv:2202.00512](https://arxiv.org/abs/2202.00512).
