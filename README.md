@@ -10,6 +10,8 @@
 
 **网页公式维护**　[检查结果与编写规范](docs/MARKDOWN-REVIEW.md)。公式编号置于数学块外，保留原有编号和跳转链接，以兼容 GitHub 的浏览器数学排版。
 
+**自动发布 PDF**　[最新 Release](https://github.com/faguomarry-ux/Generative-models/releases/tag/latest) · [完整讲义下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study.pdf) · [快速版下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study-quick.pdf) · [构建记录](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml)。
+
 <a name="contents"></a>
 
 ## 章节目录
@@ -126,3 +128,21 @@ latexmk -xelatex main.tex
 ```sh
 python scripts/check-markdown-math.py
 ```
+
+## 自动更新 Release
+
+[发布工作流](.github/workflows/release-pdf.yaml) 在每次 `main` 推送后运行，也可在 Actions 的 **Build and release PDFs → Run workflow** 中选择 `main` 手动触发。
+
+发布要求如下。
+
+1. Markdown 数学源码检查通过。
+2. 从当前源码使用 XeLaTeX 和 Latexmk 成功编译 `main.tex` 与 `quick-guide.tex`。
+3. 最终编译日志没有未定义引用、未定义文献、待重跑交叉引用或缺字提示。
+4. 两份 PDF 可解析、未加密且页数大于零，全部页面内容流可以读取。
+5. 发布前确认当前构建提交仍为 `main` 的最新提交。
+
+满足要求后，工作流创建或更新固定的 `latest` Release，上传 `model-study.pdf`、`model-study-quick.pdf`、`SHA256SUMS` 和 `release-manifest.json`。同名附件会被替换，`latest` 标签同步到本次源码提交。最后重新下载附件并核对校验值。构建失败时不会进入发布作业；构建日志在 Actions 中保留 14 天，便于定位问题。
+
+构建直接使用 TeX Live 的 Fandol 和 TeX Gyre 字体。完整 PDF 和快速版均由 CI 重新编译，发布不依赖仓库中已有 PDF。工作流使用自动提供的 `GITHUB_TOKEN`，发布作业声明 `contents: write`，无需额外配置个人令牌。仓库须允许 GitHub Actions 运行；若存在限制 Release 更新或 `latest` 标签移动的规则，需使其与该发布流程一致。
+
+`latest` 为持续更新的阅读版。自动检查覆盖源码格式、编译和产物完整性，独立数学审阅状态以各章说明为准。仓库中的 `output/pdf/` 文件是已提交的阅读快照，自动更新版本通过上方 Release 下载链接获取。

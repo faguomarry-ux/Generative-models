@@ -1,6 +1,7 @@
 # Local LaTeX build products
 /build/
 /tmp/
+/dist/
 *.aux
 *.bbl
 *.bcf

@@ -1,0 +1,164 @@
+name: Build and release PDFs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Serialize releases so a newer run cannot interrupt an asset upload.
+concurrency:
+  group: pdf-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Check and build reading editions
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Check Markdown math
+        run: python scripts/check-markdown-math.py
+
+      - name: Compile both PDFs from source
+        uses: xu-cheng/latex-action@6549dc21effb2730855a1281407ecfcececc6c1b # v4
+        with:
+          texlive_version: '2026'
+          root_file: |
+            main.tex
+            quick-guide.tex
+          latexmk_use_xelatex: true
+          args: -file-line-error -halt-on-error -interaction=nonstopmode -outdir=build/release
+          pre_compile: mkdir -p build/release/chapters
+
+      - name: Validate and package PDFs
+        run: |
+          python -m pip install pypdf==6.21.4
+          python scripts/check-release.py
+
+      - name: Preserve build logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: latex-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/release/**/*.log
+            build/release/**/*.blg
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload validated release bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-pdfs-${{ github.sha }}
+          path: dist/release/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Update latest Release
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: latest
+    steps:
+      - name: Download validated release bundle
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-pdfs-${{ github.sha }}
+          path: dist/release
+
+      - name: Check bundle integrity
+        working-directory: dist/release
+        run: sha256sum --check SHA256SUMS
+
+      - name: Require the current main commit
+        id: current
+        run: |
+          current_sha=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$current_sha" != "$GITHUB_SHA" ]]; then
+            echo 'publish=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::A newer main commit exists. Skip this outdated release.'
+            exit 0
+          fi
+          echo 'publish=true' >> "$GITHUB_OUTPUT"
+
+      - name: Create or update latest Release and upload assets
+        if: steps.current.outputs.publish == 'true'
+        run: |
+          tag_sha=$(gh api "repos/$GH_REPO/git/matching-refs/tags/$RELEASE_TAG" \
+            --jq '.[] | select(.ref == "refs/tags/latest") | .object.sha')
+          if [[ -z "$tag_sha" ]]; then
+            gh api --method POST "repos/$GH_REPO/git/refs" \
+              -f ref="refs/tags/$RELEASE_TAG" -f sha="$GITHUB_SHA" > /dev/null
+          fi
+
+          notes="$RUNNER_TEMP/release-notes.md"
+          cat > "$notes" <<EOF
+          # 生成模型的数学理论 · 最新阅读版
+
+          本阅读版由 main 分支源码自动编译。
+
+          - 完整讲义：model-study.pdf
+          - 统一框架快速版：model-study-quick.pdf
+          - SHA-256 校验：SHA256SUMS
+          - 构建信息与页数：release-manifest.json
+
+          源码提交：$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA
+          构建记录：$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          发布前已通过 Markdown 数学源码检查、XeLaTeX 编译、未定义引用与缺字检查，以及 PDF 可读性检查。这些自动检查不代替独立数学审阅。
+          EOF
+
+          release_id=$(gh api --paginate "repos/$GH_REPO/releases" \
+            --jq '.[] | select(.tag_name == "latest") | .id')
+          if [[ -z "$release_id" ]]; then
+            gh release create "$RELEASE_TAG" dist/release/* --verify-tag \
+              --title '最新 PDF 阅读版' --notes-file "$notes" --latest
+          else
+            gh release upload "$RELEASE_TAG" dist/release/* --clobber
+          fi
+
+          # --target alone does not move an existing tag.
+          if [[ -n "$tag_sha" && "$tag_sha" != "$GITHUB_SHA" ]]; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/$RELEASE_TAG" \
+              -f sha="$GITHUB_SHA" -F force=true > /dev/null
+          fi
+          gh release edit "$RELEASE_TAG" --title '最新 PDF 阅读版' \
+            --notes-file "$notes" --draft=false --prerelease=false --latest
+
+      - name: Verify published PDF downloads
+        if: steps.current.outputs.publish == 'true'
+        run: |
+          verify_dir="$RUNNER_TEMP/verify-release"
+          mkdir -p "$verify_dir"
+          gh release download "$RELEASE_TAG" --dir "$verify_dir" \
+            --pattern '*.pdf' --pattern SHA256SUMS --pattern release-manifest.json
+          cmp dist/release/SHA256SUMS "$verify_dir/SHA256SUMS"
+          cmp dist/release/release-manifest.json "$verify_dir/release-manifest.json"
+          cd "$verify_dir"
+          sha256sum --check SHA256SUMS
+          echo "Release: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"
