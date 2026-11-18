@@ -62,13 +62,14 @@ $`\mu_X(A)=\int\mu_{X\mid Z=z}(A)\,\mu_Z(\mathop{}\!\mathrm{d} z)`$。
 
 <a name="eq-foundations-bayes"></a>
 
+**公式（0.1）**
+
 ```math
 \begin{aligned}
 p_X(x)&=\int k(x\mid z)\,\mu_Z(\mathop{}\!\mathrm{d} z),\\
 \mu_{Z\mid X=x}(\mathop{}\!\mathrm{d} z)&=\frac{k(x\mid z)}{p_X(x)}\,\mu_Z(\mathop{}\!\mathrm{d} z)
 \quad (p_X(x)>0).
 \end{aligned}
-\tag{0.1}
 ```
 
 第二式可由右侧乘回 $`p_X(x)\,\mathop{}\!\mathrm{d} x`$ 并与联合律比较得到。
@@ -78,14 +79,15 @@ p_X(x)&=\int k(x\mid z)\,\mu_Z(\mathop{}\!\mathrm{d} z),\\
 
 <a name="eq-foundations-score-identity"></a>
 
+**公式（0.2）**
+
 ```math
-\begin{align}
+\begin{aligned}
 \nabla_x p_t(x)
-&=\int \nabla_x k_t(x\mid x_0)\,\mu_0(\mathop{}\!\mathrm{d} x_0), \notag\\
+&=\int \nabla_x k_t(x\mid x_0)\,\mu_0(\mathop{}\!\mathrm{d} x_0), \\
 s_t(x):=\nabla_x\log p_t(x)
 &=\mathbb E[\nabla_x\log k_t(x\mid X_0)\mid X_t=x].
-\tag{0.2}
-\end{align}
+\end{aligned}
 ```
 
 第二式在 $`p_t(x)>0`$ 且条件 Score 有定义并可积时成立，
@@ -109,11 +111,12 @@ $`\mathbb E\,m(Z)=\mathbb E\,U`$。
 
 <a name="eq-foundations-regression"></a>
 
+**公式（0.3）**
+
 ```math
 \mathbb E\lVert U-h(Z) \rVert^2
 =\mathbb E\lVert U-m(Z) \rVert^2
 +\mathbb E\lVert m(Z)-h(Z) \rVert^2.
-\tag{0.3}
 ```
 
 因此最优回归函数在 $`Z`$ 的概率律下几乎处处唯一，等于条件均值。
@@ -167,12 +170,13 @@ $`R=U-m_U-B(V-m_V)`$。直接计算
 
 <a name="eq-foundations-conditional-gaussian"></a>
 
+**公式（0.4）**
+
 ```math
 U\mid V=v\sim\mathcal N\bigl(
 m_U+B(v-m_V),\
 \Sigma_{UU}-\Sigma_{UV}\Sigma_{VV}^{-1}\Sigma_{VU}
 \bigr).
-\tag{0.4}
 ```
 
 **例 · 高斯加噪与去噪回归**
@@ -183,18 +187,22 @@ $`\varepsilon\sim\mathcal N(0,I_d)`$ 与 $`X_0`$ 独立，且 $`\sigma_t>0`$。
 将该高斯的 Score 代入 [(0.2)](#eq-foundations-score-identity) 得
 
 <a name="eq-foundations-score-noise"></a>
-<a name="eq-foundations-tweedie"></a>
+
+**公式（0.5）**
 
 ```math
-\begin{align}
 s_t(x)
-&=-\frac{1}{\sigma_t}\,\mathbb E[\varepsilon\mid X_t=x],
-\tag{0.5}\\
+=-\frac{1}{\sigma_t}\,\mathbb E[\varepsilon\mid X_t=x],
+```
+
+<a name="eq-foundations-tweedie"></a>
+
+**公式（0.6）**
+
+```math
 \mathbb E[X_0\mid X_t=x]
-&=\frac{x+\sigma_t^2s_t(x)}{\alpha_t}
+=\frac{x+\sigma_t^2s_t(x)}{\alpha_t}
 \quad(\alpha_t\ne 0).
-\tag{0.6}
-\end{align}
 ```
 
 第二式来自 $`x=\alpha_t\mathbb E[X_0\mid X_t=x]+\sigma_t\mathbb E[\varepsilon\mid X_t=x]`$，
@@ -250,13 +258,14 @@ $`Q=\mathcal N(m_Q,\Sigma_Q)`$，两协方差均正定。
 
 <a name="eq-foundations-gaussian-kl"></a>
 
+**公式（0.7）**
+
 ```math
 D_{\mathrm{KL}}(P\|Q)=\frac12\left[
 \log\frac{\det\Sigma_Q}{\det\Sigma_P}
 +\operatorname{tr}(\Sigma_Q^{-1}\Sigma_P)-d
 +\lVert \Sigma_Q^{-1/2}(m_P-m_Q) \rVert^2
 \right].
-\tag{0.7}
 ```
 
 例如两者协方差同为 $`\sigma^2 I_d`$ 时，仅余
@@ -269,16 +278,17 @@ $`\lVert m_P-m_Q \rVert^2/(2\sigma^2)`$，这是固定反向方差的 DDPM 训�
 
 <a name="eq-foundations-elbo"></a>
 
+**公式（0.8）**
+
 ```math
-\begin{align}
+\begin{aligned}
 \mathcal E_\theta(x;q)
 &:=\mathbb E_{q(z\mid x)}
-[\log p_\theta(x,z)-\log q(z\mid x)] \notag\\
+[\log p_\theta(x,z)-\log q(z\mid x)] \\
 &=\log p_\theta(x)
 -D_{\mathrm{KL}}(q(\cdot\mid x)\|p_\theta(\cdot\mid x))
 \ \le\ \log p_\theta(x).
-\tag{0.8}
-\end{align}
+\end{aligned}
 ```
 
 这就是证据下界（ELBO）。取 $`x=x_0`$、$`z=x_{1:K}`$ 时，
@@ -298,10 +308,11 @@ DDPM 用前向加噪路径作为辅助分布。后续章节将利用两条链的
 
 <a name="eq-foundations-ode-initial"></a>
 
+**公式（0.9）**
+
 ```math
 \dot X_t=u_t(X_t),\qquad X_s=x,\qquad
 X_t=x+\int_s^t u_r(X_r)\,\mathop{}\!\mathrm{d} r .
-\tag{0.9}
 ```
 
 例如假设 $`u_t(x)`$ 关于 $`(t,x)`$ 连续、空间上一致全局 Lipschitz，
@@ -331,10 +342,11 @@ $`\Phi_{r,t}\circ\Phi_{s,r}=\Phi_{s,t}`$ 和 $`\Phi_{s,t}^{-1}=\Phi_{t,s}`$。
 
 <a name="eq-foundations-velocity-reversal"></a>
 
+**公式（0.10）**
+
 ```math
 \frac{\mathop{}\!\mathrm{d} Y_\tau}{\mathop{}\!\mathrm{d}\tau}=v_\tau(Y_\tau),\qquad
 v_\tau(x)=-u_{1-\tau}(x),\qquad Y_0=z .
-\tag{0.10}
 ```
 
 例如 $`u_t(x)=b(t)x`$ 时，$`\Phi_{s,t}(x)=\exp(\int_s^t b(r)\,\mathop{}\!\mathrm{d} r)x`$。
@@ -358,9 +370,10 @@ $`\mu_t=(\Phi_{s,t})_\#\mu_s`$。
 
 <a name="eq-foundations-change-variables"></a>
 
+**公式（0.11）**
+
 ```math
 p_t(y)=p_s(\Phi_{t,s}(y))\,\lvert \det D_y\Phi_{t,s}(y) \rvert .
-\tag{0.11}
 ```
 
 例如 $`F(x)=b x`$ 且 $`b>0`$，则 $`p_t(y)=b^{-d}p_s(y/b)`$，
@@ -378,13 +391,14 @@ p_t(y)=p_s(\Phi_{t,s}(y))\,\lvert \det D_y\Phi_{t,s}(y) \rvert .
 
 <a name="eq-foundations-continuity-weak"></a>
 
+**公式（0.12）**
+
 ```math
-\begin{align}
+\begin{aligned}
 \frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\int \varphi(x)\,\mu_t(\mathop{}\!\mathrm{d} x)
-&=\mathbb E[\nabla\varphi(X_t)\cdot u_t(X_t)]\notag\\
+&=\mathbb E[\nabla\varphi(X_t)\cdot u_t(X_t)]\\
 &=\int \nabla\varphi(x)\cdot u_t(x)\,\mu_t(\mathop{}\!\mathrm{d} x).
-\tag{0.12}
-\end{align}
+\end{aligned}
 ```
 
 这给出了连续性方程的弱形式，即使 $`\mu_t`$ 没有密度也可使用。
@@ -393,9 +407,10 @@ p_t(y)=p_s(\Phi_{t,s}(y))\,\lvert \det D_y\Phi_{t,s}(y) \rvert .
 
 <a name="eq-foundations-continuity"></a>
 
+**公式（0.13）**
+
 ```math
 \boxed{\partial_t p_t+\nabla\cdot(p_tu_t)=0.}
-\tag{0.13}
 ```
 
 把乘积求导展开即
@@ -439,9 +454,10 @@ $`p_t(\Phi_{s,t}(x))\det A_t=p_s(x)`$。
 
 <a name="eq-foundations-instant-change"></a>
 
+**公式（0.14）**
+
 ```math
 \boxed{\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\log p_t(X_t)=-\nabla\cdot u_t(X_t).}
-\tag{0.14}
 ```
 
 也可把 $`\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}p_t(X_t)=\partial_t p_t(X_t)+u_t(X_t)\cdot\nabla p_t(X_t)`$
@@ -456,10 +472,11 @@ $`p_1=p_{\mathrm{prior}}`$，积分 [(0.14)](#eq-foundations-instant-change) 得
 
 <a name="eq-foundations-cnf-likelihood"></a>
 
+**公式（0.15）**
+
 ```math
 \log p_0(x_0)
 =\log p_{\mathrm{prior}}(x_1)+\int_0^1\nabla\cdot u_t(X_t)\,\mathop{}\!\mathrm{d} t .
-\tag{0.15}
 ```
 
 用生成时钟写同一式，右侧变为
@@ -522,6 +539,8 @@ $`a_t(x)=G_t(x)G_t(x)^\top`$。在下式中，系数及导数均在 $`(t,X_t)`$ 
 
 <a name="eq-foundations-ito"></a>
 
+**公式（0.16）**
+
 ```math
 \begin{aligned}
 \mathop{}\!\mathrm{d}\varphi(t,X_t)
@@ -529,7 +548,6 @@ $`a_t(x)=G_t(x)G_t(x)^\top`$。在下式中，系数及导数均在 $`(t,X_t)`$ 
 +\tfrac12\operatorname{tr}(a_t D_x^2\varphi)\right)\mathop{}\!\mathrm{d} t\\
 &\quad+\nabla\varphi^\top G_t\,\mathop{}\!\mathrm{d} W_t .
 \end{aligned}
-\tag{0.16}
 ```
 
 在 Taylor 展开中，$`\Delta W^i\Delta W^j`$ 沿细分求和产生
@@ -594,11 +612,12 @@ $`\mathcal L_t\varphi=\lim_{h\downarrow0}(P_{t,t+h}\varphi-\varphi)/h`$，
 
 <a name="eq-foundations-generator"></a>
 
+**公式（0.17）**
+
 ```math
 \mathcal L_t\varphi(x)
 =f_t(x)\cdot\nabla\varphi(x)
 +\tfrac12\sum_{i,j=1}^d a_{ij}(x,t)\partial_{ij}\varphi(x).
-\tag{0.17}
 ```
 
 固定观测时间 $`b`$ 和终值函数 $`\varphi`$，令 $`F(s,x)=P_{s,b}\varphi(x)`$。
@@ -628,10 +647,11 @@ $`\frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\langle\varphi,\mu_t\rang
 
 <a name="eq-foundations-reverse-kernel"></a>
 
+**公式（0.18）**
+
 ```math
 \mathbb P(Y_{\tau+h}\in\mathop{}\!\mathrm{d} x\mid Y_\tau=y)
 = \frac{p_{t-h}(x)k_{t-h,t}(y\mid x)}{p_t(y)}\,\mathop{}\!\mathrm{d} x ,
-\tag{0.18}
 ```
 
 其中 $`k_{t-h,t}`$ 是前向转移密度。由马尔可夫性，给定 $`X_t`$ 后，
@@ -662,6 +682,8 @@ $`\tfrac12\sum_{i,j}a_{ij}\partial_{ij}\varphi`$。
 
 <a name="eq-foundations-reverse-sde"></a>
 
+**公式（0.19）**
+
 ```math
 \begin{aligned}
 \mathop{}\!\mathrm{d} Y_\tau
@@ -671,7 +693,6 @@ b_\tau^{\mathrm{rev}}(x)
 &=-f_t(x)+\operatorname{div}a_t(x)+a_t(x)s_t(x),
 \qquad Y_0\sim\mu_1 .
 \end{aligned}
-\tag{0.19}
 ```
 
 这里 $`\overline W`$ 在反向 SDE 的滤过下是 Brownian 运动，
@@ -699,10 +720,11 @@ $`f_t-g(t)^2s_t`$，此时每一步满足 $`\Delta t<0`$，
 
 <a name="eq-foundations-fp-weak"></a>
 
+**公式（0.20）**
+
 ```math
 \int\varphi\,\mathop{}\!\mathrm{d}\mu_t-\int\varphi\,\mathop{}\!\mathrm{d}\mu_0
 =\int_0^t\int\mathcal L_r\varphi(x)\,\mu_r(\mathop{}\!\mathrm{d} x)\,\mathop{}\!\mathrm{d} r .
-\tag{0.20}
 ```
 
 这是 Fokker–Planck 方程的积分弱形式。
@@ -723,11 +745,12 @@ $`f_t-g(t)^2s_t`$，此时每一步满足 $`\Delta t<0`$，
 
 <a name="eq-foundations-fp"></a>
 
+**公式（0.21）**
+
 ```math
 \boxed{
 \partial_t p_t=-\nabla\cdot(f_tp_t)
 +\tfrac12\sum_{i,j=1}^d\partial_{ij}(a_{ij}p_t).}
-\tag{0.21}
 ```
 
 若密度不够光滑，这个等式仍可在分布意义下理解。
@@ -742,9 +765,10 @@ $`\mu_t\rightharpoonup\mu_0`$（$`t\downarrow0`$）。
 
 <a name="eq-foundations-current"></a>
 
+**公式（0.22）**
+
 ```math
 (J_t)_i=f_i p_t-\tfrac12\sum_j\partial_j(a_{ij}p_t).
-\tag{0.22}
 ```
 
 代入 [(0.21)](#eq-foundations-fp) 可得 $`\partial_t p_t+\nabla\cdot J_t=0`$。
@@ -790,14 +814,15 @@ $`X_t-X_0=\int_0^t G_r\,\mathop{}\!\mathrm{d} W_r`$ 为独立于 $`X_0`$ 的高�
 
 <a name="eq-foundations-matrix-div"></a>
 
+**公式（0.23）**
+
 ```math
-\begin{align}
+\begin{aligned}
 \sum_j\partial_j(a_{ij}p_t)
-&=p_t\sum_j\partial_j a_{ij}+\sum_j a_{ij}\partial_j p_t,\notag\\
+&=p_t\sum_j\partial_j a_{ij}+\sum_j a_{ij}\partial_j p_t,\\
 \operatorname{div}(a_t p_t)
 &=p_t\bigl(\operatorname{div}a_t+a_t s_t\bigr).
-\tag{0.23}
-\end{align}
+\end{aligned}
 ```
 
 只随时间变化的矩阵满足 $`\operatorname{div}a_t=0`$。
@@ -825,11 +850,12 @@ $`J=0`$，因而 $`p`$ 满足稳态 Fokker–Planck 方程。
 
 <a name="eq-foundations-probability-velocity"></a>
 
+**公式（0.24）**
+
 ```math
 \boxed{
 u_t(x)=f_t(x)-\tfrac12\operatorname{div}a_t(x)-\tfrac12 a_t(x)s_t(x).
 }
-\tag{0.24}
 ```
 
 由 $`J_t=p_tu_t`$，[(0.21)](#eq-foundations-fp) 转为
@@ -848,6 +874,8 @@ $`\dot Z_t=u_t(Z_t)`$ 并取 $`Z_s\sim\mu_s`$，
 
 <a name="eq-foundations-generation-ode"></a>
 
+**公式（0.25）**
+
 ```math
 \begin{aligned}
 \frac{\mathop{}\!\mathrm{d} Z_\tau^{\mathrm{gen}}}{\mathop{}\!\mathrm{d}\tau}
@@ -856,7 +884,6 @@ v_\tau
 &=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12 a_t s_t,
 \qquad t=1-\tau .
 \end{aligned}
-\tag{0.25}
 ```
 
 比较 [(0.19)](#eq-foundations-reverse-sde)，反向 SDE 保留扩散项，
@@ -946,11 +973,12 @@ $`\mu_1=(\delta_{-1}+\delta_1)/2`$ 时，任何确定性映射只能把一个原
 
 <a name="eq-foundations-bb"></a>
 
+**公式（0.26）**
+
 ```math
 W_2^2(\mu_0,\mu_1)=
 \inf_{(\nu_t,u_t)}
 \int_0^1\int \lVert u_t(x) \rVert^2\,\nu_t(\mathop{}\!\mathrm{d} x)\,\mathop{}\!\mathrm{d} t .
-\tag{0.26}
 ```
 
 约束为二阶矩有限的概率测度路径 $`\nu_t`$ 弱连续，
@@ -984,12 +1012,13 @@ $`\mathbb E\lVert u_t(I_t) \rVert^2\le\mathbb E\lVert X_1-X_0 \rVert^2=W_2^2`$�
 
 <a name="eq-foundations-entropic-ot"></a>
 
+**公式（0.27）**
+
 ```math
 \min_{\pi\in\Pi(r,c)}
 \left[\sum_{i,j}C_{ij}\pi_{ij}
 +\lambda D_{\mathrm{KL}}(\pi\|r\otimes c)\right],
 \qquad \lambda>0 .
-\tag{0.27}
 ```
 
 对固定边缘，KL 项与 $`\sum_{i,j}\pi_{ij}\log\pi_{ij}`$ 仅相差常数。
@@ -1019,10 +1048,11 @@ Schrödinger Bridge 按端点约束选择路径律
 
 <a name="eq-foundations-sb"></a>
 
+**公式（0.28）**
+
 ```math
 \inf_{\substack{P:\,P_0=\mu_0\\ P_1=\mu_1}}
 D_{\mathrm{KL}}(P\|R).
-\tag{0.28}
 ```
 
 这里 $`P_0,P_1`$ 表示路径律 $`P`$ 的两个端点边缘。
@@ -1031,13 +1061,14 @@ D_{\mathrm{KL}}(P\|R).
 
 <a name="eq-foundations-sb-chain"></a>
 
+**公式（0.29）**
+
 ```math
 \begin{aligned}
 D_{\mathrm{KL}}(P\|R)
 &=D_{\mathrm{KL}}(P_{01}\|R_{01})\\
 &\quad+\int D_{\mathrm{KL}}(P^{xy}\|R^{xy})\,P_{01}(\mathop{}\!\mathrm{d} x,\mathop{}\!\mathrm{d} y).
 \end{aligned}
-\tag{0.29}
 ```
 
 当路径 KL 有限时，将 $`\mathop{}\!\mathrm{d} P/\mathop{}\!\mathrm{d} R`$ 分解为端点密度比与条件密度比，
@@ -1062,11 +1093,12 @@ M_1=\exp\left(\int_0^1 h_t^\top\,\mathop{}\!\mathrm{d} W_t^R
 
 <a name="eq-foundations-control-energy"></a>
 
+**公式（0.30）**
+
 ```math
 D_{\mathrm{KL}}(P\|R)
 =\mathbb E_P\log M_1
 =\tfrac12\mathbb E_P\int_0^1\lVert h_t \rVert^2\,\mathop{}\!\mathrm{d} t .
-\tag{0.30}
 ```
 
 若起始律也改变，在可对初始状态做条件分解并成立相应绝对连续性时，
@@ -1087,11 +1119,12 @@ $`\lVert h_t \rVert^2=\delta f_t^\top a_t^{-1}\delta f_t`$。
 
 <a name="eq-foundations-endpoints"></a>
 
+**公式（0.31）**
+
 ```math
 \mu_0=\mu_{\mathrm{data}},\qquad
 \mu_1=\mu_{\mathrm{prior}},\qquad
 \mu_{\mathrm{prior}}\text{ 通常取 }\mathcal N(0,I_d).
-\tag{0.31}
 ```
 
 噪声端点可以是其他容易采样的先验。例如何时可在端点用高斯初始化，
@@ -1103,10 +1136,11 @@ $`(\alpha_1,\sigma_1)=(0,1)`$，则 $`X_0`$ 是原始数据，$`X_1=\varepsilon`
 
 <a name="eq-foundations-prior-bound"></a>
 
+**公式（0.32）**
+
 ```math
 W_2^2(\mu_1,\mathcal N(0,I_d))
 \le \alpha_1^2\mathbb E\lVert X_0 \rVert^2+d\,(\sigma_1-1)^2 .
-\tag{0.32}
 ```
 
 交叉项因独立性以及 $`\mathbb E\varepsilon=0`$ 消失。
@@ -1130,7 +1164,7 @@ $`\beta(t)=-2\alpha_t'/\alpha_t=\pi\tan(\pi t/2)`$ 在 $`t=1`$ 发散。
 | 时间坐标 | 起点 | 终点 |
 | --- | --- | --- |
 | 加噪 $`t`$ | $`t=0`$ 原始数据 | $`t=1`$ 噪声端点 |
-| 生成 $`	au=1-t`$ | $`	au=0`$ 噪声先验 | $`	au=1`$ 生成样本 |
+| 生成 $`\tau=1-t`$ | $`\tau=0`$ 噪声先验 | $`\tau=1`$ 生成样本 |
 
 #### DDPM 与 DDIM
 原始记号以 $`x_0`$ 表示干净数据，以 $`x_k`$ 表示第 $`k`$ 步的加噪状态。
@@ -1188,13 +1222,14 @@ $`\mathop{}\!\mathrm{d} X_r=F_r(X_r)\,\mathop{}\!\mathrm{d} r+H_r(X_r)\,\mathop{
 
 <a name="eq-foundations-time-rescaling"></a>
 
+**公式（0.33）**
+
 ```math
 \begin{aligned}
 \mathop{}\!\mathrm{d} X^{\mathrm{norm}}_t
 &=T F_{Tt}(X^{\mathrm{norm}}_t)\,\mathop{}\!\mathrm{d} t\\
 &\quad+\sqrt T H_{Tt}(X^{\mathrm{norm}}_t)\,\mathop{}\!\mathrm{d}\widetilde W_t .
 \end{aligned}
-\tag{0.33}
 ```
 
 漂移与扩散协方差率乘 $`T`$，扩散因子乘 $`\sqrt T`$。
@@ -1232,13 +1267,14 @@ $`\mathcal N(0,I_d)`$ 作为与 $`C`$ 独立的先验。
 
 <a name="eq-foundations-linear-fm"></a>
 
+**公式（0.34）**
+
 ```math
 \begin{aligned}
 u_t(x)&=\mathbb E[X_1-X_0\mid I_t=x],\\
 I_{1-\tau}&=(1-\tau)X_1+\tau X_0,\\
 v_\tau(x)&=\mathbb E[X_0-X_1\mid I_{1-\tau}=x]=-u_{1-\tau}(x).
 \end{aligned}
-\tag{0.34}
 ```
 
 端点独立采样时 $`\pi=\mu_0\otimes\mu_1`$，
@@ -1300,11 +1336,12 @@ $`a_t=G_tG_t^\top`$ 是瞬时协方差率。
 
 <a name="eq-foundations-vpred"></a>
 
+**公式（0.35）**
+
 ```math
 \begin{pmatrix}X_t\\v_t^{\mathrm{pred}}\end{pmatrix}
 =\begin{pmatrix}\alpha_t & \sigma_t\\-\sigma_t & \alpha_t\end{pmatrix}
 \begin{pmatrix}X_0\\\varepsilon\end{pmatrix}.
-\tag{0.35}
 ```
 
 转置这个正交矩阵，可得 $`X_0=\alpha_tX_t-\sigma_t v_t^{\mathrm{pred}}`$ 和

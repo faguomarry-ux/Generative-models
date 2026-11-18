@@ -35,10 +35,11 @@
 
 <a name="eq-fields-score-definition"></a>
 
+**公式（4.1）**
+
 ```math
 s(x)=\nabla_x\log p(x)=\frac{\nabla_xp(x)}{p(x)},\qquad
  \log p(x+h)=\log p(x)+s(x)^\top h+o(\lVert h\rVert).
-\tag{4.1}
 ```
 
 对单位方向 $`e`$，$`e^\top s`$ 是对数密度的方向导数。
@@ -69,11 +70,12 @@ $`s_Y(y)=B^{-\top}s_X(B^{-1}(y-c))`$。
 
 <a name="eq-fields-gaussian-score"></a>
 
+**公式（4.2）**
+
 ```math
 s(x)=-\Sigma^{-1}(x-m),\qquad
  \nabla_xs(x)=-\Sigma^{-1},\qquad
  \nabla\cdot s(x)=-\operatorname{tr}(\Sigma^{-1}).
-\tag{4.2}
 ```
 
 在协方差特征向量方向，Score 的恢复强度是对应方差的倒数。
@@ -101,10 +103,11 @@ s(x)=-\tfrac13\begin{pmatrix}2&-1\\-1&2\end{pmatrix}x.
 
 <a name="eq-fields-fisher-identity"></a>
 
+**公式（4.3）**
+
 ```math
 s(x)=\int\nabla_x\log p(x\mid z)\,\pi(\mathrm{d}  z\mid x)
      =\mathbb E[\nabla_x\log p(X\mid Z)\mid X=x].
-\tag{4.3}
 ```
 
 平均权重是观察到 $`x`$ 后的后验。直接按先验权重平均条件 Score
@@ -136,9 +139,10 @@ $`\mathbb E_p s(X)=0`$。对光滑向量测试函数 $`h`$，
 
 <a name="eq-fields-stein"></a>
 
+**公式（4.4）**
+
 ```math
 \mathbb E_p[s(X)^\top h(X)+\nabla\cdot h(X)]=0.
-\tag{4.4}
 ```
 
 取第 $`i`$ 个分量为 $`x_j`$、其余为零，得
@@ -173,6 +177,8 @@ Score 允许通过局部导数构建回归与动力学。
 
 <a name="eq-fields-fisher-expansion"></a>
 
+**公式（4.5）**
+
 ```math
 \begin{aligned}
  \mathcal J(\theta)&=\tfrac12\mathbb E_p\lVert s_\theta(X)-s(X)\rVert^2\\
@@ -180,7 +186,6 @@ Score 允许通过局部导数构建回归与动力学。
    -\int s_\theta(x)^\top\nabla p(x)\mathrm{d}  x+C_p,\\
  C_p&=\tfrac12\mathbb E_p\lVert s(X)\rVert^2.
  \end{aligned}
-\tag{4.5}
 ```
 
 当 $`s_\theta=\nabla\log p_\theta`$ 时，它是带 $`1/2`$ 系数的 Fisher 散度。
@@ -206,12 +211,13 @@ $`\nabla\log(p_\theta/p)=0`$，归一化使 $`p_\theta=p`$。
 
 <a name="eq-fields-hyvarinen"></a>
 
+**公式（4.6）**
+
 ```math
 \mathcal J_{\mathrm H}(\theta)
  =\mathbb E_p\left[\tfrac12\lVert s_\theta(X)\rVert^2+
                                       \nabla\cdot s_\theta(X)\right],
  \qquad \mathcal J=\mathcal J_{\mathrm H}+C_p.
-\tag{4.6}
 ```
 
 这给出 Hyvärinen 目标 〔[17](#ref-hyvarinen2005sm)〕。
@@ -233,11 +239,12 @@ $`T_t=\nabla_x\log q_t(X_t\mid D)`$。
 
 <a name="eq-fields-dsm-projection"></a>
 
+**公式（4.7）**
+
 ```math
 \mathbb E\lVert s_\theta(X_t,t)-T_t\rVert^2
  =\mathbb E\lVert s_\theta(X_t,t)-s_t(X_t)\rVert^2
                          +\mathbb E\lVert T_t-s_t(X_t)\rVert^2.
-\tag{4.7}
 ```
 
 右端第二项与网络无关。给定同一函数类，两个总体风险有相同最优参数，
@@ -255,11 +262,12 @@ $`T_t=\nabla_x\log q_t(X_t\mid D)`$。
 
 <a name="eq-fields-sliced"></a>
 
+**公式（4.8）**
+
 ```math
 \mathcal J_{\mathrm{SSM}}(\theta)=
  \mathbb E_{X,z}\left[\tfrac12(z^\top s_\theta(X))^2+
                               z^\top J_{s_\theta}(X)z\right].
-\tag{4.8}
 ```
 
 它与 $`\mathcal J_M`$ 相差参数无关的常数，见 〔[21](#ref-song2019sliced)〕。
@@ -303,11 +311,12 @@ $`X_t=\alpha_tD+\sigma_t\varepsilon`$，$`\sigma_t>0`$。
 
 <a name="eq-fields-conditional-noise-score"></a>
 
+**公式（4.9）**
+
 ```math
 \nabla_x\log q_t(x\mid d)
  =-\frac{x-\alpha_td}{\sigma_t^2},\qquad
  \nabla_x\log q_t(X_t\mid D)=-\frac{\varepsilon}{\sigma_t}.
-\tag{4.9}
 ```
 
 若改成 $`X_t=\alpha_tD+L_t\varepsilon`$，$`L_t`$ 可逆，
@@ -326,10 +335,11 @@ $`-\Sigma_t^{-1}(x-\alpha_td)=-L_t^{-\top}\varepsilon`$。
 
 <a name="eq-fields-noise-to-score"></a>
 
+**公式（4.10）**
+
 ```math
 s_t(x)=-\frac{\varepsilon^*(x,t)}{\sigma_t},\qquad
  s_\theta(x,t)=-\frac{\varepsilon_\theta(x,t)}{\sigma_t}.
-\tag{4.10}
 ```
 
 第二式定义网络输出的换算。只有在回归误差受控时，它才准确逼近第一式。
@@ -348,10 +358,11 @@ $`\sigma_t^2s_t(x)=-x+\alpha_t\mathbb E[D\mid X_t=x]`$。
 
 <a name="eq-fields-tweedie"></a>
 
+**公式（4.11）**
+
 ```math
 d_t^*(x):=\mathbb E[D\mid X_t=x]
        =\frac{x+\sigma_t^2s_t(x)}{\alpha_t}.
-\tag{4.11}
 ```
 
 经典加性高斯情形 $`\alpha_t=1`$ 即为 Tweedie 后验均值公式 〔[22](#ref-efron2011tweedie)〕。
@@ -367,10 +378,11 @@ $`\alpha_t d_t^*(x)=x+\Sigma_t s_t(x)`$。
 
 <a name="eq-fields-second-tweedie"></a>
 
+**公式（4.12）**
+
 ```math
 \alpha_t^2\operatorname{Cov}(D\mid X_t=x)
    =\sigma_t^2I_d+\sigma_t^4\nabla_xs_t(x).
-\tag{4.12}
 ```
 
 该关系提供 Hessian 与后验不确定性的核对方式，需相应条件矩存在。
@@ -399,6 +411,8 @@ d_t^*(x)=m+\alpha_t C H_t^{-1}(x-\alpha_tm),\qquad
 
 <a name="eq-fields-three-parameterizations"></a>
 
+**公式（4.13）**
+
 ```math
 \begin{aligned}
  \widehat d_t&=(x-\sigma_t\widehat\varepsilon_t)/\alpha_t,
@@ -406,7 +420,6 @@ d_t^*(x)=m+\alpha_t C H_t^{-1}(x-\alpha_tm),\qquad
  \widehat\varepsilon_t&=(x-\alpha_t\widehat d_t)/\sigma_t,
  &\widehat d_t&=(x+\sigma_t^2\widehat s_t)/\alpha_t.
  \end{aligned}
-\tag{4.13}
 ```
 
 它们为同一个输出提供不同参数化。若三个网络分别训练，有限容量与优化误差
@@ -435,13 +448,14 @@ $`V_t^{\mathrm{diff}}=\alpha_t\varepsilon-\sigma_tD`$。
 
 <a name="eq-fields-vpred-rotation"></a>
 
+**公式（4.14）**
+
 ```math
 \begin{pmatrix}X_t\\V_t^{\mathrm{diff}}\end{pmatrix}
  =\begin{pmatrix}\alpha_t&\sigma_t\\-\sigma_t&\alpha_t\end{pmatrix}
    \begin{pmatrix}D\\\varepsilon\end{pmatrix},\qquad
  D=\alpha_tX_t-\sigma_t V_t^{\mathrm{diff}},\quad
  \varepsilon=\sigma_tX_t+\alpha_t V_t^{\mathrm{diff}}.
-\tag{4.14}
 ```
 
 该参数化见 〔[15](#ref-salimans2022distill)〕。若 $`w_t(x)=\mathbb E[V_t^{\mathrm{diff}}\mid X_t=x]`$，
@@ -477,9 +491,10 @@ $`\frac{\mathrm{d} }{\mathrm{d}  t}\mathbb E\varphi(X_t)=\mathbb E[\nabla\varphi
 
 <a name="eq-fields-continuity"></a>
 
+**公式（4.15）**
+
 ```math
 \partial_t p_t+\nabla\cdot(p_tu_t)=0.
-\tag{4.15}
 ```
 
 因此 $`p_tu_t`$ 是概率流密度，$`u_t`$ 是单位概率质量的输运速度。
@@ -504,10 +519,11 @@ $`\partial_t p_t(x\mid z)+\nabla\cdot[p_t(x\mid z)u_t(x\mid z)]=0`$。
 
 <a name="eq-fields-conditional-velocity"></a>
 
+**公式（4.16）**
+
 ```math
 u_t(x)=\frac{\int u_t(x\mid z)p_t(x\mid z)\pi(\mathrm{d}  z)}{p_t(x)}
        =\mathbb E[u_t(X_t\mid Z)\mid X_t=x].
-\tag{4.16}
 ```
 
 此公式与条件 Score 恒等式均使用后验加权，但证明分别来自连续性方程与密度求导。
@@ -525,9 +541,10 @@ $`\varepsilon`$ 沿每条条件轨迹保持固定，$`\sigma_t>0`$。
 
 <a name="eq-fields-gaussian-conditional-velocity"></a>
 
+**公式（4.17）**
+
 ```math
 u_t(x\mid z)=\dot m_t(z)+\frac{\dot\sigma_t}{\sigma_t}(x-m_t(z)).
-\tag{4.17}
 ```
 
 它输运条件均值和条件协方差。事实上 $`\dot m_t`$ 给出均值变化，
@@ -562,10 +579,11 @@ $`s_t=-\mathbb E[\zeta\mid I_t=x]/\gamma(t)`$。因此
 
 <a name="eq-fields-si-velocity-score"></a>
 
+**公式（4.18）**
+
 ```math
 u_t(x)=\mathbb E[\partial_t\mathcal I(t,D,N)\mid I_t=x]
                              -\gamma(t)\dot\gamma(t)s_t(x).
-\tag{4.18}
 ```
 
 它允许保留相关端点耦合，同时通过独立辅助高斯推导 Score
@@ -651,10 +669,11 @@ Fokker–Planck 方程的守恒形式为 $`\partial_t p_t=-\nabla\cdot j_t`$，�
 
 <a name="eq-fields-probability-current"></a>
 
+**公式（4.19）**
+
 ```math
 (j_t)_i=f_{i,t}p_t-\tfrac12\sum_j\partial_j(a_{ij,t}p_t),\qquad
  u_t=\frac{j_t}{p_t}.
-\tag{4.19}
 ```
 
 所以同一个漂移配上不同扩散，会产生不同密度演化和概率流速度。
@@ -672,10 +691,11 @@ $`j_t=f_tp_t-g(t)^2\nabla p_t/2`$。除以 $`p_t`$ 得
 
 <a name="eq-fields-isotropic-conversion"></a>
 
+**公式（4.20）**
+
 ```math
 u_t=f_t-\frac{g(t)^2}{2}s_t,\qquad
  f_t=u_t+\frac{g(t)^2}{2}s_t.
-\tag{4.20}
 ```
 
 当 $`g(t)\ne0`$ 且 $`f_t,u_t`$ 已知，可恢复
@@ -700,12 +720,13 @@ $`u_t=-\beta(t)(x+s_t)/2`$。
 
 <a name="eq-fields-anisotropic-conversion"></a>
 
+**公式（4.21）**
+
 ```math
 \begin{aligned}
  u_t&=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,\\
  f_t&=u_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t.
  \end{aligned}
-\tag{4.21}
 ```
 
 这里 $`a_ts_t`$ 是矩阵乘向量。只有当 $`a_t`$ 可逆时，才可由两个漂移类场恢复
@@ -735,11 +756,12 @@ f(x)=\tfrac12a'(x)+\tfrac12a(x)s(x)=\tfrac12(x-x^3).
 
 <a name="eq-fields-reverse-conversion"></a>
 
+**公式（4.22）**
+
 ```math
 b_\tau=-f_t+\operatorname{div}a_t+a_ts_t,\qquad
  v_\tau=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
  \quad t=1-\tau.
-\tag{4.22}
 ```
 
 因此 $`b_\tau=v_\tau+\operatorname{div}a_t/2+a_ts_t/2`$。
@@ -778,9 +800,10 @@ $`\dot X_t=\dot\alpha_tD+\dot\sigma_t\varepsilon`$。
 
 <a name="eq-fields-gaussian-marginal-velocity"></a>
 
+**公式（4.23）**
+
 ```math
 u_t(x)=\dot\alpha_t d_t^*(x)+\dot\sigma_t\varepsilon_t^*(x).
-\tag{4.23}
 ```
 
 这一定义对应固定噪声的可微随机插值。
@@ -805,13 +828,14 @@ $`B_tH_t+H_tB_t^\top=\dot H_t`$。
 
 <a name="eq-fields-score-to-velocity"></a>
 
+**公式（4.24）**
+
 ```math
 \begin{aligned}
  u_t(x)&=\frac{\dot\alpha_t}{\alpha_t}x+C_t s_t(x),\\
  C_t&=\frac{\dot\alpha_t}{\alpha_t}\sigma_t^2
                                      -\sigma_t\dot\sigma_t.
  \end{aligned}
-\tag{4.24}
 ```
 
 第一项来自 $`\dot\alpha_tx/\alpha_t`$，第二项收集条件噪声与条件数据均值中的
@@ -858,23 +882,25 @@ $`s_t=(u_t-\dot\alpha_tx/\alpha_t)/C_t`$。
 
 <a name="eq-fields-path-determinant"></a>
 
+**公式（4.25）**
+
 ```math
 \begin{pmatrix}x\\u_t(x)\end{pmatrix}
  =\begin{pmatrix}\alpha_t&\sigma_t\\\dot\alpha_t&\dot\sigma_t\end{pmatrix}
    \begin{pmatrix}d_t^*(x)\\\varepsilon_t^*(x)\end{pmatrix},\qquad
  \Delta_t=\alpha_t\dot\sigma_t-\sigma_t\dot\alpha_t.
-\tag{4.25}
 ```
 
 当 $`\Delta_t\ne0`$，有
 
 <a name="eq-fields-velocity-inverse"></a>
 
+**公式（4.26）**
+
 ```math
 d_t^*=\frac{\dot\sigma_t x-\sigma_tu_t}{\Delta_t},\qquad
  \varepsilon_t^*=\frac{-\dot\alpha_t x+\alpha_tu_t}{\Delta_t},\qquad
  s_t=\frac{\dot\alpha_t x-\alpha_tu_t}{\sigma_t\Delta_t}.
-\tag{4.26}
 ```
 
 Score 式另需 $`\sigma_t>0`$。当 $`\alpha_t\ne0`$ 时，
@@ -900,10 +926,11 @@ $`\mathcal N(\alpha_tD,\sigma_t^2I_d)`$，方差方程要求
 
 <a name="eq-fields-gaussian-diffusion-realization"></a>
 
+**公式（4.27）**
+
 ```math
 g(t)^2=\frac{\mathrm{d} }{\mathrm{d}  t}\sigma_t^2
              -2\frac{\dot\alpha_t}{\alpha_t}\sigma_t^2=-2C_t\ge0.
-\tag{4.27}
 ```
 
 结合 $`\alpha_0=1,\sigma_0=0`$，均值与方差方程即可验证全部条件边缘。
@@ -937,10 +964,11 @@ $`\mathrm{d}  P^\star/\mathrm{d}  R=\ell(X_0)h(X_1)`$，定义
 
 <a name="eq-fields-bridge-score"></a>
 
+**公式（4.28）**
+
 ```math
 p_t^\star=r_t\widehat\psi_t\psi_t,\qquad
  s_t^\star=\nabla\log r_t+\nabla\log\widehat\psi_t+\nabla\log\psi_t.
-\tag{4.28}
 ```
 
 这里 $`\widehat\psi_t`$ 采用参考条件期望的定义。
@@ -958,12 +986,13 @@ p_t^\star=r_t\widehat\psi_t\psi_t,\qquad
 
 <a name="eq-fields-bridge-drifts"></a>
 
+**公式（4.29）**
+
 ```math
 f_t^\star=f_t+a_t\eta_t,\qquad
  b_\tau^\star=-f_t+\operatorname{div}a_t
                  +a_t\nabla\log r_t+a_t\widehat\eta_t,
  \quad t=1-\tau.
-\tag{4.29}
 ```
 
 前向修正使用终点势梯度，反向参考漂移上的修正使用起点势梯度。
@@ -982,13 +1011,14 @@ $`\eta_t^\top a_t\eta_t/2`$。
 
 <a name="eq-fields-bridge-sum-difference"></a>
 
+**公式（4.30）**
+
 ```math
 \begin{aligned}
  f_t^\star+b_\tau^\star&=\operatorname{div}a_t+a_ts_t^\star,\\
  u_t^\star&=\tfrac12(f_t^\star-b_\tau^\star),\qquad
  v_\tau^\star=\tfrac12(b_\tau^\star-f_t^\star).
  \end{aligned}
-\tag{4.30}
 ```
 
 第一行把漂移之和联系到 Score，第二行给出概率流速度。
@@ -1119,10 +1149,11 @@ trace_sample = dot(jacobian_transpose_probe, probe)
 
 <a name="eq-fields-monte-carlo"></a>
 
+**公式（4.31）**
+
 ```math
 \widehat m_M(x)=\frac{\sum_{i=1}^Mq(x\mid z_i)T(x,z_i)}
                          {\sum_{i=1}^Mq(x\mid z_i)}.
-\tag{4.31}
 ```
 
 在适当大数定律和分母正的条件下，它收敛到后验平均。
@@ -1166,11 +1197,12 @@ $`J_Fz`$、$`J_F^\top z`$ 或 $`z^\top J_Fz`$。
 
 <a name="eq-fields-hutchinson"></a>
 
+**公式（4.32）**
+
 ```math
 \mathbb E_z[z^\top J_F(x)z]
  =\operatorname{tr}(J_F(x)\mathbb E[zz^\top])
  =\nabla\cdot F(x).
-\tag{4.32}
 ```
 
 平均 $`M`$ 个独立探针可降低方差。
@@ -1206,9 +1238,10 @@ $`J_Fz`$、$`J_F^\top z`$ 或 $`z^\top J_Fz`$。
 
 <a name="eq-fields-continuity-residual"></a>
 
+**公式（4.33）**
+
 ```math
 \mathcal R_t(x)=\partial_t\log p_t(x)+\nabla\cdot u_t(x)+u_t(x)^\top s_t(x).
-\tag{4.33}
 ```
 
 若场与密度相容，该残差为零。对给定 SDE，检查

@@ -8,6 +8,8 @@
 
 **网页正文**　[第 0 章 数学基础](docs/chapter-0.md) · [第 1 章 训练与生成框架](docs/chapter-1.md) · [第 2 章 训练理论](docs/chapter-2.md) · [第 3 章 生成理论](docs/chapter-3.md) · [第 4 章 向量场的计算与转换](docs/chapter-4.md) · [第 5 章 统一理论与研究拓展](docs/chapter-5.md)
 
+**网页公式维护**　[检查结果与编写规范](docs/MARKDOWN-REVIEW.md)。公式编号置于数学块外，保留原有编号和跳转链接，以兼容 GitHub 的浏览器数学排版。
+
 <a name="contents"></a>
 
 ## 章节目录
@@ -118,3 +120,9 @@ latexmk -xelatex main.tex
 ```
 
 [main.tex](main.tex) 是讲义入口。[references.tex](references.tex) 收录正文引用，[SOURCES.md](SOURCES.md) 记录 Lumenbook 模板来源。
+
+修改网页正文后，运行 Markdown 数学检查。
+
+```sh
+python scripts/check-markdown-math.py
+```

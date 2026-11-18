@@ -53,11 +53,12 @@ r_k=1-\beta_k,\qquad \bar r_k=\prod_{j=1}^{k}r_j,\qquad
 
 <a name="eq-overview-ddpm-forward"></a>
 
+**公式（1.1）**
+
 ```math
 q(x_k\mid x_{k-1})
     =\mathcal N(\sqrt{r_k}\,x_{k-1},\beta_k I_d),\qquad
   q(x_{1:K}\mid x_0)=\prod_{k=1}^{K}q(x_k\mid x_{k-1}) .
-\tag{1.1}
 ```
 
 条件均值系数逐步相乘，条件方差递推为
@@ -65,10 +66,11 @@ $`S_k^2=r_kS_{k-1}^2+\beta_k`$。因此一次采样任意时刻可写为
 
 <a name="eq-overview-ddpm-marginal"></a>
 
+**公式（1.2）**
+
 ```math
 q(x_k\mid x_0)=\mathcal N(A_kx_0,S_k^2I_d),\qquad
   x_k=A_kx_0+S_k\varepsilon,\quad\varepsilon\sim\mathcal N(0,I_d).
-\tag{1.2}
 ```
 
 这里 $`\varepsilon`$ 汇集了前 $`k`$ 步的扰动。对于固定 $`k`$，
@@ -87,11 +89,12 @@ q(x_k\mid x_0)=\mathcal N(A_kx_0,S_k^2I_d),\qquad
 
 <a name="eq-overview-ddpm-loss"></a>
 
+**公式（1.3）**
+
 ```math
 \mathcal L_{\mathrm{simple}}(\theta)
     =\mathbb E_{k,x_0,\varepsilon}
       \lVert \varepsilon-\varepsilon_\theta(A_kx_0+S_k\varepsilon,k) \rVert^2 .
-\tag{1.3}
 ```
 
 在无限容量的平方损失回归中，最优输出为
@@ -116,6 +119,8 @@ $`p_\theta(x_{k-1}\mid x_k)`$。
 
 <a name="eq-overview-ddpm-update"></a>
 
+**公式（1.4）**
+
 ```math
 \begin{aligned}
   m_\theta(x_k,k)
@@ -124,7 +129,6 @@ $`p_\theta(x_{k-1}\mid x_k)`$。
   x_{k-1}&=m_\theta(x_k,k)+\sqrt{\nu_k}\,z_k,\qquad
   z_k\sim\mathcal N(0,I_d).
   \end{aligned}
-\tag{1.4}
 ```
 
 中间步的 $`\nu_k`$ 可以按设计取 $`\widetilde\beta_k`$ 或 $`\beta_k`$。
@@ -177,11 +181,12 @@ $`(x_0,k,x_k)`$ 及构成 $`x_k`$ 的噪声，条件边缘保持后，
 
 <a name="eq-overview-ddim-coupling"></a>
 
+**公式（1.5）**
+
 ```math
 X_j=A_jx_0+\sqrt{S_j^2-\omega_{k,j}^2}\,
                     \frac{X_k-A_kx_0}{S_k}
             +\omega_{k,j} z,\qquad 0\le\omega_{k,j}\le S_j .
-\tag{1.5}
 ```
 
 给定 $`x_0`$ 后，标准化残差与 $`z`$ 都是独立标准高斯，
@@ -200,6 +205,8 @@ $`\widehat x_0=(x_k-S_k\widehat\varepsilon)/A_k`$，
 
 <a name="eq-overview-ddim-update"></a>
 
+**公式（1.6）**
+
 ```math
 \begin{aligned}
   x_j &= A_j\widehat x_0
@@ -209,7 +216,6 @@ $`\widehat x_0=(x_k-S_k\widehat\varepsilon)/A_k`$，
      \eta\,\sqrt{\frac{1-\bar r_j}{1-\bar r_k}}\,
                    \sqrt{1-\frac{\bar r_k}{\bar r_j}},\qquad 0\le\eta\le1 .
   \end{aligned}
-\tag{1.6}
 ```
 
 $`\eta=0`$ 时，给定 $`x_K`$ 后路径由模型与时间网格确定。
@@ -234,10 +240,11 @@ $`\widehat x_0`$。确定性 DDIM 的样本多样性仍来自不同的初始先�
 
 <a name="eq-overview-ddim-rescaled"></a>
 
+**公式（1.7）**
+
 ```math
 y_j=y_k+(\lambda_j-\lambda_k)\,
                         \varepsilon_\theta(A_ky_k,k).
-\tag{1.7}
 ```
 
 当 $`\lambda_j<\lambda_k`$ 时，这形如噪声坐标中的反向 Euler 步。
@@ -305,11 +312,12 @@ $`s_t(x)=\nabla_x\log p_t(x)`$。训练把未知边缘 Score 换成可计算的�
 
 <a name="eq-overview-score-loss"></a>
 
+**公式（1.8）**
+
 ```math
 \mathcal L_{\mathrm{DSM}}(\theta)
   =\mathbb E_{t,x_0,\varepsilon}
    \left[w(t)\lVert s_\theta(x,t)+\varepsilon/\sigma_t \rVert^2\right] .
-\tag{1.8}
 ```
 
 当 $`w(t)>0`$ 且回归目标在该权重下平方可积时，逐时刻最优回归解为 $`s_t`$，
@@ -330,11 +338,12 @@ $`s_t(x)=\nabla_x\log p_t(x)`$。训练把未知边缘 Score 换成可计算的�
 
 <a name="eq-overview-score-reverse"></a>
 
+**公式（1.9）**
+
 ```math
 \mathop{}\!\mathrm{d} Y_\tau
     =\bigl[-f_t(Y_\tau)+g(t)^2s_\theta(Y_\tau,t)\bigr]\,\mathop{}\!\mathrm{d}\tau
        +g(t)\,\mathop{}\!\mathrm{d}\overline W_\tau,\qquad Y_0\sim\mu_{\mathrm{prior}} .
-\tag{1.9}
 ```
 
 若正步长为 $`h`$，Euler–Maruyama 的一步是在当前状态
@@ -355,10 +364,11 @@ $`u_t=f_t-\tfrac12g(t)^2s_t`$。相应的生成 ODE 是
 
 <a name="eq-overview-score-ode"></a>
 
+**公式（1.10）**
+
 ```math
 \frac{\mathop{}\!\mathrm{d} Y_\tau}{\mathop{}\!\mathrm{d}\tau}
    =-f_t(Y_\tau)+\tfrac12 g(t)^2s_\theta(Y_\tau,t),\qquad t=1-\tau .
-\tag{1.10}
 ```
 
 理论上的边缘等价要求准确 Score、起点分布与前向终点匹配，
@@ -440,11 +450,12 @@ $`\dot\ell_t=\nabla\cdot u_\theta(X_t,t)`$。
 
 <a name="eq-overview-cnf-loss"></a>
 
+**公式（1.11）**
+
 ```math
 \mathcal L_{\mathrm{CNF}}(\theta)
      =-\mathbb E_{x_0}
          \bigl[\log p_{\mathrm{prior}}(F_{0,1}^\theta(x_0))+\ell_1\bigr].
-\tag{1.11}
 ```
 
 高维中 $`\nabla\cdot u_\theta=\operatorname{tr}(D_x u_\theta)`$ 可用
@@ -515,10 +526,11 @@ $`N=(x-\alpha_td_0)/\sigma_t`$ 消去噪声，得到
 
 <a name="eq-overview-fm-conditional"></a>
 
+**公式（1.12）**
+
 ```math
 u_t(x\mid d_0)=\alpha_t'd_0
                    +\frac{\sigma_t'}{\sigma_t}(x-\alpha_td_0).
-\tag{1.12}
 ```
 
 它生成条件边缘的连续性方程。训练时直接计算
@@ -536,6 +548,8 @@ $`\alpha_t'D+\sigma_t'N`$ 可避免显式除以很小的 $`\sigma_t`$。
 
 <a name="eq-overview-fm-losses"></a>
 
+**公式（1.13）**
+
 ```math
 \begin{aligned}
   \mathcal L_{\mathrm{FM}}
@@ -544,7 +558,6 @@ $`\alpha_t'D+\sigma_t'N`$ 可避免显式除以很小的 $`\sigma_t`$。
       &=\mathbb E\,\lVert u_\theta(I_t,t)-U_t \rVert^2,\qquad
         U_t=u_t(I_t\mid Z)\ \text{或}\ U_t=\dot I_t .
   \end{aligned}
-\tag{1.13}
 ```
 
 取相同的样本权重、时间分布，并满足有限二阶矩时，
@@ -561,11 +574,12 @@ $`\alpha_t'D+\sigma_t'N`$ 可避免显式除以很小的 $`\sigma_t`$。
 
 <a name="eq-overview-fm-marginal"></a>
 
+**公式（1.14）**
+
 ```math
 p_t(x)u_t(x)
     =\int p_t(x\mid c)u_t(x\mid c)\,\pi(\mathop{}\!\mathrm{d} c),\qquad
   u_t(x)=\mathbb E[U_t\mid I_t=x,t] .
-\tag{1.14}
 ```
 
 第二式用 Bayes 公式得到，给出的权重是后验 $`Z\mid I_t=x`$，
@@ -625,11 +639,12 @@ J_\tau=(1-\tau)N+\tau D=I_{1-\tau},\qquad
 
 <a name="eq-overview-rectified-loss"></a>
 
+**公式（1.15）**
+
 ```math
 \mathcal L_{\mathrm{RF}}
        =\mathbb E\lVert v_\theta(J_\tau,\tau)-(D-N) \rVert^2 ,
   \qquad v_\tau(x)=\mathbb E[D-N\mid J_\tau=x,\tau] .
-\tag{1.15}
 ```
 
 从 $`Y_0=N`$ 解 $`\dot Y_\tau=v_\tau(Y_\tau)`$。
@@ -744,10 +759,11 @@ $`\inf_{P:\,P_0=\mu_0,\,P_1=\mu_1}D_{\mathrm{KL}}(P\|R)`$。
 
 <a name="eq-overview-sb-static"></a>
 
+**公式（1.16）**
+
 ```math
 \pi^\star\in\operatorname*{arg\,min}_{\pi\in\Pi(\mu_0,\mu_1)}
       D_{\mathrm{KL}}(\pi\|R_{01}) .
-\tag{1.16}
 ```
 
 例如参考为 $`X_t=X_0+\sqrt{\epsilon}\,W_t`$，
@@ -768,13 +784,14 @@ $`\inf_{P:\,P_0=\mu_0,\,P_1=\mu_1}D_{\mathrm{KL}}(P\|R)`$。
 
 <a name="eq-overview-sb-potentials"></a>
 
+**公式（1.17）**
+
 ```math
 \begin{gathered}
   \frac{\mathop{}\!\mathrm{d} P^\star}{\mathop{}\!\mathrm{d} R}=\ell(X_0)h(X_1),\\
   \widehat\psi_t(x)=\mathbb E_R[\ell(X_0)\mid X_t=x],\qquad
   \psi_t(x)=\mathbb E_R[h(X_1)\mid X_t=x].
   \end{gathered}
-\tag{1.17}
 ```
 
 给定 $`X_t`$ 后，参考过程过去与未来条件独立，
@@ -800,6 +817,8 @@ $`\nabla\log p_t^\star= \nabla\log r_t+\nabla\log\widehat\psi_t+\nabla\log\psi_t
 
 <a name="eq-overview-sb-drifts"></a>
 
+**公式（1.18）**
+
 ```math
 \begin{aligned}
   f_t^\star &= f_t^R+a_t\nabla\log\psi_t,\\
@@ -808,7 +827,6 @@ $`\nabla\log p_t^\star= \nabla\log r_t+\nabla\log\widehat\psi_t+\nabla\log\psi_t
          \qquad t=1-\tau,\\
   b_\tau^R &= -f_t^R+\operatorname{div}a_t+a_t\nabla\log r_t .
   \end{aligned}
-\tag{1.18}
 ```
 
 正向与反向保持相应时刻的扩散协方差。
@@ -826,12 +844,13 @@ $`\nabla\log p_t^\star= \nabla\log r_t+\nabla\log\widehat\psi_t+\nabla\log\psi_t
 
 <a name="eq-overview-dsb-ipf"></a>
 
+**公式（1.19）**
+
 ```math
 \begin{aligned}
   Q^n(\mathop{}\!\mathrm{d} x_{0:K})&=\mu_1(\mathop{}\!\mathrm{d} x_K)\,P^n(\mathop{}\!\mathrm{d} x_{0:K-1}\mid x_K),\\
   P^{n+1}(\mathop{}\!\mathrm{d} x_{0:K})&=\mu_0(\mathop{}\!\mathrm{d} x_0)\,Q^n(\mathop{}\!\mathrm{d} x_{1:K}\mid x_0).
   \end{aligned}
-\tag{1.19}
 ```
 
 第一步保留反向条件律并重设噪声端边缘，第二步保留正向条件律并重设数据端边缘。
@@ -897,10 +916,11 @@ $`y+h_k[-f^n_{k-1}(y)+2s^n_k(y)]`$，与反向 Euler 漂移的符号一致。
 
 <a name="eq-overview-si-path"></a>
 
+**公式（1.20）**
+
 ```math
 I_t=\mathcal I(t,D,N)+\gamma(t)\zeta,\qquad
   \dot I_t=\partial_t\mathcal I(t,D,N)+\gamma'(t)\zeta .
-\tag{1.20}
 ```
 
 常见选择为 $`\mathcal I(t,D,N)=\alpha_tD+\sigma_tN`$。
@@ -920,10 +940,11 @@ $`u_t(x)=\mathbb E[\dot I_t\mid I_t=x,t]`$。
 
 <a name="eq-overview-si-targets"></a>
 
+**公式（1.21）**
+
 ```math
 u_t(x)=\mathbb E[\dot I_t\mid I_t=x,t],\qquad
   s_t(x)=-\frac{1}{\gamma(t)}\,\mathbb E[\zeta\mid I_t=x,t] .
-\tag{1.21}
 ```
 
 因此可用 $`\lVert u_\theta(I_t,t)-\dot I_t \rVert^2`$ 拟合速度，
@@ -944,11 +965,12 @@ u_t(x)=\mathbb E[\dot I_t\mid I_t=x,t],\qquad
 
 <a name="eq-overview-si-sampling"></a>
 
+**公式（1.22）**
+
 ```math
 \mathop{}\!\mathrm{d} Y_\tau=\bigl[v_\tau(Y_\tau)+\kappa(\tau)
                s_{1-\tau}(Y_\tau)\bigr]\mathop{}\!\mathrm{d}\tau
                  +\sqrt{2\kappa(\tau)}\,\mathop{}\!\mathrm{d}\overline W_\tau .
-\tag{1.22}
 ```
 
 理由是 Fokker–Planck 方程中的新增漂移给出

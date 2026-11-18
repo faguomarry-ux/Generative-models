@@ -76,6 +76,8 @@ $`\mathbb E[X_0\mid x]=(x-S_k\mathbb E[\varepsilon\mid x])/A_k`$。
 
 <a name="eq-generation-ddpm-mean"></a>
 
+**公式（3.1）**
+
 ```math
 \begin{aligned}
  \mathbb E[X_{k-1}\mid X_k=x]
@@ -84,7 +86,6 @@ $`\mathbb E[X_0\mid x]=(x-S_k\mathbb E[\varepsilon\mid x])/A_k`$。
  m_\theta(x,k)&=\frac1{\sqrt{r_k}}
        \left(x-\frac{\beta_k}{S_k}\varepsilon_\theta(x,k)\right).
  \end{aligned}
-\tag{3.1}
 ```
 
 因此最优噪声回归给出真实反向条件均值。
@@ -102,10 +103,11 @@ $`\widetilde\beta_k=\beta_k S_{k-1}^2/S_k^2`$。
 
 <a name="eq-generation-ddpm-cov"></a>
 
+**公式（3.2）**
+
 ```math
 \operatorname{Cov}(X_{k-1}\mid X_k=x)
  =\widetilde\beta_k I_d+c_k^2\operatorname{Cov}(X_0\mid X_k=x).
-\tag{3.2}
 ```
 
 常用选择 $`\nu_k=\widetilde\beta_k`$ 与 $`\nu_k=\beta_k`$
@@ -129,12 +131,13 @@ $`\beta_k-\widetilde\beta_k`$。
 
 <a name="eq-generation-ddpm-sampler"></a>
 
+**公式（3.3）**
+
 ```math
 Y_K\sim\pi,\qquad
  Y_{k-1}=\frac{Y_k-\beta_k\varepsilon_\theta(Y_k,k)/S_k}{\sqrt{r_k}}
              +\sqrt{\nu_k}\,\xi_k,
  \quad k=K,\ldots,1.
-\tag{3.3}
 ```
 
 其中 $`\xi_k\sim\mathcal N(0,I_d)`$ 相互独立。
@@ -185,6 +188,8 @@ X_j=A_jx_0+\frac{\sqrt{S_j^2-\delta_{k,j}^2}}{S_k}
 
 <a name="eq-generation-ddim-update"></a>
 
+**公式（3.4）**
+
 ```math
 \begin{aligned}
  \widehat D_k&=\frac{Y_k-S_k\varepsilon_\theta(Y_k,k)}{A_k},\\
@@ -192,7 +197,6 @@ X_j=A_jx_0+\frac{\sqrt{S_j^2-\delta_{k,j}^2}}{S_k}
        \sqrt{S_j^2-\delta_{k,j}^2}\,\varepsilon_\theta(Y_k,k)
        +\delta_{k,j}\xi .
  \end{aligned}
-\tag{3.4}
 ```
 
 条件边缘的构造证明使用真实端点。用条件均值网络替换端点后，
@@ -206,10 +210,11 @@ X_j=A_jx_0+\frac{\sqrt{S_j^2-\delta_{k,j}^2}}{S_k}
 
 <a name="eq-generation-ddim-eta"></a>
 
+**公式（3.5）**
+
 ```math
 \delta_{k,j}^2=\eta^2\frac{S_j^2}{S_k^2}
                          \left(1-\frac{A_k^2}{A_j^2}\right).
-\tag{3.5}
 ```
 
 取 $`0\le\eta\le1`$ 可保证根号内非负。
@@ -266,11 +271,12 @@ y_j=y_k+(\lambda_j-\lambda_k)\varepsilon_\theta(x_k,t_k).
 
 <a name="eq-generation-ddim-ode"></a>
 
+**公式（3.6）**
+
 ```math
 \frac{\mathrm{d}  x}{\mathrm{d}  t}=\frac{\dot\alpha_t}{\alpha_t}x+
  \left(\dot\sigma_t-\frac{\dot\alpha_t}{\alpha_t}\sigma_t\right)
  \varepsilon_\theta(x,t).
-\tag{3.6}
 ```
 
 对 VP 路径，$`\dot\alpha/\alpha=-\beta/2`$、
@@ -301,8 +307,7 @@ $`\epsilon\downarrow0`$ 的极限。反向 Brownian 运动相对于反向滤过�
 
 ### 3.3.2 Reverse-time SDE 的推导 ★
 
-设 $`L_t\varphi=f_t\cdot\nabla\varphi+
-\frac12\sum_{ij}a_{ij,t}\partial_{ij}\varphi`$，其密度伴随为 $`L_t^*`$。
+设 $`L_t\varphi=f_t\cdot\nabla\varphi+ \frac12\sum_{ij}a_{ij,t}\partial_{ij}\varphi`$，其密度伴随为 $`L_t^*`$。
 由 Bayes 反向转移核，对光滑测试函数展开短时间转移算子，
 递增生成时间的生成元为
 
@@ -332,13 +337,14 @@ $`I+hL_t^*+o(h)`$ 展开分子，减去 $`\varphi(x)`$ 并除以 $`h`$，即得�
 
 <a name="eq-generation-reverse-sde"></a>
 
+**公式（3.7）**
+
 ```math
 \begin{aligned}
  \mathrm{d}  Y_\tau&=b_\tau(Y_\tau)\mathrm{d} \tau+G_t(Y_\tau)\mathrm{d} \overline W_\tau,\\
  b_\tau&=-f_t+\operatorname{div}a_t+a_ts_t,\qquad t=1-\tau,\\
  (\operatorname{div}a_t)_i&=\sum_j\partial_j a_{ij,t}.
  \end{aligned}
-\tag{3.7}
 ```
 
 若 $`G_t=g(t)I_d`$，反向漂移为 $`-f_t+g(t)^2s_t`$。
@@ -355,18 +361,18 @@ $`I+hL_t^*+o(h)`$ 展开分子，减去 $`\varphi(x)`$ 并除以 $`h`$，即得�
 \partial_t p_t=-\nabla\cdot(f_tp_t)+\frac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
 ```
 
-对每个坐标，$`\sum_j\partial_j(a_{ij}p)
-=p(\operatorname{div}a)_i+p(a s)_i`$，所以方程可写为
+对每个坐标，$`\sum_j\partial_j(a_{ij}p) =p(\operatorname{div}a)_i+p(a s)_i`$，所以方程可写为
 $`\partial_t p_t=-\nabla\cdot(p_tu_t)`$，其中
 
 <a name="eq-generation-probability-ode"></a>
+
+**公式（3.8）**
 
 ```math
 \begin{aligned}
  u_t&=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,\\
  \frac{\mathrm{d}  Z_\tau}{\mathrm{d} \tau}&=v_\tau(Z_\tau)=-u_{1-\tau}(Z_\tau).
  \end{aligned}
-\tag{3.8}
 ```
 
 该构造选取前向扩散的概率流速度。连续性方程若允许添加满足
@@ -413,8 +419,7 @@ Predictor 使用反向漂移估计执行
 ```
 
 随后固定目标噪声时刻 $`t=1-\tau_{n+1}`$，执行若干次
-$`Y^{(\ell+1)}=Y^{(\ell)}+\delta_\ell s_\theta(Y^{(\ell)},t)
-+\sqrt{2\delta_\ell}\zeta_\ell`$，从 $`\widetilde Y_{n+1}`$ 开始。
+$`Y^{(\ell+1)}=Y^{(\ell)}+\delta_\ell s_\theta(Y^{(\ell)},t) +\sqrt{2\delta_\ell}\zeta_\ell`$，从 $`\widetilde Y_{n+1}`$ 开始。
 Corrector 的内部步保持生成时间固定。
 步数与内部步长共同决定附加网络调用和校正程度。
 每次改动内部状态后通常需要重新评估 Score。
@@ -452,9 +457,10 @@ $`v_\theta(x,\tau)=-U_\theta(x,1-\tau)`$。若训练本来采用生成时间，
 
 <a name="eq-generation-fm-ode"></a>
 
+**公式（3.9）**
+
 ```math
 Z_0\sim\pi,\qquad \dot Z_\tau=v_\theta(Z_\tau,\tau),\quad 0\le\tau\le1.
-\tag{3.9}
 ```
 
 求解器每次评估当前状态上的边缘速度。
@@ -466,12 +472,10 @@ CFM 的条件期望投影使条件监督的总体最优场等于指定边缘速�
 ### 3.4.2 流映射与概率密度演化
 
 记从 $`r`$ 到 $`\tau`$ 的流映射为 $`\Phi_{\tau\leftarrow r}`$。
-唯一解保证组合律 $`\Phi_{\tau\leftarrow r}\circ\Phi_{r\leftarrow s}
-=\Phi_{\tau\leftarrow s}`$。生成律为
+唯一解保证组合律 $`\Phi_{\tau\leftarrow r}\circ\Phi_{r\leftarrow s} =\Phi_{\tau\leftarrow s}`$。生成律为
 $`\widehat\rho_\tau=(\Phi_{\tau\leftarrow0})_\#\pi`$。
 对光滑测试函数求导得到
-$`\frac{\mathrm{d} }{\mathrm{d} \tau}\mathbb E\varphi(Z_\tau)
-=\mathbb E[\nabla\varphi(Z_\tau)\cdot v_\theta(Z_\tau,\tau)]`$，
+$`\frac{\mathrm{d} }{\mathrm{d} \tau}\mathbb E\varphi(Z_\tau) =\mathbb E[\nabla\varphi(Z_\tau)\cdot v_\theta(Z_\tau,\tau)]`$，
 故 $`\partial_\tau\widehat\rho=-\nabla\cdot(v_\theta\widehat\rho)`$。
 若 $`v_\theta=v`$、$`\pi=p_1`$，并有连续性方程唯一性，
 则 $`\widehat\rho_\tau=p_{1-\tau}`$。这是边缘回归到生成分布的推理链。
@@ -495,6 +499,8 @@ $`\frac{\mathrm{d} }{\mathrm{d} \tau}\mathbb E\varphi(Z_\tau)
 
 <a name="eq-generation-cnf-density"></a>
 
+**公式（3.10）**
+
 ```math
 \begin{aligned}
  \frac{\mathrm{d} }{\mathrm{d} \tau}\log\widehat\rho_\tau(Z_\tau)
@@ -502,7 +508,6 @@ $`\frac{\mathrm{d} }{\mathrm{d} \tau}\mathbb E\varphi(Z_\tau)
  \log\widehat\rho_1(Z_1)&=\log\pi(Z_0)-
                   \int_0^1\nabla\cdot v_\theta(Z_\tau,\tau)\mathrm{d} \tau.
  \end{aligned}
-\tag{3.10}
 ```
 
 对给定观测 $`x`$，以 $`Z_1=x`$ 为终值反积分获得 $`Z_0`$，再使用同一公式。
@@ -551,10 +556,11 @@ $`H_\tau=(1-\tau)^2+\tau^2`$。联合高斯回归给出
 
 <a name="eq-generation-rf-gaussian"></a>
 
+**公式（3.11）**
+
 ```math
 v_\tau(x)=\frac{2\tau-1}{H_\tau}x,
  \qquad Z_\tau=\sqrt{H_\tau}\,Z_0.
-\tag{3.11}
 ```
 
 验证只需计算 $`\operatorname{Cov}(D-N,I_\tau)=(2\tau-1)I_d`$，
@@ -571,14 +577,14 @@ v_\tau(x)=\frac{2\tau-1}{H_\tau}x,
 
 <a name="eq-generation-acceleration"></a>
 
+**公式（3.12）**
+
 ```math
 \ddot Z_\tau=\partial_\tau v_\tau(Z_\tau)
                 +(\nabla v_\tau)(Z_\tau)v_\tau(Z_\tau).
-\tag{3.12}
 ```
 
-Taylor 展开为 $`Z_{\tau+h}=Z_\tau+h v_\tau(Z_\tau)
-+h^2\ddot Z_\tau/2+O(h^3)`$。
+Taylor 展开为 $`Z_{\tau+h}=Z_\tau+h v_\tau(Z_\tau) +h^2\ddot Z_\tau/2+O(h^3)`$。
 因此 Euler 误差受到时间加速度控制。几何曲率仅描述加速度垂直于速度的分量，
 同一直线上运动的速度变化也会导致积分误差。
 若沿轨迹 $`\ddot Z=0`$，速度恒定，一步 Euler 可精确到达任意时刻。
@@ -636,9 +642,10 @@ $`\widehat\psi_t(x)=\mathbb E_R[\ell(X_0)\mid X_t=x]`$。
 
 <a name="eq-generation-sb-forward"></a>
 
+**公式（3.13）**
+
 ```math
 f_t^\star=f_t+a_t\nabla\log\psi_t.
-\tag{3.13}
 ```
 
 若控制通过 $`G_tw_t`$ 加入漂移，最优噪声坐标控制为
@@ -690,11 +697,12 @@ $`\mathrm{d}  X_t=(y-X_t)\mathrm{d}  t/(1-t)+\sqrt\epsilon\mathrm{d}  W_t`$。
 
 ### 3.6.3 正向与反向桥过程
 
-桥的 Score 为 $`s_t^\star=\nabla\log r_t+
-\nabla\log\widehat\psi_t+\nabla\log\psi_t`$。
+桥的 Score 为 $`s_t^\star=\nabla\log r_t+ \nabla\log\widehat\psi_t+\nabla\log\psi_t`$。
 代入一般时间反演式，$`\psi`$ 的项抵消，得到递增生成时间下
 
 <a name="eq-generation-sb-backward"></a>
+
+**公式（3.14）**
 
 ```math
 \begin{aligned}
@@ -702,7 +710,6 @@ $`\mathrm{d}  X_t=(y-X_t)\mathrm{d}  t/(1-t)+\sqrt\epsilon\mathrm{d}  W_t`$。
                        +a_t\nabla\log\widehat\psi_t,\\
  t&=1-\tau.
  \end{aligned}
-\tag{3.14}
 ```
 
 从 $`Y_0\sim\mu_1`$ 出发，用该漂移和扩散 $`G_t`$ 积分到 $`\tau=1`$，
@@ -718,13 +725,14 @@ DSB 可通过交替模拟与回归直接拟合两个方向的漂移
 
 <a name="eq-generation-sb-fp"></a>
 
+**公式（3.15）**
+
 ```math
 \begin{aligned}
  \partial_t p_t^\star&=-\nabla\cdot[(f_t+a_t\nabla\log\psi_t)p_t^\star]
                   +\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t^\star),\\
  p_0^\star&=\mu_0,\qquad p_1^\star=\mu_1.
  \end{aligned}
-\tag{3.15}
 ```
 
 端点约束按概率测度理解。有密度时可写成端点密度条件。
@@ -807,10 +815,11 @@ $`s_\phi=-Z_\phi/\gamma(t)`$。
 
 <a name="eq-generation-si-forward"></a>
 
+**公式（3.16）**
+
 ```math
 \mathrm{d}  X_t=[u_t(X_t)+\kappa(t)s_t(X_t)]\mathrm{d}  t
                            +\sqrt{2\kappa(t)}\mathrm{d}  W_t.
-\tag{3.16}
 ```
 
 其密度方程右端为
@@ -828,13 +837,14 @@ $`u_t+\operatorname{div}a_t/2+a_ts_t/2`$，才能保持同一密度演化。
 
 <a name="eq-generation-si-reverse"></a>
 
+**公式（3.17）**
+
 ```math
 \begin{aligned}
  \mathrm{d}  Y_\tau&=[-u_t(Y_\tau)+\kappa(t)s_t(Y_\tau)]\mathrm{d} \tau
                               +\sqrt{2\kappa(t)}\mathrm{d} \overline W_\tau,\\
  t&=1-\tau.
  \end{aligned}
-\tag{3.17}
 ```
 
 因此生成时间的漂移为 $`v_\tau+\kappa(1-\tau)\nabla\log\rho_\tau`$。
@@ -873,13 +883,14 @@ C_\tau'=2\left(-\frac{H_t'}{2H_t}-\frac{\kappa(t)}{H_t}\right)C_\tau
 
 <a name="eq-generation-euler-heun"></a>
 
+**公式（3.18）**
+
 ```math
 \begin{aligned}
  z_{n+1}^{\mathrm E}&=z_n+h v(z_n,\tau_n),\\
  k_1&=v(z_n,\tau_n),\quad k_2=v(z_n+h k_1,\tau_n+h),\\
  z_{n+1}^{\mathrm H}&=z_n+\tfrac h2(k_1+k_2).
  \end{aligned}
-\tag{3.18}
 ```
 
 经典 RK4 取 $`k_1=v(z_n,\tau_n)`$、
@@ -898,10 +909,11 @@ $`z_{n+1}=z_n+h(k_1+2k_2+2k_3+k_4)/6`$。
 
 <a name="eq-generation-em"></a>
 
+**公式（3.19）**
+
 ```math
 Y_{n+1}=Y_n+h_n b(Y_n,\tau_n)+G(Y_n,\tau_n)\Delta W_n,
  \qquad\Delta W_n\sim\mathcal N(0,h_nI).
-\tag{3.19}
 ```
 
 一维 Milstein 在此基础上增加
@@ -961,12 +973,13 @@ Milstein 在适当条件下有强阶 $`1`$。
 
 令 $`Z`$ 解精确场 $`v`$，$`\widehat Z`$ 解学习场 $`v_\theta`$，
 $`Z^h`$ 为学习场的数值解。取相同初始耦合，先用三角不等式
-$`\lVert Z_1-Z_1^h\rVert\le\lVert Z_1-\widehat Z_1\rVert+
-\lVert \widehat Z_1-Z_1^h\rVert`$。
+$`\lVert Z_1-Z_1^h\rVert\le\lVert Z_1-\widehat Z_1\rVert+ \lVert \widehat Z_1-Z_1^h\rVert`$。
 若 $`v_\theta`$ 的空间 Lipschitz 常数为 $`L(\tau)`$，
 Minkowski 与 Gronwall 给出
 
 <a name="eq-generation-w2-stability"></a>
+
+**公式（3.20）**
 
 ```math
 \begin{aligned}
@@ -975,7 +988,6 @@ Minkowski 与 Gronwall 给出
  &\quad+\int_0^1 e^{\int_s^1L(r)\mathrm{d}  r}
        \lVert v_\theta-v\rVert_{L^2(\rho_s)}\mathrm{d}  s.
  \end{aligned}
-\tag{3.20}
 ```
 
 此处对参考轨迹上的误差取期望，要求二阶矩有限，并选取最优或近最优初始耦合。
@@ -1076,16 +1088,16 @@ $`W_2^2(P,Q)=\inf_{\pi\in\Pi(P,Q)}\mathbb E_\pi\lVert X-Y\rVert^2`$，
 
 <a name="eq-generation-mmd"></a>
 
+**公式（3.21）**
+
 ```math
 \operatorname{MMD}_k^2(P,Q)=\mathbb E k(X,X')+\mathbb E k(Y,Y')
                                      -2\mathbb E k(X,Y).
-\tag{3.21}
 ```
 
 特征核可使 MMD 为零等价于分布相等。样本估计仍依赖样本数、核带宽与方差。
 一维高斯满足
-$`W_2^2(\mathcal N(m,c),\mathcal N(\widehat m,\widehat c))
-=(m-\widehat m)^2+(\sqrt c-\sqrt{\widehat c})^2`$，可用作可计算的核对模型。
+$`W_2^2(\mathcal N(m,c),\mathcal N(\widehat m,\widehat c)) =(m-\widehat m)^2+(\sqrt c-\sqrt{\widehat c})^2`$，可用作可计算的核对模型。
 
 <a name="sec-3-9-4"></a>
 

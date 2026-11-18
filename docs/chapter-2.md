@@ -53,11 +53,12 @@ $`1-c_k=r_k(1-c_{k-1})`$，所以 $`c_k=S_k^2`$。由此
 
 <a name="eq-training-ddpm-marginal"></a>
 
+**公式（2.1）**
+
 ```math
 q(x_k\mid x_0)=\mathcal N(A_kx_0,S_k^2I_d),\qquad
 X_k\mid X_0=x_0\ \overset{\mathrm d}{=}\ A_kx_0+S_k\varepsilon,
 \quad \varepsilon\sim\mathcal N(0,I_d).
-\tag{2.1}
 ```
 
 将所有单步噪声展开也得到
@@ -89,6 +90,8 @@ Bayes 公式说明后验正比于 $`q(x_k\mid y)q(y\mid x_0)`$。
 
 <a name="eq-training-ddpm-posterior"></a>
 
+**公式（2.2）**
+
 ```math
 \begin{aligned}
 q(y\mid x_k,x_0)&=\mathcal N(\widetilde m_k,\widetilde\beta_k I_d),\\
@@ -96,17 +99,17 @@ q(y\mid x_k,x_0)&=\mathcal N(\widetilde m_k,\widetilde\beta_k I_d),\\
 \widetilde m_k&=\frac{A_{k-1}\beta_k}{S_k^2}x_0
     +\frac{\sqrt{r_k} S_{k-1}^2}{S_k^2}x_k .
 \end{aligned}
-\tag{2.2}
 ```
 
 将 $`x_0=(x_k-S_k\varepsilon)/A_k`$ 代回均值，再用 $`A_k=\sqrt{r_k}A_{k-1}`$，可得
 
 <a name="eq-training-ddpm-eps-mean"></a>
 
+**公式（2.3）**
+
 ```math
 \widetilde m_k=\frac{1}{\sqrt{r_k}}
               \left(x_k-\frac{\beta_k}{S_k}\varepsilon\right).
-\tag{2.3}
 ```
 
 当 $`k=1`$ 时，给定 $`x_0`$ 的后验是点质量 $`\delta_{x_0}`$，
@@ -145,6 +148,8 @@ $`q(x_{1:K}\mid x_0)=q(x_K\mid x_0) \prod_{k=2}^K q(x_{k-1}\mid x_k,x_0)`$。
 
 <a name="eq-training-ddpm-elbo"></a>
 
+**公式（2.4）**
+
 ```math
 \begin{aligned}
 \mathcal L_{\mathrm{VLB}}
@@ -155,7 +160,6 @@ $`q(x_{1:K}\mid x_0)=q(x_K\mid x_0) \prod_{k=2}^K q(x_{k-1}\mid x_k,x_0)`$。
                                 \|p_\theta(X_{k-1}\mid X_k)\big)}_{L_{k-1}}\\
 &+\underbrace{-\log p_\theta(X_0\mid X_1)}_{L_0}\bigg].
 \end{aligned}
-\tag{2.4}
 ```
 
 KL 中的 $`q(X_{k-1}\mid X_k,X_0)`$ 等记号表示条件律。
@@ -192,10 +196,11 @@ L_{k-1}=\frac{\lVert \widetilde m_k-m_\theta\rVert^2}{2\nu_k}
 
 <a name="eq-training-ddpm-weight"></a>
 
+**公式（2.5）**
+
 ```math
 L_{k-1}=w_k\lVert \varepsilon-\varepsilon_\theta(X_k,k)\rVert^2+C_k,\qquad
 w_k=\frac{\beta_k^2}{2\nu_k r_k S_k^2}.
-\tag{2.5}
 ```
 
 若步号按概率 $`\pi_k>0`$ 抽样，将每项乘 $`w_k/\pi_k`$，即可无偏估计中间步的
@@ -217,6 +222,8 @@ w_k=\frac{\beta_k^2}{2\nu_k r_k S_k^2}.
 
 <a name="eq-training-ddpm-vpred"></a>
 
+**公式（2.6）**
+
 ```math
 \begin{aligned}
 X_k&=A_k X_0+S_k\varepsilon,&
@@ -224,7 +231,6 @@ V_k^{\mathrm{diff}}&=A_k\varepsilon-S_k X_0,\\
 X_0&=A_k X_k-S_k V_k^{\mathrm{diff}},&
 \varepsilon&=S_k X_k+A_k V_k^{\mathrm{diff}} .
 \end{aligned}
-\tag{2.6}
 ```
 
 $`v`$-prediction 用 $`V_k^{\mathrm{diff}}`$ 作为监督，参见
@@ -235,11 +241,12 @@ $`v`$-prediction 用 $`V_k^{\mathrm{diff}}`$ 作为监督，参见
 
 <a name="eq-training-ddpm-parameterization"></a>
 
+**公式（2.7）**
+
 ```math
 \lVert \widehat\varepsilon-\varepsilon\rVert^2
 =\frac{A_k^2}{S_k^2}\lVert \widehat x_0-X_0\rVert^2
 =A_k^2\lVert \widehat V_k^{\mathrm{diff}}-V_k^{\mathrm{diff}}\rVert^2.
-\tag{2.7}
 ```
 
 因而将单位噪声 MSE 写成等值的 $`x_0`$ MSE 时，权重为信噪比
@@ -273,10 +280,11 @@ $`B_k=\sqrt{S_{k-1}^2-\delta_k^2}/S_k`$，取
 
 <a name="eq-training-ddim-kernel"></a>
 
+**公式（2.8）**
+
 ```math
 X_{k-1}=A_{k-1}x_0+B_k(X_k-A_kx_0)+\delta_k Z_k,
 \qquad Z_k\sim\mathcal N(0,I_d)
-\tag{2.8}
 ```
 
 且 $`Z_k`$ 与 $`X_k`$ 在给定 $`x_0`$ 后独立。
@@ -300,11 +308,12 @@ $`\widehat x_0=(x_k-S_k\varepsilon_\theta(x_k,k))/A_k`$，
 
 <a name="eq-training-ddim-weight"></a>
 
+**公式（2.9）**
+
 ```math
 \frac{C_k^2}{2\delta_k^2}\lVert x_0-\widehat x_0\rVert^2
 =\frac{C_k^2 S_k^2}{2\delta_k^2 A_k^2}
         \lVert \varepsilon-\varepsilon_\theta(x_k,k)\rVert^2 .
-\tag{2.9}
 ```
 
 将 DDIM 的反向条件乘积分解代入负变分界，可重得
@@ -379,11 +388,12 @@ $`\nabla\cdot(p s_\theta)=s_\theta^\top\nabla p+p\nabla\cdot s_\theta`$，
 
 <a name="eq-training-implicit-sm"></a>
 
+**公式（2.10）**
+
 ```math
 \mathcal J_{\mathrm{SM}}(\theta)
  =\mathbb E_p\!\left[\tfrac12\lVert s_\theta(X)\rVert^2
                      +\nabla\cdot s_\theta(X)\right]+C.
-\tag{2.10}
 ```
 
 这里 $`C=\frac12\mathbb E_p\lVert s\rVert^2`$ 与参数无关。
@@ -402,11 +412,12 @@ $`R_t=\nabla_x\log k_t(X_t\mid D)`$。
 
 <a name="eq-training-dsm-projection"></a>
 
+**公式（2.11）**
+
 ```math
 \nabla\log p_t(x)
 =\frac{\int \nabla_x k_t(x\mid d)\,\mu_0(\mathrm{d} d)}{p_t(x)}
 =\mathbb E[R_t\mid X_t=x] .
-\tag{2.11}
 ```
 
 因此可用 Vincent 的去噪目标 〔[18](#ref-vincent2011dsm)〕。令
@@ -416,10 +427,11 @@ $`\lVert s_\theta(X_t,t)-R_t\rVert^2=\lVert s_\theta-M_t\rVert^2+ \lVert R_t-M_t
 
 <a name="eq-training-dsm-loss"></a>
 
+**公式（2.12）**
+
 ```math
 \mathcal J_{\mathrm{DSM},t}
  =\mathcal J_{\mathrm{SM},t}+\tfrac12\mathbb E\lVert R_t-M_t\rVert^2 ,
-\tag{2.12}
 ```
 
 其中两项损失均带 $`1/2`$ 系数。常数项是给定带噪样本后监督标签的剩余方差。
@@ -459,6 +471,8 @@ $`\sigma_t^2=\int_0^t(\alpha_t/\alpha_r)^2\beta(r)\,\mathrm{d} r=1-\alpha_t^2`$�
 
 <a name="eq-training-score-time-weight"></a>
 
+**公式（2.13）**
+
 ```math
 \begin{aligned}
 &\frac12\int \lambda(t)\mathbb E\lVert s_\theta(X_t,t)-R_t\rVert^2\,\mathrm{d} t\\
@@ -466,7 +480,6 @@ $`\sigma_t^2=\int_0^t(\alpha_t/\alpha_r)^2\beta(r)\,\mathrm{d} r=1-\alpha_t^2`$�
    \left[\frac{\lambda(t)}{2m(t)}
           \lVert s_\theta(X_t,t)+\varepsilon/\sigma_t\rVert^2\right]
 \end{aligned}
-\tag{2.13}
 ```
 
 上式右侧采用高斯扰动。令 $`s_\theta=-\varepsilon_\theta/\sigma_t`$ 后，
@@ -524,10 +537,11 @@ $`(\alpha_0,\sigma_0)=(1,0)`$、$`(\alpha_1,\sigma_1)=(0,1)`$，
 
 <a name="eq-training-fm-cond-gauss"></a>
 
+**公式（2.14）**
+
 ```math
 u_t(x\mid d)=\dot\alpha_t d+
                  \frac{\dot\sigma_t}{\sigma_t}(x-\alpha_t d).
-\tag{2.14}
 ```
 
 训练时可直接用 $`\dot\alpha_tD+\dot\sigma_t\varepsilon`$ 作为监督。
@@ -544,6 +558,8 @@ u_t(x\mid d)=\dot\alpha_t d+
 
 <a name="eq-training-fm-current"></a>
 
+**公式（2.15）**
+
 ```math
 \begin{aligned}
 \frac{\mathrm{d}}{\mathrm{d} t}\mathbb E[\varphi(X_t)]
@@ -551,7 +567,6 @@ u_t(x\mid d)=\dot\alpha_t d+
   &=\mathbb E[\nabla\varphi(X_t)^\top u_t(X_t)],\\
 u_t(x)&=\mathbb E[u_t(X_t\mid C)\mid X_t=x].
 \end{aligned}
-\tag{2.15}
 ```
 
 最后一式定义边缘场，前两式表明它满足弱连续性方程。
@@ -574,11 +589,12 @@ $`p_t(x\mid c)\pi(\mathrm{d} c)/p_t(x)`$。
 
 <a name="eq-training-fm-loss"></a>
 
+**公式（2.16）**
+
 ```math
 \mathcal L_{\mathrm{FM}}(\theta)
   =\mathbb E_{t,X_t}\lVert u_\theta(X_t,t)-u_t(X_t)\rVert^2 ,
 \qquad X_t\sim p_t.
-\tag{2.16}
 ```
 
 无约束场的最优值为零，且最优场等于 $`u_t`$（训练时空分布几乎处处）。
@@ -609,10 +625,11 @@ $`U_t=u_t(X_t\mid C)`$。据此定义
 
 <a name="eq-training-cfm-loss"></a>
 
+**公式（2.17）**
+
 ```math
 \mathcal L_{\mathrm{CFM}}(\theta)
     =\mathbb E_{t,C,X_t}\lVert u_\theta(X_t,t)-U_t\rVert^2 .
-\tag{2.17}
 ```
 
 由 [(2.15)](#eq-training-fm-current)，$`u_t(X_t)=\mathbb E[U_t\mid X_t,t]`$。
@@ -633,10 +650,11 @@ $`\mathbb E[(u_\theta-M)^\top(M-U_t)\mid X_t,t]=0`$。
 
 <a name="eq-training-cfm-identity"></a>
 
+**公式（2.18）**
+
 ```math
 \mathcal L_{\mathrm{CFM}}(\theta)
   =\mathcal L_{\mathrm{FM}}(\theta)+\mathbb E\lVert U_t-M\rVert^2 .
-\tag{2.18}
 ```
 
 路径与抽样规则固定时，后一项与 $`\theta`$ 无关，
@@ -685,13 +703,14 @@ $`\partial_tu_t(Z_t)+(\nabla_xu_t)(Z_t)u_t(Z_t)`$（场足够光滑时）。
 
 <a name="eq-training-rf-conditional"></a>
 
+**公式（2.19）**
+
 ```math
 \begin{aligned}
 u_t(x)&=\mathbb E[\Delta\mid I_t=x],\\
 \inf_{u}\mathbb E_{t,\pi}\lVert u_t(I_t)-\Delta\rVert^2
   &=\mathbb E_{t,\pi}\lVert \Delta-\mathbb E[\Delta\mid I_t,t]\rVert^2 .
 \end{aligned}
-\tag{2.19}
 ```
 
 目标的 $`L^2`$ 正交分解见 [(2.18)](#eq-training-cfm-identity)。
@@ -722,6 +741,8 @@ Liu 等人 〔[6](#ref-liu2023rectified)〕 将精确流给出的 $`(Z_0,Z_1)`$ 
 
 <a name="eq-training-rf-convex"></a>
 
+**公式（2.20）**
+
 ```math
 \begin{aligned}
 \mathbb E c(Z_1-Z_0)
@@ -730,12 +751,13 @@ Liu 等人 〔[6](#ref-liu2023rectified)〕 将精确流给出的 $`(Z_0,Z_1)`$ 
   &=\int_0^1\mathbb E c\big(\mathbb E[\Delta\mid I_t]\big)\,\mathrm{d} t
    \le \mathbb E c(\Delta).
 \end{aligned}
-\tag{2.20}
 ```
 
 对 $`c(z)=\lVert z\rVert^2`$，分别用条件期望的正交分解和时间平均的方差分解，可得
 
 <a name="eq-training-rf-straightness"></a>
+
+**公式（2.21）**
 
 ```math
 \begin{aligned}
@@ -743,7 +765,6 @@ Liu 等人 〔[6](#ref-liu2023rectified)〕 将精确流给出的 $`(Z_0,Z_1)`$ 
  &\quad=\int_0^1\mathbb E\lVert \Delta-u_t(I_t)\rVert^2\,\mathrm{d} t\\
  &\qquad\quad+\int_0^1\mathbb E\lVert u_t(Z_t)-(Z_1-Z_0)\rVert^2\,\mathrm{d} t .
 \end{aligned}
-\tag{2.21}
 ```
 
 第一项度量当前位置下不同训练位移的波动，第二项度量流轨迹上速度偏离整段平均速度的程度。
@@ -809,9 +830,10 @@ D_{\mathrm{KL}}(P\|R)
 
 <a name="eq-training-sb-primal"></a>
 
+**公式（2.22）**
+
 ```math
 \inf_{P:\,P_0=\mu_0,\ P_1=\mu_1}D_{\mathrm{KL}}(P\|R).
-\tag{2.22}
 ```
 
 把 $`P`$ 和 $`R`$ 都分解为端点律与条件桥。记 $`\pi=P_{01}`$，
@@ -836,11 +858,12 @@ D_{\mathrm{KL}}(P\|R)
 
 <a name="eq-training-sb-entropic-cost"></a>
 
+**公式（2.23）**
+
 ```math
 \eta D_{\mathrm{KL}}(\pi\|R_{01})
  =\tfrac12\mathbb E_\pi\lVert X_1-X_0\rVert^2
          +\eta D_{\mathrm{KL}}(\pi\|\mu_0\otimes\mu_1)+C .
-\tag{2.23}
 ```
 
 常数 $`C`$ 只由 $`\eta,d,\mu_1`$ 决定。
@@ -869,11 +892,12 @@ $`\mathrm{d} P_0/\mathrm{d} R_0(X_0)`$ 加权为参考律 $`\widetilde R`$。
 
 <a name="eq-training-girsanov"></a>
 
+**公式（2.24）**
+
 ```math
 D_{\mathrm{KL}}(P\|R)
   =D_{\mathrm{KL}}(P_0\|R_0)
      +\tfrac12\mathbb E_P\int_0^1 c_t^\top a_t^{-1}c_t\,\mathrm{d} t .
-\tag{2.24}
 ```
 
 因此对于固定的初始律，Schrödinger 问题可在相应的可容许控制类中写成
@@ -913,11 +937,12 @@ $`\psi_t(x)=\mathbb E_R[h(X_1)\mid X_t=x]`$。
 
 <a name="eq-training-sb-system"></a>
 
+**公式（2.25）**
+
 ```math
 p_t^\star=r_t\widehat\psi_t\psi_t,\qquad
 \ell\,\psi_0\,r_0=p_{\mathrm{data}},\qquad
 h\,\widehat\psi_1\,r_1=p_{\mathrm{prior}} .
-\tag{2.25}
 ```
 
 同时按 $`c`$ 与 $`1/c`$ 缩放 $`\ell`$ 和 $`h`$ 保持路径律。
@@ -942,11 +967,12 @@ $`a_{1-\tau}\nabla\log\widehat\psi_{1-\tau}`$，见
 
 <a name="eq-training-ipf"></a>
 
+**公式（2.26）**
+
 ```math
 \frac{\mathrm{d} Q^n}{\mathrm{d} P^n}=\frac{\mathrm{d}\mu_1}{\mathrm{d} P^n_1}(X_1),\qquad
 \frac{\mathrm{d} P^{n+1}}{\mathrm{d} Q^n}=\frac{\mathrm{d}\mu_0}{\mathrm{d} Q^n_0}(X_0),
 \qquad P^0=R.
-\tag{2.26}
 ```
 
 每半步精确匹配一端并保留对应的条件律，另一端一般随之变化。
@@ -983,6 +1009,8 @@ Euler 反向漂移取 $`-f_{k-1}^n(y)+2\nabla\log p_k^n(y)`$。
 
 <a name="eq-training-dsb-regression"></a>
 
+**公式（2.27）**
+
 ```math
 \begin{aligned}
 B_k^n(X_k)&\quad\text{拟合}\quad
@@ -990,7 +1018,6 @@ B_k^n(X_k)&\quad\text{拟合}\quad
 F_{k-1}^{n+1}(X_{k-1})&\quad\text{拟合}\quad
     X_{k-1}+B_k^n(X_k)-B_k^n(X_{k-1}).
 \end{aligned}
-\tag{2.27}
 ```
 
 第一式在从数据出发的正向样本对上训练，第二式在从先验出发、
@@ -1011,13 +1038,14 @@ F_{k-1}^{n+1}(X_{k-1})&\quad\text{拟合}\quad
 
 <a name="eq-training-si-path"></a>
 
+**公式（2.28）**
+
 ```math
 \begin{gathered}
 I_t=\mathcal I(t,D,N)+\gamma(t)\zeta,\\
 \mathcal I(0,D,N)=D,\quad\mathcal I(1,D,N)=N,\quad
 \gamma(0)=\gamma(1)=0.
 \end{gathered}
-\tag{2.28}
 ```
 
 当内点 $`\gamma(t)>0`$，给定端点后的条件律为
@@ -1052,6 +1080,8 @@ $`\mathbb E\lVert \dot I_t\rVert^2`$ 在实际训练时间律下能否积分。
 
 <a name="eq-training-si-velocity"></a>
 
+**公式（2.29）**
+
 ```math
 \begin{aligned}
 \frac{\mathrm{d}}{\mathrm{d} t}\mathbb E\varphi(I_t)
@@ -1059,7 +1089,6 @@ $`\mathbb E\lVert \dot I_t\rVert^2`$ 在实际训练时间律下能否积分。
   =\mathbb E[\nabla\varphi(I_t)^\top u_t(I_t)],\\
 u_t(x)&=\mathbb E[\dot I_t\mid I_t=x] .
 \end{aligned}
-\tag{2.29}
 ```
 
 这给出 $`p_t=\operatorname{Law}(I_t)`$ 的弱连续性方程。
@@ -1076,10 +1105,11 @@ $`-(I_t-\mathcal I(t,D,N))/\gamma(t)^2=-\zeta/\gamma(t)`$。
 
 <a name="eq-training-si-score"></a>
 
+**公式（2.30）**
+
 ```math
 s_t(x)=-\gamma(t)^{-1}\mathbb E[\zeta\mid I_t=x],
 \qquad \gamma(t)>0 .
-\tag{2.30}
 ```
 
 因此也可先拟合噪声条件均值，再在内点除以 $`-\gamma(t)`$。
@@ -1097,11 +1127,12 @@ $`u_t(x)=\mathbb E[\partial_t\mathcal I(t,D,N)\mid I_t=x]-\gamma'(t)\gamma(t)s_t
 
 <a name="eq-training-si-loss"></a>
 
+**公式（2.31）**
+
 ```math
 \mathcal L(\theta,\phi)=\mathbb E\!\left[
      \lambda_u(t)\lVert U_\theta(I_t,t)-\dot I_t\rVert^2+
      \lambda_z(t)\lVert Z_\phi(I_t,t)-\zeta\rVert^2\right].
-\tag{2.31}
 ```
 
 对任一标签 $`T`$，条件于 $`(I_t,t)`$ 将平方展开，
@@ -1149,13 +1180,14 @@ $`Z_t=\sqrt{H_t/H_0}\,Z_0`$。
 
 <a name="eq-training-eps-score"></a>
 
+**公式（2.32）**
+
 ```math
 \begin{aligned}
 \mathbb E\lVert \varepsilon_\theta(X_t,t)-\varepsilon\rVert^2
  &=\sigma_t^2\mathbb E\lVert s_\theta(X_t,t)-s_t(X_t)\rVert^2\\
  &\quad+\mathbb E\lVert \varepsilon-\mathbb E[\varepsilon\mid X_t]\rVert^2 .
 \end{aligned}
-\tag{2.32}
 ```
 
 固定时刻的最优预测可相互换算。对时间取平均时，直接使用相同权重
@@ -1169,12 +1201,13 @@ $`Z_t=\sqrt{H_t/H_0}\,Z_0`$。
 
 <a name="eq-training-velocity-score"></a>
 
+**公式（2.33）**
+
 ```math
 \begin{aligned}
 u_t(x)&=\frac{\dot\alpha_t}{\alpha_t}x+C_t s_t(x),\\
 C_t&=\frac{\dot\alpha_t}{\alpha_t}\sigma_t^2-\sigma_t\dot\sigma_t .
 \end{aligned}
-\tag{2.33}
 ```
 
 这来自用 $`D=(X_t-\sigma_t\varepsilon)/\alpha_t`$ 代入
@@ -1213,11 +1246,12 @@ DSM 使用扰动核的条件 Score。若把隐式 Score Matching 直接用在干
 
 <a name="eq-training-drift-score"></a>
 
+**公式（2.34）**
+
 ```math
 u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_t s_t,
 \qquad
 b_\tau=-f_t+\operatorname{div}a_t+a_t s_t,\quad t=1-\tau .
-\tag{2.34}
 ```
 
 $`b_\tau`$ 是递增生成时间下的反向 SDE 漂移。

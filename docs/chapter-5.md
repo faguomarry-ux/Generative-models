@@ -56,6 +56,8 @@ $`\frac{\mathrm{d} }{\mathrm{d}  t}\mathbb E\varphi(X_t)=\mathbb E[u_t\cdot\nabl
 
 <a name="eq-unified-fp"></a>
 
+**公式（5.1）**
+
 ```math
 \begin{aligned}
  \frac{\mathrm{d} }{\mathrm{d}  t}\int\varphi p_t
@@ -63,7 +65,6 @@ $`\frac{\mathrm{d} }{\mathrm{d}  t}\mathbb E\varphi(X_t)=\mathbb E[u_t\cdot\nabl
              \tfrac12\sum_{ij}a_{ij,t}\partial_{ij}\varphi\right)p_t,\\
  \partial_t p_t&=-\nabla\cdot(f_tp_t)+\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
  \end{aligned}
-\tag{5.1}
 ```
 
 前一个恒等式是弱形式，后一个是分部积分后的密度形式。
@@ -84,11 +85,12 @@ j_{i,t}=f_{i,t}p_t-\tfrac12\sum_j\partial_j(a_{ij,t}p_t).
 
 <a name="eq-unified-current"></a>
 
+**公式（5.2）**
+
 ```math
 j_t=p_tu_t,\qquad
  u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,
  \quad (\operatorname{div}a_t)_i=\sum_j\partial_j a_{ij,t}.
-\tag{5.2}
 ```
 
 若区域有边界，总质量满足
@@ -102,8 +104,7 @@ $`\nabla\cdot(p_tw_t)=0`$ 的场，时刻边缘仍可相同。
 ### 5.1.3 SDE 对应的 Probability Flow ODE ★
 
 对 $`a_{ij,t}p_t`$ 使用乘积法则，得到
-$`\sum_j\partial_j(a_{ij,t}p_t)
-=p_t(\operatorname{div}a_t)_i+p_t(a_ts_t)_i`$。
+$`\sum_j\partial_j(a_{ij,t}p_t) =p_t(\operatorname{div}a_t)_i+p_t(a_ts_t)_i`$。
 代回式 [(5.1)](#eq-unified-fp) 恰得到
 $`\partial_t p_t=-\nabla\cdot(p_tu_t)`$。
 若 $`u_t`$ 生成的 ODE 与该连续性方程都适定，并从同一初始律出发，
@@ -112,11 +113,12 @@ ODE 的推前律和给定 SDE 的边缘满足同一初值问题，故相等。
 
 <a name="eq-unified-probability-flow"></a>
 
+**公式（5.3）**
+
 ```math
 \dot Z_\tau=v_\tau(Z_\tau),\qquad
  v_\tau=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
  \quad t=1-\tau.
-\tag{5.3}
 ```
 
 这一步同时使用密度方程的一致性和解的唯一性。
@@ -152,12 +154,13 @@ $`\mathbb E[Z_tZ_s^\top]=e^{(t-s)J}`$，OU 过程为 $`e^{-|t-s|}I_2`$。
 
 <a name="eq-unified-diffusion-family"></a>
 
+**公式（5.4）**
+
 ```math
 f_t^{(a)}=u_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
  \qquad
  \mathrm{d}  X_t=f_t^{(a)}(X_t)\mathrm{d}  t+G_t(X_t)\mathrm{d}  W_t,
  \quad GG^\top=a.
-\tag{5.4}
 ```
 
 代回概率流公式便得到原来的 $`u_t`$。当该 SDE 与密度方程适定且初始律匹配时，
@@ -181,10 +184,11 @@ Schrödinger Bridge 给定参考路径律 $`R`$ 和两端边缘，求解
 
 <a name="eq-unified-sb-objective"></a>
 
+**公式（5.5）**
+
 ```math
 P^\star\in\arg\min_{P:\,P_0=\mu_0,\ P_1=\mu_1}
                                       D_{\mathrm{KL}}(P\|R).
-\tag{5.5}
 ```
 
 中间边缘由优化后的路径律决定。
@@ -276,13 +280,14 @@ $`\zeta\sim\mathcal N(0,I_d)`$。定义
 
 <a name="eq-unified-interpolant"></a>
 
+**公式（5.6）**
+
 ```math
 \begin{gathered}
  I_t=\mathcal I(t,D,N)+\gamma(t)\zeta,\\
  \mathcal I(0,D,N)=D,\quad\mathcal I(1,D,N)=N,\quad
  \gamma(0)=\gamma(1)=0.
  \end{gathered}
-\tag{5.6}
 ```
 
 端点由上述恒等式直接保证。
@@ -306,10 +311,11 @@ Score 的存在只使用局部正性，全球 Lipschitz 界则要求更强的后
 
 <a name="eq-unified-score-hessian"></a>
 
+**公式（5.7）**
+
 ```math
 \nabla_xs(x)=-\frac1{\gamma^2}I_d
                  +\frac1{\gamma^4}\operatorname{Cov}(Y\mid X=x).
-\tag{5.7}
 ```
 
 因此 Hessian 有下界 $`-I_d/\gamma^2`$。
@@ -348,10 +354,11 @@ $`-\kappa\nabla\cdot(s_tp_t)+\kappa\Delta p_t=0`$，
 
 <a name="eq-unified-interpolant-sde"></a>
 
+**公式（5.8）**
+
 ```math
 \mathrm{d}  Y_\tau=[v_\tau(Y_\tau)+\kappa(1-\tau)s_{1-\tau}(Y_\tau)]\mathrm{d} \tau
                   +\sqrt{2\kappa(1-\tau)}\mathrm{d} \overline W_\tau.
-\tag{5.8}
 ```
 
 从 $`p_1`$ 出发、场精确且演化唯一时，它实现 $`p_{1-\tau}`$。
@@ -404,10 +411,11 @@ $`\lVert v(x,\tau)-v(y,\tau)\rVert\le L(\tau)\lVert x-y\rVert`$，
 
 <a name="eq-unified-flow-stability"></a>
 
+**公式（5.9）**
+
 ```math
 \lVert \Phi_{\tau\leftarrow0}(x)-\Phi_{\tau\leftarrow0}(y)\rVert
  \le\exp\left(\int_0^\tau L(r)\mathrm{d}  r\right)\lVert x-y\rVert.
-\tag{5.9}
 ```
 
 反向时间的同类方程也适定时，流映射可逆。
@@ -456,11 +464,12 @@ Gronwall 得到路径唯一性，再由连续轨迹推出不可区分性。
 
 <a name="eq-unified-weak-fp"></a>
 
+**公式（5.10）**
+
 ```math
 \int\varphi\mathrm{d} \mu_t-\int\varphi\mathrm{d} \mu_0
  =\int_0^t\int\left[f_r\cdot\nabla\varphi+
                      \tfrac12 a_r:\nabla^2\varphi\right]\mathrm{d} \mu_r\mathrm{d}  r.
-\tag{5.10}
 ```
 
 SDE 解在适当可积条件下由 Itô 公式产生这样的概率解。
@@ -531,13 +540,14 @@ $`\int_0^1\int(\lVert f\rVert+\lVert a\rVert)\mathrm{d} \mu_t\mathrm{d}  t<\inft
 
 <a name="eq-unified-regression-error"></a>
 
+**公式（5.11）**
+
 ```math
 \begin{aligned}
  \mathcal L(\theta)&=\int_0^1q(t)w(t)
              \lVert F_\theta-m_t\rVert_{L^2(p_t)}^2\mathrm{d}  t+C_T,\\
  C_T&=\int_0^1q(t)w(t)\mathbb E\lVert T_t-m_t(X_t)\rVert^2\mathrm{d}  t.
  \end{aligned}
-\tag{5.11}
 ```
 
 第二项表示标签的不可约条件方差，条件标签的期望在固定时刻的联合律下计算。
@@ -561,13 +571,14 @@ $`\varepsilon_v(\tau)=\lVert v_\theta-v\rVert_{L^2(\rho_\tau)}`$。
 
 <a name="eq-unified-w2-bound"></a>
 
+**公式（5.12）**
+
 ```math
 \begin{aligned}
  W_2(\widehat\rho_1,\rho_1)
  &\le e^{\int_0^1L}\,W_2(\widehat\rho_0,\rho_0)\\
  &\quad+\int_0^1 e^{\int_s^1L(r)\mathrm{d}  r}\varepsilon_v(s)\mathrm{d}  s.
  \end{aligned}
-\tag{5.12}
 ```
 
 其中场误差沿参考边缘取期望，需二阶矩有限。
@@ -620,12 +631,13 @@ $`\mathbb E\lVert X_t-X_{\lfloor t\rfloor_h}\rVert^2\le Ch`$，
 
 <a name="eq-unified-error-budget"></a>
 
+**公式（5.13）**
+
 ```math
 W_2(\widehat\rho_1^h,\mu_0)
  \le W_2(\widehat\rho_1^h,\widehat\rho_1)
      +W_2(\widehat\rho_1,\rho_1^\epsilon)
      +W_2(\rho_1^\epsilon,\mu_0).
-\tag{5.13}
 ```
 
 中间项再由式 [(5.12)](#eq-unified-w2-bound) 拆出先验匹配误差与场误差。
@@ -653,23 +665,22 @@ W_2(p_\epsilon,\mu_0)
 
 <a name="eq-unified-path-kl"></a>
 
+**公式（5.14）**
+
 ```math
 D_{\mathrm{KL}}(P\|\widehat P)
  =D_{\mathrm{KL}}(P_0\|\widehat P_0)
  +\tfrac12\mathbb E_P\int_0^1
        \lVert a_\tau^{-1/2}(b_\tau-\widehat b_\tau)(Y_\tau)\rVert^2\mathrm{d} \tau.
-\tag{5.14}
 ```
 
-终点投影给出 $`D_{\mathrm{KL}}(P_1\|\widehat P_1)
-\le D_{\mathrm{KL}}(P\|\widehat P)`$。
+终点投影给出 $`D_{\mathrm{KL}}(P_1\|\widehat P_1) \le D_{\mathrm{KL}}(P\|\widehat P)`$。
 对各向同性反向扩散，漂移差为 $`g^2(s-s_\theta)`$，
 二次能量的时间权重为 $`g^2/2`$。
 这种带噪路径上的 $`L^2`$ 控制是扩散生成误差分析的重要工具，
 更完整的离散复杂度结论还需相应假设 〔[24](#ref-chen2023sampling)〕。
 
-Pinsker 不等式给出 $`\operatorname{TV}(P_1,\widehat P_1)
-\le\sqrt{D_{\mathrm{KL}}(P_1\|\widehat P_1)/2}`$，
+Pinsker 不等式给出 $`\operatorname{TV}(P_1,\widehat P_1) \le\sqrt{D_{\mathrm{KL}}(P_1\|\widehat P_1)/2}`$，
 这里全变差取 $`\sup_A|P_1(A)-\widehat P_1(A)|`$。
 若要由 KL 控制 $`W_2`$，可另假设参考测度满足
 $`W_2^2(\nu,Q)\le2C D_{\mathrm{KL}}(\nu\|Q)`$ 的运输不等式。
@@ -717,11 +728,12 @@ $`e_f^\top a^{-1}e_f`$。若 $`a`$ 退化，
 
 <a name="eq-unified-variable-diffusion"></a>
 
+**公式（5.15）**
+
 ```math
 \tfrac12\sum_{ij}\partial_{ij}(a_{ij}p)
  =\tfrac12 a:\nabla^2p+(\operatorname{div}a)\cdot\nabla p
                       +\tfrac12p\sum_{ij}\partial_{ij}a_{ij}.
-\tag{5.15}
 ```
 
 空间常系数时后两项消失。
@@ -739,9 +751,10 @@ $`\frac12(1+x^2)p''+2xp'+p`$。
 
 <a name="eq-unified-stationary-drift"></a>
 
+**公式（5.16）**
+
 ```math
 f(x)=\tfrac12\operatorname{div}a(x)+\tfrac12a(x)\nabla\log\pi(x).
-\tag{5.16}
 ```
 
 代入 $`j=fp-\operatorname{div}(ap)/2`$，在 $`p=\pi`$ 时得 $`j=0`$，
@@ -774,11 +787,12 @@ $`LV=2+3\lVert z\rVert^2-\lVert z\rVert^4`$，其耗散项可用于非爆破矩�
 
 <a name="eq-unified-anisotropic-reverse"></a>
 
+**公式（5.17）**
+
 ```math
 \mathrm{d}  Y_\tau=[-f_t+\operatorname{div}a_t+a_ts_t](Y_\tau)\mathrm{d} \tau
                            +G_t(Y_\tau)\mathrm{d} \overline W_\tau,
  \qquad t=1-\tau.
-\tag{5.17}
 ```
 
 协方差由原 $`a_t`$ 按时间重标记，漂移中包含矩阵散度和矩阵乘 Score
@@ -808,9 +822,10 @@ $`LV=2+3\lVert z\rVert^2-\lVert z\rVert^4`$，其耗散项可用于非爆破矩�
 
 <a name="eq-unified-block-diffusion"></a>
 
+**公式（5.18）**
+
 ```math
 a_t=\begin{pmatrix}GG^\top&GRB^\top\\BR^\top G^\top&BB^\top\end{pmatrix}.
-\tag{5.18}
 ```
 
 Brownian 协方差块矩阵必须半正定，常系数情形等价于 $`\lVert R\rVert_{\mathrm{op}}\le1`$。
@@ -826,6 +841,8 @@ Brownian 协方差块矩阵必须半正定，常系数情形等价于 $`\lVert R
 
 <a name="eq-unified-joint-fp"></a>
 
+**公式（5.19）**
+
 ```math
 \begin{aligned}
  \partial_t p={}&-\nabla_u\cdot(Fp)-\nabla_v\cdot(Hp)\\
@@ -833,7 +850,6 @@ Brownian 协方差块矩阵必须半正定，常系数情形等价于 $`\lVert R
  +\sum_{ij}\partial_{u_i v_j}((a_{UV})_{ij}p)\\
  &+\tfrac12\sum_{ij}\partial_{v_i v_j}((a_{VV})_{ij}p).
  \end{aligned}
-\tag{5.19}
 ```
 
 交叉项的系数来自对称的两个混合块。
@@ -875,11 +891,12 @@ $`u_z=Qu_\xi`$、$`a_z=Qa_\xi Q^\top`$。
 
 <a name="eq-unified-nonlinear-constraint"></a>
 
+**公式（5.20）**
+
 ```math
 \nabla C(z)G(z)=0,\qquad
  \nabla C(z)f(z)+\tfrac12 a(z):\nabla^2 C(z)=0
  \quad\text{在约束流形上}.
-\tag{5.20}
 ```
 
 多个约束逐分量满足。第一式控制随机切向性，第二式包含曲率产生的漂移补偿。
@@ -934,10 +951,11 @@ $`u=-\kappa\nabla\log(p/\pi)`$。
 
 <a name="eq-unified-entropy-dissipation"></a>
 
+**公式（5.21）**
+
 ```math
 \frac{\mathrm{d} }{\mathrm{d}  t}\mathcal H(p_t\mid\pi)
  =-\kappa\int p_t\lVert \nabla\log(p_t/\pi)\rVert^2\mathrm{d}  x\le0.
-\tag{5.21}
 ```
 
 这把扩散的平衡趋向与相对 Fisher 信息联系起来。
@@ -956,10 +974,11 @@ $`u=-\kappa\nabla\log(p/\pi)`$。
 
 <a name="eq-unified-conditional-fields"></a>
 
+**公式（5.22）**
+
 ```math
 s_t(x\mid c)=-\frac1{\sigma_t}\mathbb E[\varepsilon\mid X_t=x,c],\qquad
  u_t(x\mid c)=\mathbb E[\dot X_t\mid X_t=x,c].
-\tag{5.22}
 ```
 
 条件 Score 可通过带条件的噪声回归估计，条件速度可通过带条件的路径导数回归估计。
@@ -979,10 +998,11 @@ $`y=\mathcal A(D)+\eta`$，观测噪声密度已知。
 
 <a name="eq-unified-posterior-score"></a>
 
+**公式（5.23）**
+
 ```math
 s_t(x\mid y)=s_t(x)+\nabla_x\log p_t(y\mid x),\qquad
  p_t(y\mid x)=\int p(y\mid d)\,p_0(\mathrm{d}  d\mid X_t=x).
-\tag{5.23}
 ```
 
 这里的似然已经对干净数据后验积分。
@@ -1006,10 +1026,11 @@ $`S_t=R+AC_{D\mid X}A^\top`$。精确的似然梯度为
 
 <a name="eq-unified-linear-likelihood"></a>
 
+**公式（5.24）**
+
 ```math
 \nabla_x\log p_t(y\mid x)
  =(\alpha_tCH_t^{-1})^\top A^\top S_t^{-1}(y-Am_t(x)).
-\tag{5.24}
 ```
 
 用均值直接代入干净似然会把 $`S_t`$ 替换成 $`R`$。
@@ -1030,9 +1051,10 @@ Classifier-Free Guidance 联合训练有条件与无条件预测，再在同一�
 
 <a name="eq-unified-cfg"></a>
 
+**公式（5.25）**
+
 ```math
 s_t^{(w)}=s_t+w(s_t(\cdot\mid c)-s_t),\qquad w\ge0.
-\tag{5.25}
 ```
 
 本书取 $`w=1`$ 为普通条件 Score，$`w=0`$ 为无条件 Score；
@@ -1095,10 +1117,11 @@ z_*=(m/3,m/3,m/3)^\top,\qquad
 
 <a name="eq-unified-leray"></a>
 
+**公式（5.26）**
+
 ```math
 P(k)=I-\frac{kk^\top}{|k|^2},\qquad
  \widehat u(k)=P(k)\widehat q(k),\quad k\ne0.
-\tag{5.26}
 ```
 
 它满足 $`k^\top\widehat u(k)=0`$。零频模式对应平均流，需要另行设定或条件化。
