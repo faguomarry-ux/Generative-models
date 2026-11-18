@@ -110,12 +110,12 @@ FM 提供通过条件回归学习连续流的另一条训练路线。
 一般扩散的概率流速度、反向生成漂移与生成 ODE 速度满足
 
 ```math
-\boxed{u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t},
- \qquad (\operatorname{div}a_t)_i=\sum_j\partial_j a_{ij,t},
+\boxed{u_t=f_t-\tfrac12\mathop{\mathrm{div}}\nolimits a_t-\tfrac12a_ts_t},
+ \qquad (\mathop{\mathrm{div}}\nolimits a_t)_i=\sum_j\partial_j a_{ij,t},
 ```
 
 ```math
-\boxed{b_\tau=-f_t+\operatorname{div}a_t+a_ts_t},\qquad
+\boxed{b_\tau=-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_ts_t},\qquad
  \boxed{v_\tau=-u_t},\quad t=1-\tau.
 ```
 

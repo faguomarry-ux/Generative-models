@@ -458,10 +458,10 @@ $`\dot\ell_t=\nabla\cdot u_\theta(X_t,t)`$。
          \bigl[\log p_{\mathrm{prior}}(F_{0,1}^\theta(x_0))+\ell_1\bigr].
 ```
 
-高维中 $`\nabla\cdot u_\theta=\operatorname{tr}(D_x u_\theta)`$ 可用
+高维中 $`\nabla\cdot u_\theta=\mathop{\mathrm{tr}}\nolimits(D_x u_\theta)`$ 可用
 Hutchinson 恒等式估计。若随机向量 $`\xi`$ 满足
 $`\mathbb E[\xi\xi^\top]=I_d`$，则
-$`\mathbb E[\xi^\top (D_xu_\theta)\xi]=\operatorname{tr}(D_xu_\theta)`$。
+$`\mathbb E[\xi^\top (D_xu_\theta)\xi]=\mathop{\mathrm{tr}}\nolimits(D_xu_\theta)`$。
 这一估计在固定状态和时间下无偏，可通过 Jacobian 向量积计算
 〔[16](#ref-grathwohl2019ffjord)〕。似然训练通常需要对 ODE 求解或相应的
 灵敏度方程求导，并须控制数值容差与迹估计方差。
@@ -762,7 +762,7 @@ $`\inf_{P:\,P_0=\mu_0,\,P_1=\mu_1}D_{\mathrm{KL}}(P\|R)`$。
 **公式（1.16）**
 
 ```math
-\pi^\star\in\operatorname*{arg\,min}_{\pi\in\Pi(\mu_0,\mu_1)}
+\pi^\star\in\mathop{\mathrm{arg\,min}}\limits_{\pi\in\Pi(\mu_0,\mu_1)}
       D_{\mathrm{KL}}(\pi\|R_{01}) .
 ```
 
@@ -825,7 +825,7 @@ $`\nabla\log p_t^\star= \nabla\log r_t+\nabla\log\widehat\psi_t+\nabla\log\psi_t
   b_\tau^\star
      &= b_\tau^R+a_t\nabla\log\widehat\psi_t,
          \qquad t=1-\tau,\\
-  b_\tau^R &= -f_t^R+\operatorname{div}a_t+a_t\nabla\log r_t .
+  b_\tau^R &= -f_t^R+\mathop{\mathrm{div}}\nolimits a_t+a_t\nabla\log r_t .
   \end{aligned}
 ```
 

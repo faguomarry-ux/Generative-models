@@ -106,8 +106,8 @@ $`\widetilde\beta_k=\beta_k S_{k-1}^2/S_k^2`$。
 **公式（3.2）**
 
 ```math
-\operatorname{Cov}(X_{k-1}\mid X_k=x)
- =\widetilde\beta_k I_d+c_k^2\operatorname{Cov}(X_0\mid X_k=x).
+\mathop{\mathrm{Cov}}\nolimits(X_{k-1}\mid X_k=x)
+ =\widetilde\beta_k I_d+c_k^2\mathop{\mathrm{Cov}}\nolimits(X_0\mid X_k=x).
 ```
 
 常用选择 $`\nu_k=\widetilde\beta_k`$ 与 $`\nu_k=\beta_k`$
@@ -342,8 +342,8 @@ $`I+hL_t^*+o(h)`$ 展开分子，减去 $`\varphi(x)`$ 并除以 $`h`$，即得�
 ```math
 \begin{aligned}
  \mathrm{d}  Y_\tau&=b_\tau(Y_\tau)\mathrm{d} \tau+G_t(Y_\tau)\mathrm{d} \overline W_\tau,\\
- b_\tau&=-f_t+\operatorname{div}a_t+a_ts_t,\qquad t=1-\tau,\\
- (\operatorname{div}a_t)_i&=\sum_j\partial_j a_{ij,t}.
+ b_\tau&=-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_ts_t,\qquad t=1-\tau,\\
+ (\mathop{\mathrm{div}}\nolimits a_t)_i&=\sum_j\partial_j a_{ij,t}.
  \end{aligned}
 ```
 
@@ -361,7 +361,7 @@ $`I+hL_t^*+o(h)`$ 展开分子，减去 $`\varphi(x)`$ 并除以 $`h`$，即得�
 \partial_t p_t=-\nabla\cdot(f_tp_t)+\frac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
 ```
 
-对每个坐标，$`\sum_j\partial_j(a_{ij}p) =p(\operatorname{div}a)_i+p(a s)_i`$，所以方程可写为
+对每个坐标，$`\sum_j\partial_j(a_{ij}p) =p(\mathop{\mathrm{div}}\nolimits a)_i+p(a s)_i`$，所以方程可写为
 $`\partial_t p_t=-\nabla\cdot(p_tu_t)`$，其中
 
 <a name="eq-generation-probability-ode"></a>
@@ -370,7 +370,7 @@ $`\partial_t p_t=-\nabla\cdot(p_tu_t)`$，其中
 
 ```math
 \begin{aligned}
- u_t&=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,\\
+ u_t&=f_t-\tfrac12\mathop{\mathrm{div}}\nolimits a_t-\tfrac12a_ts_t,\\
  \frac{\mathrm{d}  Z_\tau}{\mathrm{d} \tau}&=v_\tau(Z_\tau)=-u_{1-\tau}(Z_\tau).
  \end{aligned}
 ```
@@ -386,7 +386,7 @@ $`\nabla\cdot(p_tw_t)=0`$ 的场，速度还可有其他选择。
 
 令 $`\rho_\tau=p_t`$，则 $`\partial_\tau\rho_\tau=-\partial_t p_t`$。
 将式 [(3.7)](#eq-generation-reverse-sde) 的漂移代入反向 Fokker–Planck 方程，
-利用 $`(\operatorname{div}a+a s)p=\operatorname{div}(ap)`$，得到
+利用 $`(\mathop{\mathrm{div}}\nolimits a+a s)p=\mathop{\mathrm{div}}\nolimits(ap)`$，得到
 
 ```math
 -\nabla\cdot(b_\tau p_t)+\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t)
@@ -511,7 +511,7 @@ $`\frac{\mathrm{d} }{\mathrm{d} \tau}\mathbb E\varphi(Z_\tau) =\mathbb E[\nabla\
 ```
 
 对给定观测 $`x`$，以 $`Z_1=x`$ 为终值反积分获得 $`Z_0`$，再使用同一公式。
-高维时可用 $`\mathbb E[\zeta^\top J_v\zeta]=\operatorname{tr}J_v`$
+高维时可用 $`\mathbb E[\zeta^\top J_v\zeta]=\mathop{\mathrm{tr}}\nolimits J_v`$
 估计散度，其中 $`\mathbb E[\zeta\zeta^\top]=I_d`$，见 CNF 与 FFJORD
 〔[4](#ref-chen2018neuralode), [16](#ref-grathwohl2019ffjord)〕。
 迹估计引入 Monte Carlo 误差，数值积分也有误差。
@@ -563,7 +563,7 @@ v_\tau(x)=\frac{2\tau-1}{H_\tau}x,
  \qquad Z_\tau=\sqrt{H_\tau}\,Z_0.
 ```
 
-验证只需计算 $`\operatorname{Cov}(D-N,I_\tau)=(2\tau-1)I_d`$，
+验证只需计算 $`\mathop{\mathrm{Cov}}\nolimits(D-N,I_\tau)=(2\tau-1)I_d`$，
 再除以 $`H_\tau`$。轨迹先收缩后扩张，$`Z_1=Z_0`$。
 其端点连线是常值曲线，实际运动则在中间时刻偏离该连线。
 这个算例说明线性条件插值允许随时间改变速度的边缘流，
@@ -706,7 +706,7 @@ $`\mathrm{d}  X_t=(y-X_t)\mathrm{d}  t/(1-t)+\sqrt\epsilon\mathrm{d}  W_t`$。
 
 ```math
 \begin{aligned}
- b_\tau^\star&=-f_t+\operatorname{div}a_t+a_t\nabla\log r_t
+ b_\tau^\star&=-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_t\nabla\log r_t
                        +a_t\nabla\log\widehat\psi_t,\\
  t&=1-\tau.
  \end{aligned}
@@ -736,7 +736,7 @@ DSB 可通过交替模拟与回归直接拟合两个方向的漂移
 ```
 
 端点约束按概率测度理解。有密度时可写成端点密度条件。
-定义 $`u_t^\star=f_t^\star-\operatorname{div}a_t/2-a_ts_t^\star/2`$，
+定义 $`u_t^\star=f_t^\star-\mathop{\mathrm{div}}\nolimits a_t/2-a_ts_t^\star/2`$，
 即可构造与桥共享边缘的确定性 ODE，生成速度为 $`-u_{1-\tau}^\star`$。
 它保持桥的时刻边缘，路径律则由确定性流决定。
 桥相对于参考扩散的最优路径 KL 是对原随机桥提出的优化条件。
@@ -781,7 +781,7 @@ D_{\mathrm{KL}}(P^\star\|\widehat P)
 ### 3.7.1 从插值边缘分布构造连续性方程
 
 沿用第 2 章 $`I_t=\mathcal I(t,D,N)+\gamma(t)\zeta`$，其中
-$`\zeta`$ 与端点独立。令 $`p_t=\operatorname{Law}(I_t)`$、
+$`\zeta`$ 与端点独立。令 $`p_t=\mathop{\mathrm{Law}}\nolimits(I_t)`$、
 $`u_t(x)=\mathbb E[\partial_t I_t\mid I_t=x]`$。
 对 $`\varphi\in C_c^\infty`$，可交换求导与期望时
 
@@ -801,7 +801,7 @@ $`u_t(x)=\mathbb E[\partial_t I_t\mid I_t=x]`$。
 
 令 $`v_\tau(x)=-u_{1-\tau}(x)`$。在场与密度演化适定的前提下，
 $`\dot Z_\tau=v_\tau(Z_\tau)`$、$`Z_0\sim p_1`$
-给出 $`\operatorname{Law}(Z_\tau)=p_{1-\tau}`$。
+给出 $`\mathop{\mathrm{Law}}\nolimits(Z_\tau)=p_{1-\tau}`$。
 辅助随机变量用于定义条件回归目标，ODE 采样由初始噪声和边缘速度决定。
 若学习的是辅助噪声条件均值 $`Z_\phi`$，则内部时刻
 $`s_\phi=-Z_\phi/\gamma(t)`$。
@@ -826,7 +826,7 @@ $`s_\phi=-Z_\phi/\gamma(t)`$。
 $`-\nabla\cdot(u_tp_t)-\kappa\nabla\cdot(s_tp_t)+\kappa\Delta p_t`$。
 由于 $`s_tp_t=\nabla p_t`$，后两项抵消，恢复给定边缘的连续性方程。
 若扩散协方差改成状态依赖的 $`a_t(x)`$，对应漂移需取
-$`u_t+\operatorname{div}a_t/2+a_ts_t/2`$，才能保持同一密度演化。
+$`u_t+\mathop{\mathrm{div}}\nolimits a_t/2+a_ts_t/2`$，才能保持同一密度演化。
 选择扩散时还需保证所定义 SDE 有解且其密度方程唯一。
 
 <a name="sec-3-7-4"></a>
@@ -1091,7 +1091,7 @@ $`W_2^2(P,Q)=\inf_{\pi\in\Pi(P,Q)}\mathbb E_\pi\lVert X-Y\rVert^2`$，
 **公式（3.21）**
 
 ```math
-\operatorname{MMD}_k^2(P,Q)=\mathbb E k(X,X')+\mathbb E k(Y,Y')
+\mathop{\mathrm{MMD}}\nolimits_k^2(P,Q)=\mathbb E k(X,X')+\mathbb E k(Y,Y')
                                      -2\mathbb E k(X,Y).
 ```
 

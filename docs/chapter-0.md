@@ -161,8 +161,8 @@ p_X(x)=\frac{\exp[-(x-m)^\top\Sigma^{-1}(x-m)/2]}
 $`R=U-m_U-B(V-m_V)`$。直接计算
 
 ```math
-\operatorname{Cov}(R,V)=\Sigma_{UV}-B\Sigma_{VV}=0,\quad
-\operatorname{Cov}(R)=\Sigma_{UU}-\Sigma_{UV}\Sigma_{VV}^{-1}\Sigma_{VU}.
+\mathop{\mathrm{Cov}}\nolimits(R,V)=\Sigma_{UV}-B\Sigma_{VV}=0,\quad
+\mathop{\mathrm{Cov}}\nolimits(R)=\Sigma_{UU}-\Sigma_{UV}\Sigma_{VV}^{-1}\Sigma_{VU}.
 ```
 
 因为 $`(R,V)`$ 仍是联合高斯，零交叉协方差使其联合特征函数分解，
@@ -217,7 +217,7 @@ s_t(x)
 ```
 
 这也由 [(0.4)](#eq-foundations-conditional-gaussian) 给出，因为
-$`\operatorname{Cov}(X_0,X_t)=\alpha_t\Sigma`$。
+$`\mathop{\mathrm{Cov}}\nolimits(X_0,X_t)=\alpha_t\Sigma`$。
 
 <a name="sec-0-1-5"></a>
 
@@ -248,7 +248,7 @@ $`Q=\mathcal N(m_Q,\Sigma_Q)`$，两协方差均正定。
 \begin{aligned}
 \mathbb E[(X-m_P)^\top\Sigma_P^{-1}(X-m_P)] &=d,\\
 \mathbb E[(X-m_Q)^\top\Sigma_Q^{-1}(X-m_Q)]
-&=\operatorname{tr}(\Sigma_Q^{-1}\Sigma_P)\\
+&=\mathop{\mathrm{tr}}\nolimits(\Sigma_Q^{-1}\Sigma_P)\\
 &\quad+\lVert \Sigma_Q^{-1/2}(m_P-m_Q) \rVert^2 .
 \end{aligned}
 ```
@@ -263,7 +263,7 @@ $`Q=\mathcal N(m_Q,\Sigma_Q)`$，两协方差均正定。
 ```math
 D_{\mathrm{KL}}(P\|Q)=\frac12\left[
 \log\frac{\det\Sigma_Q}{\det\Sigma_P}
-+\operatorname{tr}(\Sigma_Q^{-1}\Sigma_P)-d
++\mathop{\mathrm{tr}}\nolimits(\Sigma_Q^{-1}\Sigma_P)-d
 +\lVert \Sigma_Q^{-1/2}(m_P-m_Q) \rVert^2
 \right].
 ```
@@ -441,8 +441,8 @@ $`\det A_t>0`$。Jacobi 公式和迹的循环性质给出
 ```math
 \begin{aligned}
 \frac{\mathop{}\!\mathrm{d}}{\mathop{}\!\mathrm{d} t}\log\det A_t
-&=\operatorname{tr}(A_t^{-1}\dot A_t)\\
-&=\operatorname{tr}\bigl((D u_t)(\Phi_{s,t}(x))\bigr)
+&=\mathop{\mathrm{tr}}\nolimits(A_t^{-1}\dot A_t)\\
+&=\mathop{\mathrm{tr}}\nolimits\bigl((D u_t)(\Phi_{s,t}(x))\bigr)
 =\nabla\cdot u_t(\Phi_{s,t}(x)).
 \end{aligned}
 ```
@@ -545,7 +545,7 @@ $`a_t(x)=G_t(x)G_t(x)^\top`$。在下式中，系数及导数均在 $`(t,X_t)`$ 
 \begin{aligned}
 \mathop{}\!\mathrm{d}\varphi(t,X_t)
 &=\left(\partial_t\varphi+f_t\cdot\nabla\varphi
-+\tfrac12\operatorname{tr}(a_t D_x^2\varphi)\right)\mathop{}\!\mathrm{d} t\\
++\tfrac12\mathop{\mathrm{tr}}\nolimits(a_t D_x^2\varphi)\right)\mathop{}\!\mathrm{d} t\\
 &\quad+\nabla\varphi^\top G_t\,\mathop{}\!\mathrm{d} W_t .
 \end{aligned}
 ```
@@ -573,7 +573,7 @@ X_t=X_0+\int_0^t f_r(X_r)\,\mathop{}\!\mathrm{d} r+\int_0^t G_r(X_r)\,\mathop{}\
 ```math
 \begin{aligned}
 \mathbb E[X_{t+h}-X_t\mid X_t=x] &= f_t(x)h+o(h),\\
-\operatorname{Cov}(X_{t+h}-X_t\mid X_t=x) &= a_t(x)h+o(h).
+\mathop{\mathrm{Cov}}\nolimits(X_{t+h}-X_t\mid X_t=x) &= a_t(x)h+o(h).
 \end{aligned}
 ```
 
@@ -677,7 +677,7 @@ P_{t-h,t}^*(p_{t-h}\varphi)
 二阶项利用 $`a_{ij}=a_{ji}`$，其对 $`\partial_i\varphi`$ 的系数为
 $`p_t^{-1}\sum_j\partial_j(a_{ij}p_t)`$，二阶导数项仍是
 $`\tfrac12\sum_{i,j}a_{ij}\partial_{ij}\varphi`$。
-定义矩阵的行散度 $`(\operatorname{div}a_t)_i=\sum_j\partial_ja_{ij}`$，
+定义矩阵的行散度 $`(\mathop{\mathrm{div}}\nolimits a_t)_i=\sum_j\partial_ja_{ij}`$，
 于是反向 SDE（$`\tau`$ 递增）的表示为
 
 <a name="eq-foundations-reverse-sde"></a>
@@ -690,7 +690,7 @@ $`\tfrac12\sum_{i,j}a_{ij}\partial_{ij}\varphi`$。
 &=b_\tau^{\mathrm{rev}}(Y_\tau)\,\mathop{}\!\mathrm{d}\tau
 +G_t(Y_\tau)\,\mathop{}\!\mathrm{d}\overline W_\tau, \qquad t=1-\tau,\\
 b_\tau^{\mathrm{rev}}(x)
-&=-f_t(x)+\operatorname{div}a_t(x)+a_t(x)s_t(x),
+&=-f_t(x)+\mathop{\mathrm{div}}\nolimits a_t(x)+a_t(x)s_t(x),
 \qquad Y_0\sim\mu_1 .
 \end{aligned}
 ```
@@ -793,7 +793,7 @@ $`n`$ 为外法向，所以正的外向通量使区域内概率下降。
 当 $`a_t=g(t)^2I_d`$ 时，扩散各向同性，二阶项化为
 $`\frac12 g(t)^2\Delta p_t`$。
 当 $`a_t`$ 是与位置无关的对角矩阵
-$`\operatorname{diag}(g_1(t)^2,\ldots,g_d(t)^2)`$ 时，
+$`\mathop{\mathrm{diag}}\nolimits(g_1(t)^2,\ldots,g_d(t)^2)`$ 时，
 相应项为 $`\frac12\sum_i g_i(t)^2\partial_{ii}p_t`$。
 非对角元素对应坐标增量的相关性。对称矩阵可逐点正交对角化，
 特征向量给出局部扩散方向，特征值给出各方向的方差率。
@@ -820,19 +820,19 @@ $`X_t-X_0=\int_0^t G_r\,\mathop{}\!\mathrm{d} W_r`$ 为独立于 $`X_0`$ 的高�
 \begin{aligned}
 \sum_j\partial_j(a_{ij}p_t)
 &=p_t\sum_j\partial_j a_{ij}+\sum_j a_{ij}\partial_j p_t,\\
-\operatorname{div}(a_t p_t)
-&=p_t\bigl(\operatorname{div}a_t+a_t s_t\bigr).
+\mathop{\mathrm{div}}\nolimits(a_t p_t)
+&=p_t\bigl(\mathop{\mathrm{div}}\nolimits a_t+a_t s_t\bigr).
 \end{aligned}
 ```
 
-只随时间变化的矩阵满足 $`\operatorname{div}a_t=0`$。
+只随时间变化的矩阵满足 $`\mathop{\mathrm{div}}\nolimits a_t=0`$。
 若各向同性但强度随位置变化，即 $`a_t(x)=g(x,t)^2I_d`$，
-则 $`\operatorname{div}a_t=\nabla(g(x,t)^2)`$，二阶项为
+则 $`\mathop{\mathrm{div}}\nolimits a_t=\nabla(g(x,t)^2)`$，二阶项为
 $`\frac12\Delta(g^2p_t)`$。
 
 > **边注 · 矩阵散度**
 >
-> $`\operatorname{div}(a p)`$ 是向量，其第 $`i`$ 项沿矩阵第 $`i`$ 行求散度。
+> $`\mathop{\mathrm{div}}\nolimits(a p)`$ 是向量，其第 $`i`$ 项沿矩阵第 $`i`$ 行求散度。
 
 **例 · 检验状态依赖项的符号**
 
@@ -854,7 +854,7 @@ $`J=0`$，因而 $`p`$ 满足稳态 Fokker–Planck 方程。
 
 ```math
 \boxed{
-u_t(x)=f_t(x)-\tfrac12\operatorname{div}a_t(x)-\tfrac12 a_t(x)s_t(x).
+u_t(x)=f_t(x)-\tfrac12\mathop{\mathrm{div}}\nolimits a_t(x)-\tfrac12 a_t(x)s_t(x).
 }
 ```
 
@@ -881,7 +881,7 @@ $`\dot Z_t=u_t(Z_t)`$ 并取 $`Z_s\sim\mu_s`$，
 \frac{\mathop{}\!\mathrm{d} Z_\tau^{\mathrm{gen}}}{\mathop{}\!\mathrm{d}\tau}
 &=v_\tau(Z_\tau^{\mathrm{gen}}),\qquad Z_0^{\mathrm{gen}}\sim\mu_1,\\
 v_\tau
-&=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12 a_t s_t,
+&=-f_t+\tfrac12\mathop{\mathrm{div}}\nolimits a_t+\tfrac12 a_t s_t,
 \qquad t=1-\tau .
 \end{aligned}
 ```
@@ -930,7 +930,7 @@ W_p(\mu_0,\mu_1)
 
 ```math
 \mathbb E|X_1-X_0|^2
-=(m_1-m_0)^2+s_0^2+s_1^2-2\operatorname{Cov}(X_0,X_1).
+=(m_1-m_0)^2+s_0^2+s_1^2-2\mathop{\mathrm{Cov}}\nolimits(X_0,X_1).
 ```
 
 由 Cauchy–Schwarz 不等式，最后一项中的协方差至多为 $`s_0s_1`$。
@@ -1290,7 +1290,7 @@ $`\gamma'(t)\zeta`$，而端点噪声 $`X_1`$ 与附加扰动 $`\zeta`$
 令 $`X_0\sim\mathcal N(m_0,\Sigma_0)`$，$`X_1\sim\mathcal N(0,I_d)`$，
 取独立耦合。中间均值为 $`(1-t)m_0`$，协方差为
 $`S_t=(1-t)^2\Sigma_0+t^2I_d`$。因为
-$`\operatorname{Cov}(X_1-X_0,I_t)=tI_d-(1-t)\Sigma_0`$，
+$`\mathop{\mathrm{Cov}}\nolimits(X_1-X_0,I_t)=tI_d-(1-t)\Sigma_0`$，
 代入 [(0.4)](#eq-foundations-conditional-gaussian) 得
 
 ```math

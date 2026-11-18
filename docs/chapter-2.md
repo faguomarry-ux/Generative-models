@@ -117,7 +117,7 @@ q(y\mid x_k,x_0)&=\mathcal N(\widetilde m_k,\widetilde\beta_k I_d),\\
 将 [(2.2)](#eq-training-ddpm-posterior) 对 $`q(\mathrm{d} x_0\mid x_k)`$ 混合得到的，
 通常超出单个各向同性高斯的表达能力。由全协方差公式，其协方差包含
 $`\widetilde\beta_k I_d`$ 和
-$`\operatorname{Cov}(\widetilde m_k(X_0,x_k)\mid X_k=x_k)`$ 两项。
+$`\mathop{\mathrm{Cov}}\nolimits(\widetilde m_k(X_0,x_k)\mid X_k=x_k)`$ 两项。
 
 **例 2.1 · 两步条件后验**
 
@@ -332,7 +332,7 @@ $`\widehat x_0=(x_k-S_k\varepsilon_\theta(x_k,k))/A_k`$，
 在 [(2.8)](#eq-training-ddim-kernel) 下有
 
 ```math
-\operatorname{Cov}(X_{k-1},X_k\mid X_0=x_0)
+\mathop{\mathrm{Cov}}\nolimits(X_{k-1},X_k\mid X_0=x_0)
   = S_k\sqrt{S_{k-1}^2-\delta_k^2}\,I_d .
 ```
 
@@ -397,7 +397,7 @@ $`\nabla\cdot(p s_\theta)=s_\theta^\top\nabla p+p\nabla\cdot s_\theta`$，
 ```
 
 这里 $`C=\frac12\mathbb E_p\lVert s\rVert^2`$ 与参数无关。
-散度为 $`\operatorname{tr}(\nabla_x s_\theta)`$。
+散度为 $`\mathop{\mathrm{tr}}\nolimits(\nabla_x s_\theta)`$。
 对 $`p=\mathcal N(0,\sigma^2)`$、$`s_\theta(x)=-c x`$，
 可计算的部分为 $`\frac12c^2\sigma^2-c`$，最优 $`c=1/\sigma^2`$。
 
@@ -724,7 +724,7 @@ u_t(x)&=\mathbb E[\Delta\mid I_t=x],\\
 **例 2.3 · 独立与同向高斯耦合**
 
 令一维 $`D,N`$ 的边缘均为标准高斯。独立时 $`I_t`$ 的方差为
-$`H_t=(1-t)^2+t^2`$，$`\operatorname{Cov}(\Delta,I_t)=2t-1`$。
+$`H_t=(1-t)^2+t^2`$，$`\mathop{\mathrm{Cov}}\nolimits(\Delta,I_t)=2t-1`$。
 联合高斯回归给出 $`u_t(x)=(2t-1)x/H_t`$，ODE 解为 $`Z_t=\sqrt{H_t}\,Z_0`$。
 它在中间先收缩再扩张，终点 $`Z_1=Z_0`$。
 若改用 $`N=D`$ 的耦合，方差恒为 $`1`$，监督和速度均为零。
@@ -777,7 +777,7 @@ Liu 等人 〔[6](#ref-liu2023rectified)〕 将精确流给出的 $`(Z_0,Z_1)`$ 
 ### 2.5.5 最优耦合与训练目标之间的关系
 
 选择二次 OT 耦合
-$`\pi_{\mathrm{OT}}\in\operatorname*{arg\,min}_{\pi\in\Pi(\mu_0,\mu_1)} \mathbb E_\pi\lVert D-N\rVert^2`$，再沿其端点线性插值，
+$`\pi_{\mathrm{OT}}\in\mathop{\mathrm{arg\,min}}\limits_{\pi\in\Pi(\mu_0,\mu_1)} \mathbb E_\pi\lVert D-N\rVert^2`$，再沿其端点线性插值，
 得到 $`W_2`$ 位移插值。对于平方代价，任意耦合产生的条件期望速度满足
 
 ```math
@@ -1091,7 +1091,7 @@ u_t(x)&=\mathbb E[\dot I_t\mid I_t=x] .
 \end{aligned}
 ```
 
-这给出 $`p_t=\operatorname{Law}(I_t)`$ 的弱连续性方程。
+这给出 $`p_t=\mathop{\mathrm{Law}}\nolimits(I_t)`$ 的弱连续性方程。
 因此包括 $`\gamma'(t)\zeta`$ 在内的完整时间导数都进入速度标签。
 舍去这一项时，最优回归场少了 $`\gamma'(t)\mathbb E[\zeta\mid I_t=x]`$。
 
@@ -1249,9 +1249,9 @@ DSM 使用扰动核的条件 Score。若把隐式 Score Matching 直接用在干
 **公式（2.34）**
 
 ```math
-u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_t s_t,
+u_t=f_t-\tfrac12\mathop{\mathrm{div}}\nolimits a_t-\tfrac12a_t s_t,
 \qquad
-b_\tau=-f_t+\operatorname{div}a_t+a_t s_t,\quad t=1-\tau .
+b_\tau=-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_t s_t,\quad t=1-\tau .
 ```
 
 $`b_\tau`$ 是递增生成时间下的反向 SDE 漂移。
@@ -1296,7 +1296,7 @@ $`b_\tau`$ 是递增生成时间下的反向 SDE 漂移。
    **核对** $`\sqrt 2\,x/5`$ 与 $`-2x/5`$。
 1. 对二维单位高斯，令 $`J`$ 为非零反对称矩阵。
    验证速度 $`u(x)=Jx`$ 满足静态连续性方程。
-   **核对** $`\operatorname{tr}J=0`$，且 $`x^\top Jx=0`$。
+   **核对** $`\mathop{\mathrm{tr}}\nolimits J=0`$，且 $`x^\top Jx=0`$。
 1. 若随机插值取 $`\gamma(t)=\sqrt{t(1-t)}`$，
    问在均匀时间采样下，独立噪声的导数项是否平方可积。
    **核对** $`\gamma'(t)^2=(1-2t)^2/[4t(1-t)]`$，

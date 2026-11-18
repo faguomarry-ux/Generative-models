@@ -75,7 +75,7 @@ $`s_Y(y)=B^{-\top}s_X(B^{-1}(y-c))`$。
 ```math
 s(x)=-\Sigma^{-1}(x-m),\qquad
  \nabla_xs(x)=-\Sigma^{-1},\qquad
- \nabla\cdot s(x)=-\operatorname{tr}(\Sigma^{-1}).
+ \nabla\cdot s(x)=-\mathop{\mathrm{tr}}\nolimits(\Sigma^{-1}).
 ```
 
 在协方差特征向量方向，Score 的恢复强度是对应方差的倒数。
@@ -373,7 +373,7 @@ $`\alpha_t d_t^*(x)=x+\Sigma_t s_t(x)`$。
 
 进一步令 $`Y=\alpha_tD`$、固定 $`t`$。对后验均值的商式求导，
 后验密度导数为 $`(Y-\mathbb E[Y\mid x])/\sigma_t^2`$ 乘以后验密度。
-因此 $`\nabla_x\mathbb E[Y\mid x]=\operatorname{Cov}(Y\mid x)/\sigma_t^2`$。
+因此 $`\nabla_x\mathbb E[Y\mid x]=\mathop{\mathrm{Cov}}\nolimits(Y\mid x)/\sigma_t^2`$。
 再对 Tweedie 等式求导，得到
 
 <a name="eq-fields-second-tweedie"></a>
@@ -381,7 +381,7 @@ $`\alpha_t d_t^*(x)=x+\Sigma_t s_t(x)`$。
 **公式（4.12）**
 
 ```math
-\alpha_t^2\operatorname{Cov}(D\mid X_t=x)
+\alpha_t^2\mathop{\mathrm{Cov}}\nolimits(D\mid X_t=x)
    =\sigma_t^2I_d+\sigma_t^4\nabla_xs_t(x).
 ```
 
@@ -617,7 +617,7 @@ $`X\mid D\sim\mathcal N((\alpha+\sigma\rho)D,\sigma^2(1-\rho^2))`$，
 这给出全部可行速度的一个仿射结构。
 例如二维标准高斯静态路径的 $`u=0`$ 与 $`\widetilde u=Jx`$ 都可行，
 其中 $`J^\top=-J`$。因为
-$`\nabla\cdot(pJx)=p\operatorname{tr}J+(Jx)\cdot\nabla p=0`$。
+$`\nabla\cdot(pJx)=p\mathop{\mathrm{tr}}\nolimits J+(Jx)\cdot\nabla p=0`$。
 第一种流固定样本，第二种流旋转样本。
 
 给定 $`\partial_t p`$ 时，可按最小动能选择速度。
@@ -650,7 +650,7 @@ $`\mathrm{d}  X_t=f_t(X_t)\mathrm{d}  t+G_t(X_t)\mathrm{d}  W_t`$，令 $`a_t=G_
 f_t(x)=\lim_{h\downarrow0}\frac1h\mathbb E[X_{t+h}-X_t\mid X_t=x],
  \qquad
  a_t(x)=\lim_{h\downarrow0}\frac1h
-       \operatorname{Cov}(X_{t+h}-X_t\mid X_t=x).
+       \mathop{\mathrm{Cov}}\nolimits(X_{t+h}-X_t\mid X_t=x).
 ```
 
 Drift 描述短时条件均值增量，Diffusion 描述二阶增量。
@@ -716,7 +716,7 @@ $`u_t=-\beta(t)(x+s_t)/2`$。
  =p_t\sum_j\partial_j a_{ij,t}+\sum_j a_{ij,t}\partial_jp_t.
 ```
 
-定义 $`(\operatorname{div}a)_i=\sum_j\partial_ja_{ij}`$，便得到
+定义 $`(\mathop{\mathrm{div}}\nolimits a)_i=\sum_j\partial_ja_{ij}`$，便得到
 
 <a name="eq-fields-anisotropic-conversion"></a>
 
@@ -724,16 +724,16 @@ $`u_t=-\beta(t)(x+s_t)/2`$。
 
 ```math
 \begin{aligned}
- u_t&=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,\\
- f_t&=u_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t.
+ u_t&=f_t-\tfrac12\mathop{\mathrm{div}}\nolimits a_t-\tfrac12a_ts_t,\\
+ f_t&=u_t+\tfrac12\mathop{\mathrm{div}}\nolimits a_t+\tfrac12a_ts_t.
  \end{aligned}
 ```
 
 这里 $`a_ts_t`$ 是矩阵乘向量。只有当 $`a_t`$ 可逆时，才可由两个漂移类场恢复
-$`s_t=a_t^{-1}(2f_t-2u_t-\operatorname{div}a_t)`$。
+$`s_t=a_t^{-1}(2f_t-2u_t-\mathop{\mathrm{div}}\nolimits a_t)`$。
 若 $`a_t`$ 奇异，该等式确定 $`a_ts_t`$，其核空间内的 Score 分量需额外信息。
 即使 $`a_t`$ 空间上常数，各向异性也要求保留整个矩阵。
-状态依赖性进一步引入 $`\operatorname{div}a_t`$。
+状态依赖性进一步引入 $`\mathop{\mathrm{div}}\nolimits a_t`$。
 
 **例 4.5 · 一维乘性扩散中的稳态流**
 
@@ -759,12 +759,12 @@ f(x)=\tfrac12a'(x)+\tfrac12a(x)s(x)=\tfrac12(x-x^3).
 **公式（4.22）**
 
 ```math
-b_\tau=-f_t+\operatorname{div}a_t+a_ts_t,\qquad
- v_\tau=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
+b_\tau=-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_ts_t,\qquad
+ v_\tau=-f_t+\tfrac12\mathop{\mathrm{div}}\nolimits a_t+\tfrac12a_ts_t,
  \quad t=1-\tau.
 ```
 
-因此 $`b_\tau=v_\tau+\operatorname{div}a_t/2+a_ts_t/2`$。
+因此 $`b_\tau=v_\tau+\mathop{\mathrm{div}}\nolimits a_t/2+a_ts_t/2`$。
 反向 SDE 与生成 ODE 在精确条件下共享边缘，但二者的漂移与速度各有自己的系数。
 例如各向同性 VP 中，$`b_\tau=\beta x/2+\beta s_t`$，
 $`v_\tau=\beta x/2+\beta s_t/2`$。
@@ -939,7 +939,7 @@ g(t)^2=\frac{\mathrm{d} }{\mathrm{d}  t}\sigma_t^2
 若 $`-2C_t<0`$，该指定线性漂移下无法使用实值扩散强度实现所需边缘。
 
 更一般地，给定 $`p_t,u_t,s_t`$，任取合适的半正定扩散协方差 $`A_t(x)`$，
-使用 $`f_t=u_t+\operatorname{div}A_t/2+A_ts_t/2`$
+使用 $`f_t=u_t+\mathop{\mathrm{div}}\nolimits A_t/2+A_ts_t/2`$
 也可在适定条件下实现同一边缘。这时漂移通常依赖 Score。
 因此同边缘的 SDE 构造可以很广，指定线性前向漂移会进一步约束可选路径。
 
@@ -990,7 +990,7 @@ p_t^\star=r_t\widehat\psi_t\psi_t,\qquad
 
 ```math
 f_t^\star=f_t+a_t\eta_t,\qquad
- b_\tau^\star=-f_t+\operatorname{div}a_t
+ b_\tau^\star=-f_t+\mathop{\mathrm{div}}\nolimits a_t
                  +a_t\nabla\log r_t+a_t\widehat\eta_t,
  \quad t=1-\tau.
 ```
@@ -1015,14 +1015,14 @@ $`\eta_t^\top a_t\eta_t/2`$。
 
 ```math
 \begin{aligned}
- f_t^\star+b_\tau^\star&=\operatorname{div}a_t+a_ts_t^\star,\\
+ f_t^\star+b_\tau^\star&=\mathop{\mathrm{div}}\nolimits a_t+a_ts_t^\star,\\
  u_t^\star&=\tfrac12(f_t^\star-b_\tau^\star),\qquad
  v_\tau^\star=\tfrac12(b_\tau^\star-f_t^\star).
  \end{aligned}
 ```
 
 第一行把漂移之和联系到 Score，第二行给出概率流速度。
-若 $`a_t`$ 可逆，$`s_t^\star=a_t^{-1}(f_t^\star+b_\tau^\star-\operatorname{div}a_t)`$。
+若 $`a_t`$ 可逆，$`s_t^\star=a_t^{-1}(f_t^\star+b_\tau^\star-\mathop{\mathrm{div}}\nolimits a_t)`$。
 这里 $`b_\tau^\star`$ 按递增生成时间定义。
 如果某篇文献将反向漂移记为原坐标 $`t`$ 下的后向导数，
 它与本书 $`b`$ 的符号需要先转换，再比较和差公式。
@@ -1076,7 +1076,7 @@ $`e_s=e_\eta+e_{\widehat\eta}`$。若正向漂移网络固定，
 
 ```math
 R_t(x)=f_\theta(x,t)+b_\phi(x,1-t)
-                         -\operatorname{div}a_t(x)-a_t(x)s_\omega(x,t).
+                         -\mathop{\mathrm{div}}\nolimits a_t(x)-a_t(x)s_\omega(x,t).
 ```
 
 该残差为零是它们与同一扩散边缘相容的必要关系，
@@ -1172,7 +1172,7 @@ $`M_{\mathrm{eff}}=1/\sum_i\bar w_i^2`$ 可辅助检查权重退化。
 ### 4.8.4 向量场的 Jacobian、散度与 Hessian
 
 对 $`F:\mathbb R^d\to\mathbb R^d`$，采用
-$`(J_F)_{ij}=\partial_jF_i`$，散度为 $`\operatorname{tr}J_F`$。
+$`(J_F)_{ij}=\partial_jF_i`$，散度为 $`\mathop{\mathrm{tr}}\nolimits J_F`$。
 对标量 $`\ell`$，Score 为 $`\nabla\ell`$，其 Jacobian 为 Hessian
 $`\nabla^2\ell`$，散度为 Laplacian $`\Delta\ell`$。
 完整 Jacobian 包含 $`d^2`$ 个元素，很多算法只需
@@ -1181,12 +1181,12 @@ $`J_Fz`$、$`J_F^\top z`$ 或 $`z^\top J_Fz`$。
 再与 $`z`$ 点乘得到所需二次型。
 这些恒等式允许用自动微分计算方向导数，并控制存储成本。
 
-状态依赖扩散中的 $`\operatorname{div}a`$ 是一个向量，
+状态依赖扩散中的 $`\mathop{\mathrm{div}}\nolimits a`$ 是一个向量，
 其第 $`i`$ 分量是第 $`i`$ 行的散度。
-它与标量 $`\operatorname{tr}a`$、向量场散度 $`\nabla\cdot F`$
+它与标量 $`\mathop{\mathrm{tr}}\nolimits a`$、向量场散度 $`\nabla\cdot F`$
 在类型和求导指标上均需逐项区分。
-例如 $`a(x)=\operatorname{diag}(a_1(x),\ldots,a_d(x))`$，
-有 $`(\operatorname{div}a)_i=\partial_i a_i`$。
+例如 $`a(x)=\mathop{\mathrm{diag}}\nolimits(a_1(x),\ldots,a_d(x))`$，
+有 $`(\mathop{\mathrm{div}}\nolimits a)_i=\partial_i a_i`$。
 
 <a name="sec-4-8-5"></a>
 
@@ -1201,7 +1201,7 @@ $`J_Fz`$、$`J_F^\top z`$ 或 $`z^\top J_Fz`$。
 
 ```math
 \mathbb E_z[z^\top J_F(x)z]
- =\operatorname{tr}(J_F(x)\mathbb E[zz^\top])
+ =\mathop{\mathrm{tr}}\nolimits(J_F(x)\mathbb E[zz^\top])
  =\nabla\cdot F(x).
 ```
 
@@ -1211,9 +1211,9 @@ $`J_Fz`$、$`J_F^\top z`$ 或 $`z^\top J_Fz`$。
 单探针方差分别为
 
 ```math
-\operatorname{Var}_{\mathrm G}(z^\top J_Fz)=2\lVert S\rVert_{\mathrm F}^2,
+\mathop{\mathrm{Var}}\nolimits_{\mathrm G}(z^\top J_Fz)=2\lVert S\rVert_{\mathrm F}^2,
  \qquad
- \operatorname{Var}_{\mathrm R}(z^\top J_Fz)=2\sum_{i\ne j}S_{ij}^2.
+ \mathop{\mathrm{Var}}\nolimits_{\mathrm R}(z^\top J_Fz)=2\sum_{i\ne j}S_{ij}^2.
 ```
 
 独立探针平均的方差除以 $`M`$。这些公式由探针的二阶与四阶矩展开得到。
@@ -1289,8 +1289,8 @@ $`X_t=\alpha_tD+\sigma_t\varepsilon`$，且噪声与数据独立。
 | Score | 干净均值 | $`d^*=(x+\sigma^2s)/\alpha`$<br> $`\alpha\ne0`$ |
 | Score | 路径速度 | $`u=(\dot\alpha/\alpha)x+Cs`$<br> $`\alpha\ne0`$ |
 | 路径速度 | Score | $`s=(\dot\alpha x-\alpha u)/(\sigma\Delta)`$<br> $`\sigma\Delta\ne0`$ |
-| 漂移与 Score | 概率流速度 | $`u=f-\operatorname{div}a/2-as/2`$ |
-| 前向漂移与 Score | 反向漂移 | $`b=-f+\operatorname{div}a+as`$<br> $`t=1-\tau`$ |
+| 漂移与 Score | 概率流速度 | $`u=f-\mathop{\mathrm{div}}\nolimits a/2-as/2`$ |
+| 前向漂移与 Score | 反向漂移 | $`b=-f+\mathop{\mathrm{div}}\nolimits a+as`$<br> $`t=1-\tau`$ |
 | 加噪速度 | 生成速度 | $`v_\tau=-u_{1-\tau}`$ |
 
 其中 $`C=(\dot\alpha/\alpha)\sigma^2-\sigma\dot\sigma`$，
@@ -1302,7 +1302,7 @@ $`\Delta=\alpha\dot\sigma-\sigma\dot\alpha`$。
 - 条件 Score 与条件速度均按实际后验平均，前者来自密度求导，后者来自概率守恒。
 - 高斯扰动下噪声与 Score 通过 $`-1/\sigma_t`$ 联系，Tweedie 公式恢复干净数据后验均值。
 - 指定路径后可推导速度转换，反解的可用性由噪声系数和路径系数矩阵的非退化性决定。
-- 一般扩散中概率流速度含 $`\operatorname{div}a_t/2`$ 与 $`a_ts_t/2`$ 两项修正。
+- 一般扩散中概率流速度含 $`\mathop{\mathrm{div}}\nolimits a_t/2`$ 与 $`a_ts_t/2`$ 两项修正。
 - 桥的 Score 分解包含参考边缘及两个势梯度，双向漂移之和与之相容。
 - 实现时核对输出类型、数据尺度、时间方向、微分指标与 Monte Carlo 误差。
 
@@ -1313,7 +1313,7 @@ $`\Delta=\alpha\dot\sigma-\sigma\dot\alpha`$。
 1. 对两分量混合算例，计算 $`s'(0)`$，判断 $`m^2=c`$ 两侧的驻点类型。<br>
  **核对**  $`(m^2-c)/c^2`$，正值给出局部低谷，负值给出局部峰。
 1. 设 $`X=D+\sigma\varepsilon`$、$`D\sim\mathcal N(0,c)`$，验证二阶 Tweedie 公式。<br>
- **核对**  $`\operatorname{Var}(D\mid X)=c\sigma^2/(c+\sigma^2)`$。
+ **核对**  $`\mathop{\mathrm{Var}}\nolimits(D\mid X)=c\sigma^2/(c+\sigma^2)`$。
 1. 取 $`\alpha=\cos\vartheta,\sigma=\sin\vartheta`$，
  求 $`\Delta`$ 并将扩散标签转换为加噪边缘速度。<br>
  **核对**  $`\Delta=\vartheta'`$，$`u=\vartheta'\mathbb E[V^{\mathrm{diff}}\mid X]`$。
@@ -1324,7 +1324,7 @@ $`\Delta=\alpha\dot\sigma-\sigma\dot\alpha`$。
  **核对**  $`(ap)'=(x-x^3)p=2fp`$。
 1. 给定同一扩散的两个精确桥漂移 $`f_t^\star,b_{1-t}^\star`$，
  在 $`a_t`$ 可逆时恢复 Score 和概率流速度。<br>
- **核对**  $`s=a^{-1}(f^\star+b^\star-\operatorname{div}a)`$，
+ **核对**  $`s=a^{-1}(f^\star+b^\star-\mathop{\mathrm{div}}\nolimits a)`$，
  $`u=(f^\star-b^\star)/2`$。
 1. 对 $`A=\begin{pmatrix}2&1\\3&4\end{pmatrix}`$，
  计算高斯与 Rademacher 单探针迹估计的方差。<br>

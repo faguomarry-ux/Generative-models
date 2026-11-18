@@ -12,6 +12,8 @@ ENV = re.compile(r"\\(begin|end)\{([^}]+)\}")
 
 def check_expression(expression, path, line, errors, display):
     location = f"{path.relative_to(ROOT)}:{line}"
+    if re.search(r"\\operatorname\b", expression):
+        errors.append(f"{location}: GitHub rejects operatorname; use mathop with upright text")
     if re.search(r"\\(?:tag|label|notag|nonumber)\b", expression):
         errors.append(f"{location}: move equation numbers and anchors outside math")
     if UNSAFE_ENV.search(expression):

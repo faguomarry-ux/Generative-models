@@ -89,8 +89,8 @@ j_{i,t}=f_{i,t}p_t-\tfrac12\sum_j\partial_j(a_{ij,t}p_t).
 
 ```math
 j_t=p_tu_t,\qquad
- u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,
- \quad (\operatorname{div}a_t)_i=\sum_j\partial_j a_{ij,t}.
+ u_t=f_t-\tfrac12\mathop{\mathrm{div}}\nolimits a_t-\tfrac12a_ts_t,
+ \quad (\mathop{\mathrm{div}}\nolimits a_t)_i=\sum_j\partial_j a_{ij,t}.
 ```
 
 若区域有边界，总质量满足
@@ -104,7 +104,7 @@ $`\nabla\cdot(p_tw_t)=0`$ 的场，时刻边缘仍可相同。
 ### 5.1.3 SDE 对应的 Probability Flow ODE ★
 
 对 $`a_{ij,t}p_t`$ 使用乘积法则，得到
-$`\sum_j\partial_j(a_{ij,t}p_t) =p_t(\operatorname{div}a_t)_i+p_t(a_ts_t)_i`$。
+$`\sum_j\partial_j(a_{ij,t}p_t) =p_t(\mathop{\mathrm{div}}\nolimits a_t)_i+p_t(a_ts_t)_i`$。
 代回式 [(5.1)](#eq-unified-fp) 恰得到
 $`\partial_t p_t=-\nabla\cdot(p_tu_t)`$。
 若 $`u_t`$ 生成的 ODE 与该连续性方程都适定，并从同一初始律出发，
@@ -117,7 +117,7 @@ ODE 的推前律和给定 SDE 的边缘满足同一初值问题，故相等。
 
 ```math
 \dot Z_\tau=v_\tau(Z_\tau),\qquad
- v_\tau=-f_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
+ v_\tau=-f_t+\tfrac12\mathop{\mathrm{div}}\nolimits a_t+\tfrac12a_ts_t,
  \quad t=1-\tau.
 ```
 
@@ -157,7 +157,7 @@ $`\mathbb E[Z_tZ_s^\top]=e^{(t-s)J}`$，OU 过程为 $`e^{-|t-s|}I_2`$。
 **公式（5.4）**
 
 ```math
-f_t^{(a)}=u_t+\tfrac12\operatorname{div}a_t+\tfrac12a_ts_t,
+f_t^{(a)}=u_t+\tfrac12\mathop{\mathrm{div}}\nolimits a_t+\tfrac12a_ts_t,
  \qquad
  \mathrm{d}  X_t=f_t^{(a)}(X_t)\mathrm{d}  t+G_t(X_t)\mathrm{d}  W_t,
  \quad GG^\top=a.
@@ -315,7 +315,7 @@ Score 的存在只使用局部正性，全球 Lipschitz 界则要求更强的后
 
 ```math
 \nabla_xs(x)=-\frac1{\gamma^2}I_d
-                 +\frac1{\gamma^4}\operatorname{Cov}(Y\mid X=x).
+                 +\frac1{\gamma^4}\mathop{\mathrm{Cov}}\nolimits(Y\mid X=x).
 ```
 
 因此 Hessian 有下界 $`-I_d/\gamma^2`$。
@@ -680,7 +680,7 @@ D_{\mathrm{KL}}(P\|\widehat P)
 这种带噪路径上的 $`L^2`$ 控制是扩散生成误差分析的重要工具，
 更完整的离散复杂度结论还需相应假设 〔[24](#ref-chen2023sampling)〕。
 
-Pinsker 不等式给出 $`\operatorname{TV}(P_1,\widehat P_1) \le\sqrt{D_{\mathrm{KL}}(P_1\|\widehat P_1)/2}`$，
+Pinsker 不等式给出 $`\mathop{\mathrm{TV}}\nolimits(P_1,\widehat P_1) \le\sqrt{D_{\mathrm{KL}}(P_1\|\widehat P_1)/2}`$，
 这里全变差取 $`\sup_A|P_1(A)-\widehat P_1(A)|`$。
 若要由 KL 控制 $`W_2`$，可另假设参考测度满足
 $`W_2^2(\nu,Q)\le2C D_{\mathrm{KL}}(\nu\|Q)`$ 的运输不等式。
@@ -715,7 +715,7 @@ $`W_2^2(\nu,Q)\le2C D_{\mathrm{KL}}(\nu\|Q)`$ 的运输不等式。
 
 若 $`a`$ 可逆，漂移误差的自然噪声能量为
 $`e_f^\top a^{-1}e_f`$。若 $`a`$ 退化，
-控制只能在 $`\operatorname{Im}G`$ 中改变漂移，并应使用最小噪声坐标控制的能量。
+控制只能在 $`\mathop{\mathrm{Im}}\nolimits G`$ 中改变漂移，并应使用最小噪声坐标控制的能量。
 沿核空间的漂移改变可能破坏路径律的绝对连续性。
 把矩阵逆换成广义逆时，还必须检查误差位于可控像空间及相应 Girsanov 条件。
 
@@ -732,7 +732,7 @@ $`e_f^\top a^{-1}e_f`$。若 $`a`$ 退化，
 
 ```math
 \tfrac12\sum_{ij}\partial_{ij}(a_{ij}p)
- =\tfrac12 a:\nabla^2p+(\operatorname{div}a)\cdot\nabla p
+ =\tfrac12 a:\nabla^2p+(\mathop{\mathrm{div}}\nolimits a)\cdot\nabla p
                       +\tfrac12p\sum_{ij}\partial_{ij}a_{ij}.
 ```
 
@@ -754,10 +754,10 @@ $`\frac12(1+x^2)p''+2xp'+p`$。
 **公式（5.16）**
 
 ```math
-f(x)=\tfrac12\operatorname{div}a(x)+\tfrac12a(x)\nabla\log\pi(x).
+f(x)=\tfrac12\mathop{\mathrm{div}}\nolimits a(x)+\tfrac12a(x)\nabla\log\pi(x).
 ```
 
-代入 $`j=fp-\operatorname{div}(ap)/2`$，在 $`p=\pi`$ 时得 $`j=0`$，
+代入 $`j=fp-\mathop{\mathrm{div}}\nolimits(ap)/2`$，在 $`p=\pi`$ 时得 $`j=0`$，
 从而在适定和边界条件下保持 $`\pi`$。
 若添加满足 $`\nabla\cdot(\pi w)=0`$ 的漂移 $`w`$，
 仍可保持同一平稳边缘并产生非零稳态概率流。
@@ -766,7 +766,7 @@ f(x)=\tfrac12\operatorname{div}a(x)+\tfrac12a(x)\nabla\log\pi(x).
 **例 5.5 · 二维状态依赖矩阵扩散**
 
 令 $`z=(x,y)^\top`$、$`a(z)=I_2+zz^\top`$、
-$`\pi=\mathcal N(0,I_2)`$。逐行求导得到 $`\operatorname{div}a=3z`$，
+$`\pi=\mathcal N(0,I_2)`$。逐行求导得到 $`\mathop{\mathrm{div}}\nolimits a=3z`$，
 于是零流漂移为
 
 ```math
@@ -790,7 +790,7 @@ $`LV=2+3\lVert z\rVert^2-\lVert z\rVert^4`$，其耗散项可用于非爆破矩�
 **公式（5.17）**
 
 ```math
-\mathrm{d}  Y_\tau=[-f_t+\operatorname{div}a_t+a_ts_t](Y_\tau)\mathrm{d} \tau
+\mathrm{d}  Y_\tau=[-f_t+\mathop{\mathrm{div}}\nolimits a_t+a_ts_t](Y_\tau)\mathrm{d} \tau
                            +G_t(Y_\tau)\mathrm{d} \overline W_\tau,
  \qquad t=1-\tau.
 ```
@@ -912,7 +912,7 @@ $`u_z=Qu_\xi`$、$`a_z=Qa_\xi Q^\top`$。
 ```
 
 对 $`C(z)=\lVert z\rVert^2-1`$，随机项为 $`2z^\top P\mathrm{d}  W=0`$，
-漂移项为 $`-(d-1)\lVert z\rVert^2+\operatorname{tr}(P^2)=0`$。
+漂移项为 $`-(d-1)\lVert z\rVert^2+\mathop{\mathrm{tr}}\nolimits(P^2)=0`$。
 因而该曲率补偿与切向噪声相容。只把环境 Brownian 增量投影到切空间时，
 还需考虑同样的 Itô 二阶项。
 
@@ -1193,10 +1193,10 @@ Repeat on refined grids and test conditions.
  **核对**  $`W_2\le\delta(e^L-1)/L`$，$`L=0`$ 时取 $`\delta`$。
 1. 令一维 $`a=1+x^2`$，完整展开 $`\tfrac12(ap)''`$。<br>
  **核对**  $`\tfrac12(1+x^2)p''+2xp'+p`$。
-1. 对 $`a(z)=I_2+zz^\top`$、标准高斯目标，计算 $`\operatorname{div}a`$、零流漂移和 $`L\lVert z\rVert^2`$。<br>
+1. 对 $`a(z)=I_2+zz^\top`$、标准高斯目标，计算 $`\mathop{\mathrm{div}}\nolimits a`$、零流漂移和 $`L\lVert z\rVert^2`$。<br>
  **核对**  $`3z`$、$`z-\lVert z\rVert^2z/2`$、$`2+3\lVert z\rVert^2-\lVert z\rVert^4`$。
 1. 对 $`\lVert z\rVert=1`$，验证球面噪声矩阵 $`P=I-zz^\top`$ 满足 $`P^2=P`$。<br>
- **核对**  $`Pz=0`$、$`\operatorname{tr}P=d-1`$，据此核对曲率漂移。
+ **核对**  $`Pz=0`$、$`\mathop{\mathrm{tr}}\nolimits P=d-1`$，据此核对曲率漂移。
 1. 在线性高斯逆问题算例中，取 $`x=0,y=1`$，计算精确与均值代入的似然梯度。<br>
  **核对**  分别为 $`\sqrt2/3`$ 与 $`1/\sqrt2`$。
 1. 对正势 $`h`$ 与生成元 $`L`$，展开 $`(\partial_t+L)h^w`$，说明 $`w=1`$ 的作用。<br>
@@ -1206,7 +1206,7 @@ Repeat on refined grids and test conditions.
  **核对**  分别为 $`I_2`$ 和零行向量。
 1. 对非零 Fourier 模式，证明 Leray 投影对称且幂等，并核对涡度恢复速度的符号。<br>
  **核对**  $`P^\top=P`$、$`P^2=P`$、$`k^\top P=0`$，
- $`u=(\partial_y\psi,-\partial_x\psi)`$ 满足 $`\operatorname{curl}u=-\Delta\psi=\omega`$。
+ $`u=(\partial_y\psi,-\partial_x\psi)`$ 满足 $`\mathop{\mathrm{curl}}\nolimits u=-\Delta\psi=\omega`$。
 
 <a name="references"></a>
 
