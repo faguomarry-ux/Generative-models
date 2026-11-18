@@ -674,7 +674,7 @@ Wasserstein 距离定义为
 其诱导耦合为 \((\mathrm{id},T)_\#\mu_0\)。
 本节沿 \(t\) 把数据端作为起点。若求出耦合 \(\pi\)，
 交换两坐标得到生成方向的耦合，且对称代价 \(\norm{x-y}^p\) 不变。
-对于平方距离且 \(\mu_0\) 绝对连续，Brenier 定理给出由凸函数梯度
+对于端点均具有有限二阶矩的平方距离问题，若 \(\mu_0\) 绝对连续，Brenier 定理给出由凸函数梯度
 诱导的最优映射 \cite{brenier1991polar}。遇到原子型初始律时，
 直接从耦合定义出发仍然可行。
 
@@ -803,8 +803,12 @@ Schrödinger Bridge 按端点约束选择路径律
   M_1=\exp\left(\int_0^1 h_t^\top\,\dd W_t^R
                -\tfrac12\int_0^1\norm{h_t}^2\,\dd t\right).
 \]
-假设 \(h\) 适应，指数过程是真鞅且由 \(M_1\) 定义的 \(P\)
-满足 \(\mathbb E_P\int_0^1\norm{h_t}^2\,\dd t<\infty\)。
+设 \(h\) 是状态路径滤过下的可预测控制，指数过程是真鞅，
+且 \(\mathbb E_P\int_0^1\norm{h_t}^2\,\dd t<\infty\)。
+在规范状态路径空间上，因 \(G_t\) 可逆，可由
+\(\dd W_t^R=G_t(X_t)^{-1}(\dd X_t-f_t(X_t)\,\dd t)\)
+恢复噪声，故 \(M_1\) 就是状态路径的密度比。若在含额外随机性的空间上控制，
+须另行验证指数密度能由状态路径确定，才能把下面的等式用于状态路径 KL。
 在 \(P\) 下有 \(\dd W_t^R=\dd W_t^P+h_t\,\dd t\)。
 把它代入 \(\log M_1\)，对 \(P\) 取期望，随机积分为零，得到
 \begin{equation}
@@ -889,6 +893,12 @@ Schrödinger Bridge 按端点约束选择路径律
     因 \(1-V_k=(1-\beta_k)(1-V_{k-1})\)，解得 \(V_k=1-\bar\alpha_k\)。
     DDIM 保留这一族条件边缘，可使用不同的联合过程和采样更新。
     两者都从大 \(k\) 向小 \(k\) 生成 \cite{ho2020ddpm,song2021ddim}。
+
+
+    用第 1--3 章的记号，DDPM 原文的单步 \(\alpha_k\) 对应 \(r_k\)，
+    累乘 \(\bar\alpha_k\) 对应 \(\bar r_k=A_k^2\)。
+    DDIM 原文则用 \(\alpha_k\) 表示同一个累乘量，其 \(\sigma_k\) 是反向步的
+    标准差，对应相邻步的 \(\omega_{k,k-1}\)，本书的 \(S_k\) 是前向扰动的标准差。
 
 \subsubsection*{Score-based SDE}
     原始正向时间由数据走向噪声，与本书 \(t\) 同向。采样既可用

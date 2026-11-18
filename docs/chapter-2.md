@@ -203,8 +203,9 @@ L_{k-1}=w_k\lVert \varepsilon-\varepsilon_\theta(X_k,k)\rVert^2+C_k,\qquad
 w_k=\frac{\beta_k^2}{2\nu_k r_k S_k^2}.
 ```
 
-若步号按概率 $`\pi_k>0`$ 抽样，将每项乘 $`w_k/\pi_k`$，即可无偏估计中间步的
-加权*和*。若还要估计完整目标，应加入先验项和第一步解码项。
+在 $`k=2,\ldots,K`$ 中按概率 $`\pi_k>0`$ 抽样，噪声 MSE 乘 $`w_k/\pi_k`$，
+即可无偏估计中间步参数依赖项的加权*和*。完整负 ELBO 还包括
+中间步的常数 $`\sum_{k=2}^K C_k`$、先验项和第一步解码项。
 常用的 $`L_{\mathrm{simple}}`$ 对 $`k=1,\ldots,K`$ 均匀采样，
 使用单位权重的噪声 MSE。若方差也由网络学习，
 协方差项和均值误差前的因子都会依赖网络输出。
@@ -322,6 +323,9 @@ $`\widehat x_0=(x_k-S_k\varepsilon_\theta(x_k,k))/A_k`$，
 方差为 $`\nu_1 I_d`$、均值为 $`\widehat x_0`$ 的连续高斯解码器，
 其负对数似然等于 $`\lVert x_0-\widehat x_0\rVert^2/(2\nu_1)`$ 加常数。
 从而这一设定下的全部参数依赖项可写成正权重的噪声回归。
+在本章的 $`0<\beta_k<1`$ 日程下，$`A_{k-1}>A_k>0`$ 且
+$`0\le B_k\le S_{k-1}/S_k<1`$，故 $`C_k>0`$。
+DDIM 原文定理 1 的 $`\alpha_k`$ 对应 $`A_k^2`$，其 $`\sigma_k`$ 对应 $`\delta_k`$。
 共享的简化目标直接在固定边缘上定义。确定性情形可使用这一训练结果生成，
 逐步非退化高斯 KL 的公式要求 $`\delta_k>0`$。
 
@@ -466,7 +470,8 @@ $`\sigma_t^2=\int_0^t(\alpha_t/\alpha_r)^2\beta(r)\,\mathrm{d} r=1-\alpha_t^2`$�
 
 ### 2.3.5 时间权重与网络优化目标
 
-设 $`t`$ 按密度 $`m(t)`$ 抽样。对给定目标时间权重 $`\lambda(t)`$，
+对于 $`\sigma_t>0`$ 的高斯扰动，设 $`t`$ 按密度 $`m(t)`$ 抽样。
+对给定目标时间权重 $`\lambda(t)`$，
 只要 $`m(t)>0`$ 覆盖 $`\lambda(t)>0`$ 的区域，且期望有限，就有
 
 <a name="eq-training-score-time-weight"></a>
@@ -1143,6 +1148,12 @@ $`u_t(x)=\mathbb E[\partial_t\mathcal I(t,D,N)\mid I_t=x]-\gamma'(t)\gamma(t)s_t
 的二次泛函，它与半倍速度 MSE 只差标签二次矩的一半。
 直接拟合 Score 时，条件 Score MSE 与噪声 MSE 相差 $`1/\gamma(t)^2`$ 的因子，
 所以两种写法的时间权重需相应换算。
+
+平方风险的常数差推导要求标签二次矩有限。
+例如 $`\gamma(t)=\sqrt{t(1-t)}`$ 与均匀时间抽样使
+$`\mathbb E\lVert\gamma'(t)\zeta\rVert^2=\infty`$。
+此时可使用合适的时间权重或截断，或另证去掉标签平方项的二次泛函有定义。
+Albergo 等定理 7 使用的是后一类泛函。
 
 <a name="sec-2-7-6"></a>
 

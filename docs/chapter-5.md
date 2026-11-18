@@ -305,7 +305,7 @@ $`\mathcal I`$ 可取线性或非线性插值，$`\pi`$ 可指定独立、OT 或
 因此空间上正且光滑。固定噪声尺度下，高斯核的任意阶导数为有界的
 多项式乘高斯，允许把空间导数移入概率积分。
 时间正则性还依赖 $`\mathcal I,\gamma`$ 的时间导数及其可积控制。
-Score 的存在只使用局部正性，全球 Lipschitz 界则要求更强的后验矩或尾部控制。
+Score 的存在只使用局部正性，全局 Lipschitz 界则要求更强的后验矩或尾部控制。
 
 对 $`X=Y+\gamma\zeta`$，二阶 Tweedie 公式给出
 
@@ -326,7 +326,7 @@ Score 的存在只使用局部正性，全球 Lipschitz 界则要求更强的后
 
 ### 5.3.3 从插值导出连续性方程
 
-设 $`\mathbb E\int_0^1\lVert \dot I_t\rVert\mathrm{d}  t<\infty`$。
+设插值样本曲线几乎处处绝对连续，且 $`\mathbb E\int_0^1\lVert \dot I_t\rVert\mathrm{d}  t<\infty`$。
 对紧支撑光滑测试函数 $`\varphi`$，链式法则与 Fubini 给出
 
 ```math
@@ -490,7 +490,7 @@ $`\int_0^1\int(\lVert f\rVert+\lVert a\rVert)\mathrm{d} \mu_t\mathrm{d}  t<\inft
 ### 5.4.4 Score 与速度场的正则性条件
 
 密度正且光滑保证 Score 局部光滑。
-但 $`s=\nabla p/p`$ 的分母在尾部可很小，其全球增长和 Lipschitz 常数需单独估计。
+但 $`s=\nabla p/p`$ 的分母在尾部可很小，其全局增长和 Lipschitz 常数需单独估计。
 式 [(5.7)](#eq-unified-score-hessian) 将 Jacobian 约束联系到后验协方差，
 可用于具体高斯卷积路径的正则性分析。
 高斯分布的 Score 是线性的；混合高斯的局部导数还受分量分离与后验权重影响。
@@ -617,9 +617,10 @@ SDE 的 Euler–Maruyama 一般具有均方强阶 $`1/2`$，
 参考漂移为 $`b(X_t,t)`$，插值漂移为
 $`\widehat b(X_{\lfloor t\rfloor_h},\lfloor t\rfloor_h)`$。
 把二者差分解成当前状态的场误差与网格冻结误差，
-在空间 Lipschitz、时间正则和增量矩控制下，
+在空间 Lipschitz、时间至少 $`1/2`$-Hölder、逆扩散矩阵一致有界
+且增量二阶矩受控的条件下，
 $`\mathbb E\lVert X_t-X_{\lfloor t\rfloor_h}\rVert^2\le Ch`$，
-积分后的冻结项可产生 $`O(h)`$ 的路径 KL 上界。
+在精确轨迹上计算的冻结误差能量对路径 KL 上界的贡献为 $`O(h)`$。
 这个论证需要匹配扩散及 Girsanov 条件；状态依赖扩散的离散化还需相应专门分析。
 
 <a name="sec-5-5-4"></a>
@@ -716,7 +717,7 @@ $`W_2^2(\nu,Q)\le2C D_{\mathrm{KL}}(\nu\|Q)`$ 的运输不等式。
 若 $`a`$ 可逆，漂移误差的自然噪声能量为
 $`e_f^\top a^{-1}e_f`$。若 $`a`$ 退化，
 控制只能在 $`\mathop{\mathrm{Im}}\nolimits G`$ 中改变漂移，并应使用最小噪声坐标控制的能量。
-沿核空间的漂移改变可能破坏路径律的绝对连续性。
+沿 $`\ker a=(\mathop{\mathrm{Im}}\nolimits G)^\perp`$ 方向的漂移改变可能破坏路径律的绝对连续性。
 把矩阵逆换成广义逆时，还必须检查误差位于可控像空间及相应 Girsanov 条件。
 
 <a name="sec-5-6-3"></a>
@@ -970,7 +971,8 @@ $`u=-\kappa\nabla\log(p/\pi)`$。
 ### 5.8.1 Conditional Score 与 Conditional Flow Matching
 
 设条件信息为 $`c`$，固定条件边缘族 $`p_t(x\mid c)`$。
-若噪声独立于数据与条件，$`X_t=\alpha_tD+\sigma_t\varepsilon`$，则
+设标准高斯噪声 $`\varepsilon`$ 独立于数据与条件，
+$`X_t=\alpha_tD+\sigma_t\varepsilon`$，其中 $`\sigma_t>0`$，且路径导数可积。则
 
 <a name="eq-unified-conditional-fields"></a>
 
@@ -992,7 +994,7 @@ CFM 的端点、耦合及辅助变量都要按相同条件联合律抽取。
 ### 5.8.2 Posterior Sampling 与逆问题
 
 设干净未知量 $`D`$ 的先验为 $`\mu_0`$，观测满足
-$`y=\mathcal A(D)+\eta`$，观测噪声密度已知。
+$`y=\mathcal A(D)+\eta`$，观测噪声密度已知，且观测 $`y`$ 与 $`X_t`$ 给定 $`D`$ 后条件独立。
 目标后验为 $`p_0(d\mid y)\propto p(y\mid d)p_0(d)`$。
 在噪声时刻的精确 Bayes 分解为
 
@@ -1062,19 +1064,21 @@ s_t^{(w)}=s_t+w(s_t(\cdot\mid c)-s_t),\qquad w\ge0.
 若用噪声预测组合且两支共享同一 $`\sigma_t`$，对应的 Score 组合相容
 〔[26](#ref-ho2022cfg)〕。
 
-在单个时刻，精确场满足
-$`s_t^{(w)}=\nabla\log[p_t(x)p_t(c\mid x)^w]`$。
-若该密度可归一化，这描述了一个时刻的倾斜密度。
-不同时间的这些密度还需共同满足所用前向扩散方程，才能推出对应终点采样结论。
-例如对满足 $`(\partial_t+L_t)h=0`$ 的正势，乘积法则给出
+Ho 与 Salimans 原文式 (6) 以条件分支为基准，用 $`w_{\mathrm{H}}`$ 放大
+条件与无条件预测之差，故本书 $`w=1+w_{\mathrm H}`$。
 
+设加噪过程给定当前状态后的转移核与 $`c`$ 无关，且有关密度正而光滑。
+令 $`h_t(x)=p_t(c\mid x)`$。此时 $`p_t`$ 与 $`p_th_t`$ 都满足同一
+前向方程 $`\partial_t p=L_t^*p`$。单时刻的 $`s_t^{(w)}`$ 是
+$`q_t=p_th_t^w`$ 的对数梯度。用乘积法则展开
+$`L_t^*(p_th_t)`$ 与 $`L_t^*(p_th_t^w)`$，一阶导数项相消，得到
 ```math
-(\partial_t+L_t)h^w
- =\tfrac12w(w-1)h^{w-2}(\nabla h)^\top a_t\nabla h.
+ (\partial_t-L_t^*)q_t
+ =-\tfrac12 p_t w(w-1)h_t^{w-2}(\nabla h_t)^\top a_t\nabla h_t .
 ```
-
-一般 $`w`$ 的势幂会产生额外空间相关项。
-因此放大 guidance 后的实际终点律要结合完整动力学研究。
+若 $`0<Z_t=\int q_t\,\mathop{}\!\mathrm{d} x<\infty`$，归一化的 $`q_t/Z_t`$ 要满足
+同一前向方程，右侧除以 $`q_t`$ 必须与 $`x`$ 无关并等于 $`Z_t'/Z_t`$。
+一般 $`w`$ 下这个条件可以失败，实际终点律由带 guidance 的完整反向动力学决定。
 在共享高斯路径上组合 FM 速度，也需通过第 4 章的已知转换系数核对其含义。
 
 <a name="sec-5-8-4"></a>
@@ -1084,7 +1088,8 @@ $`s_t^{(w)}=\nabla\log[p_t(x)p_t(c\mid x)^w]`$。
 条件可以是边界值、守恒量、外力、参数或稀疏传感器读数。
 对于固定的仿射约束集 $`Az=c`$，可选 $`z_*(c)`$ 与核空间基 $`Q`$，
 在 $`z=z_*(c)+Q\xi`$ 上定义条件先验、数据端和插值。
-只要端点和所有辅助噪声都位于该仿射子空间，线性插值就保持约束。
+若两端点满足 $`Az=c`$ 且插值系数之和为一，线性插值保持约束。
+附加噪声须取在切向空间 $`\ker A`$（例如使用 $`Q\zeta`$），因此 $`A Q\zeta=0`$。
 对于非凸或非线性约束，端点可行并不能保证中间线段可行，
 需使用坐标图、合适的流形插值或带约束的动力学。
 

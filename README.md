@@ -10,6 +10,8 @@
 
 **网页公式维护**　[检查结果与编写规范](docs/MARKDOWN-REVIEW.md)。公式编号置于数学块外，保留原有编号和跳转链接，以兼容 GitHub 的浏览器数学排版。
 
+**数学复核**　[第 0–5 章复核记录与论文式号对照](docs/MATH-REVIEW-2026-11-19.md)。
+
 **自动发布 PDF**　[最新 Release](https://github.com/faguomarry-ux/Generative-models/releases/tag/latest) · [完整讲义下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study.pdf) · [快速版下载](https://github.com/faguomarry-ux/Generative-models/releases/latest/download/model-study-quick.pdf) · [构建记录](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml)。
 
 [![PDF 自动发布状态](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml/badge.svg?branch=main)](https://github.com/faguomarry-ux/Generative-models/actions/workflows/release-pdf.yaml)
@@ -20,12 +22,12 @@
 
 | 章 | 主题 | 学习入口 | 进度 |
 | --- | --- | --- | --- |
-| 0 | 统一数学基础与符号体系 | [网页正文](docs/chapter-0.md) · [TeX](chapters/00-foundations.tex) | 初稿完成 |
-| 1 | 各生成模型的训练—生成整体框架 | [网页正文](docs/chapter-1.md) · [详细大纲](docs/study-plan.md#part-1) · [TeX](chapters/01-model-overview.tex) | 初稿完成 |
-| 2 | 训练阶段的理论与数学推导 | [网页正文](docs/chapter-2.md) · [详细大纲](docs/study-plan.md#part-2) · [TeX](chapters/02-training.tex) | 初稿完成 |
-| 3 | 生成阶段的理论与数学推导 | [网页正文](docs/chapter-3.md) · [详细大纲](docs/study-plan.md#part-3) · [TeX](chapters/03-generation.tex) | 初稿完成 |
-| 4 | Score、Velocity、Drift 的计算、估计与相互转换 | [网页正文](docs/chapter-4.md) · [详细大纲](docs/study-plan.md#part-4) · [TeX](chapters/04-score-velocity-drift.tex) | 初稿完成 |
-| 5 | 模型统一理论、数学可解性与研究拓展 | [网页正文](docs/chapter-5.md) · [详细大纲](docs/study-plan.md#part-5) · [TeX](chapters/05-unified-theory.tex) | 初稿完成 |
+| 0 | 统一数学基础与符号体系 | [网页正文](docs/chapter-0.md) · [TeX](chapters/00-foundations.tex) | 数学复核版 |
+| 1 | 各生成模型的训练—生成整体框架 | [网页正文](docs/chapter-1.md) · [详细大纲](docs/study-plan.md#part-1) · [TeX](chapters/01-model-overview.tex) | 数学复核版 |
+| 2 | 训练阶段的理论与数学推导 | [网页正文](docs/chapter-2.md) · [详细大纲](docs/study-plan.md#part-2) · [TeX](chapters/02-training.tex) | 数学复核版 |
+| 3 | 生成阶段的理论与数学推导 | [网页正文](docs/chapter-3.md) · [详细大纲](docs/study-plan.md#part-3) · [TeX](chapters/03-generation.tex) | 数学复核版 |
+| 4 | Score、Velocity、Drift 的计算、估计与相互转换 | [网页正文](docs/chapter-4.md) · [详细大纲](docs/study-plan.md#part-4) · [TeX](chapters/04-score-velocity-drift.tex) | 数学复核版 |
+| 5 | 模型统一理论、数学可解性与研究拓展 | [网页正文](docs/chapter-5.md) · [详细大纲](docs/study-plan.md#part-5) · [TeX](chapters/05-unified-theory.tex) | 数学复核版 |
 
 **第 0 章按节阅读**
 
@@ -87,7 +89,9 @@
 - [x] 完成第 5 章的 36 项公式与数值自检、章节结构和本地链接检查，以及本章 16 页正文的 PDF 版面检查。
 - [x] 整理第 5 部分的统一框架快速版，提供六页 PDF、网页速览及完整章节定位表。
 
-第 3–5 章当前为正文初稿，独立数学审阅待完成。数值与符号自检覆盖代表性算例，通用结论的假设写在对应小节中。第 5 章的低正则叠加原理作为引用定理使用，物理应用按有限维模型展开。
+- [x] 对第 0–5 章完成原论文记号核对、关键推导复算与公式适用条件复核，同步更新网页、完整讲义和速览。
+
+本轮数学复核由 Codex 完成，外部数学审阅尚未进行。第 5 章的低正则叠加原理作为引用定理使用，物理应用按有限维模型展开。
 
 <a name="todo"></a>
 
@@ -96,7 +100,7 @@
 - [x] **第 3 章**　推导 DDPM、DDIM 的采样递推，梳理反向 SDE、概率流 ODE 与离散误差。
 - [x] **第 4 章**　推导 Score、噪声预测、速度和漂移的转换，明确成立条件。
 - [x] **第 5 章**　统一比较模型，补充可解性、误差分析、各向异性扩散和条件生成。
-- [ ] 逐章复核公式假设与论文记号，同步更新网页正文和 PDF。
+- [ ] 外部数学审阅。
 
 <a name="derivations"></a>
 
@@ -147,4 +151,4 @@ python scripts/check-markdown-math.py
 
 构建直接使用 TeX Live 的 Fandol 和 TeX Gyre 字体。完整 PDF 和快速版均由 CI 重新编译，发布不依赖仓库中已有 PDF。工作流使用自动提供的 `GITHUB_TOKEN`，发布作业声明 `contents: write`，无需额外配置个人令牌。仓库须允许 GitHub Actions 运行；若存在限制 Release 更新或 `latest` 标签移动的规则，需使其与该发布流程一致。
 
-`latest` 为持续更新的阅读版。自动检查覆盖源码格式、编译和产物完整性，独立数学审阅状态以各章说明为准。仓库中的 `output/pdf/` 文件是已提交的阅读快照，自动更新版本通过上方 Release 下载链接获取。
+`latest` 为持续更新的阅读版。自动检查覆盖源码格式、编译和产物完整性。数学复核的范围与结果见上方复核记录。仓库中的 `output/pdf/` 文件是已提交的阅读快照，自动更新版本通过上方 Release 下载链接获取。

@@ -559,7 +559,7 @@ DSB 可通过交替模拟与回归直接拟合两个方向的漂移
  \begin{aligned}
  \partial_t p_t^\star&=-\nabla\cdot[(f_t+a_t\nabla\log\psi_t)p_t^\star]
                   +\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t^\star),\\
- p_0^\star&=\mu_0,\qquad p_1^\star=\mu_1.
+ \mu_0^\star&=\mu_0,\qquad \mu_1^\star=\mu_1.
  \end{aligned}
  \label{eq:generation-sb-fp}
 \end{equation}
@@ -600,11 +600,11 @@ DSB 可通过交替模拟与回归直接拟合两个方向的漂移
 \subsection{从插值边缘分布构造连续性方程}
 
 沿用第 2 章 \(I_t=\mathcal I(t,D,N)+\gamma(t)\zeta\)，其中
-\(\zeta\) 与端点独立。令 \(p_t=\operatorname{Law}(I_t)\)、
+\(\zeta\) 与端点独立。令 \(\mu_t=\operatorname{Law}(I_t)\)，内点有密度时记为 \(p_t\)，并定义
 \(u_t(x)=\mathbb E[\partial_t I_t\mid I_t=x]\)。
 对 \(\varphi\in C_c^\infty\)，可交换求导与期望时
 \[
- \frac{\dd}{\dd t}\int\varphi p_t
+ \frac{\dd}{\dd t}\int\varphi\,\dd\mu_t
  =\mathbb E[\nabla\varphi(I_t)\cdot\partial_t I_t]
  =\int\nabla\varphi(x)\cdot u_t(x)p_t(x)\dd x.
 \]
@@ -817,13 +817,13 @@ SDE 可在同扩散与绝对连续条件下用 Girsanov 将漂移均方误差转
 
 例如各向同性反向扩散的 Score 误差 \(e_s=s_\theta-s\)
 产生漂移误差 \(g^2e_s\)。若两种连续扩散满足 Girsanov 条件，
-以精确反向路径为参考，路径 KL 的漂移项为
+记 \(P\) 为精确反向路径律、\(\widehat P\) 为估计路径律，则 \(D_{\mathrm{KL}}(P\|\widehat P)\) 的漂移项为
 \[
  \frac12\int_0^1g(1-\tau)^2
        \mathbb E_{\rho_\tau}\norm{e_s(Y_\tau,1-\tau)}^2\dd\tau.
 \]
 若初始律也有偏差，还需加上其 KL。
-证明中，Girsanov 对数密度比的随机积分在参考律下均值为零，
+证明中，Girsanov 对数密度比的随机积分在精确律 \(P\) 下均值为零，
 剩余项为噪声坐标漂移差的二次能量。
 因此该界中的时间权重由扩散系数决定。
 

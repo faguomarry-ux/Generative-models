@@ -255,6 +255,10 @@ DDIM \cite{song2021ddim} 保留 \(q(x_k\mid x_0)=\mathcal N(A_kx_0,S_k^2I_d)\)�
 训练前应核对网络输入用的是 \(t\)、噪声尺度 \(\sigma_t\) 还是其他单调变换，
 以及边缘系数约定的起始扰动是否为零。
 
+在干净初值约定下，本书的 \(\sigma_t\) 对应 Score SDE 原文式 (29) 的
+VE 增量标准差。原文附录 C 的式 (31) 将初始的 \(\sigma_{\min}^2\) 平滑量也计入
+总扰动方差，用内点的 SDE 系数和已经平滑过的初值可实现该条件边缘。
+
 \subsection{Score 网络的训练目标}
 
 抽取 \(x_0,t,\varepsilon\)，合成 \(x=\alpha_tx_0+\sigma_t\varepsilon\)。
@@ -406,12 +410,14 @@ Flow Matching（FM）先指定一族概率边缘 \(\mu_t\) 和相应的目标速
 在本书的坐标中，路径从 \(\mu_{\mathrm{data}}\) 到 \(\mu_{\mathrm{prior}}\)。
 例如取 \(D\sim\mu_{\mathrm{data}}\) 与独立标准高斯 \(N\)，令
 \(I_t=\alpha_tD+\sigma_tN\)。若系数端点为 \((1,0)\) 和 \((0,1)\)，
-就精确连接这两个边缘。FM 原论文时间沿噪声到数据，
-其中保留数据端小噪声 \(\sigma_{\min}\) 的线性条件路径换成 \(t\) 后是
+就精确连接这两个边缘。Lipman 等原文式 (20)--(22) 以数据终点 \(x_1=D\) 为条件，
+映射 \(\tau D+[1-(1-\sigma_{\min})\tau]N\) 沿生成时间推进，原文的
+\(u_\tau(\cdot\mid x_1)\) 对应本书的生成条件速度。换到加噪时间得到
 \[
   I_t=(1-t)D+\bigl[\sigma_{\min}+(1-\sigma_{\min})t\bigr]N .
 \]
-这时 \(t=0\) 的边缘是平滑过的数据。公式中的小噪声要与所选目标端点一致。
+这时 \(t=0\) 的边缘为数据加独立 \(\sigma_{\min}N\) 后的律。
+Tong 等的 OT-CFM 以从指定耦合中抽出的端点对为条件。
 
 \subsection{条件概率路径与条件速度场}
 
@@ -577,6 +583,7 @@ Reflow，则差向量为零，可得到恒零速度场。
 
 \modelworkflow{独立、OT 或 Reflow 配对}{在端点连线上取样}{回归定向位移}
   {先验样本}{积分整直后的速度场}{生成样本}
+\pagebreak
 \section{Schrödinger Bridge}
 \label{sec:overview-schrodinger}
 

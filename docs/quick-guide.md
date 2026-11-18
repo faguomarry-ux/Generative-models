@@ -142,7 +142,7 @@ K_t=(\dot\alpha_t/\alpha_t)\sigma_t^2-\sigma_t\dot\sigma_t,
  \qquad \Delta_t=\alpha_t\dot\sigma_t-\sigma_t\dot\alpha_t.
 ```
 
-分母很小时误差会放大。相关端点、矩阵噪声或其他扰动核需按实际条件律换算。
+后验均值回归要求标签可积，均方训练还需相应的二阶矩。分母很小时误差会放大。相关端点、矩阵噪声或其他扰动核需按实际条件律换算。
 
 ### 线性路径的一个直接用法
 
@@ -319,4 +319,4 @@ $`s^{(w)}=s+w(s(\cdot\mid c)-s)`$，$`w=1`$ 为普通条件 Score。
 [Rectified Flow](https://arxiv.org/abs/2209.03003)；
 [Schrödinger Bridge](https://arxiv.org/abs/1308.0215)；
 [Stochastic Interpolants](https://jmlr.org/papers/v26/23-1605.html)。
-详细文献、推导和假设见全书。本速览为快速阅读版，独立数学审阅待完成。
+详细文献、推导和假设见全书。本速览随第 0–5 章数学复核版同步修订。外部数学审阅尚未进行。
