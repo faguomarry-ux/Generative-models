@@ -1,0 +1,322 @@
+# 生成模型统一框架速览
+
+[返回目录](../README.md#contents) · [六页 PDF](../output/pdf/model-study-quick.pdf) · [第 5 章详版](chapter-5.md) · [完整讲义 PDF](../output/pdf/model-study.pdf) · [LaTeX 源码](../quick-guide.tex)
+
+[从一个概率演化问题出发](#quick-1) · [训练统一为条件回归，模型区别落在路径选择](#quick-2) · [统一的场转换公式](#quick-3) · [生成统一为初值问题，采样器负责离散求解](#quick-4) · [用一张误差预算检查理论与实现](#quick-5) · [把统一框架用到条件生成与新模型](#quick-6)
+
+第 5 部分的快速阅读版，与全书第 0–5 章配套。
+
+<a name="quick-1"></a>
+
+## 从一个概率演化问题出发
+
+所有模型先写清五个要素，再确定训练和生成算法。
+
+```math
+\boxed{\text{端点分布}\ \longrightarrow\ \text{概率路径与耦合}
+ \ \longrightarrow\ \text{可学习的场}\ \longrightarrow\ \text{生成动力学}}
+```
+
+训练把场估计出来，生成把初始随机样本沿动力学推进。
+误差分析连接这两个环节，并检查最终分布是否接近数据目标。
+
+| 要素 | 记号 | 必须说明的内容 |
+| --- | --- | --- |
+| 数据与先验 | $`D\sim\mu_0,\ N\sim\mu_1`$ | 数据尺度、先验类型、实际噪声端是否等于所选先验 |
+| 端点耦合 | $`(D,N)\sim\pi`$ | 独立、OT、教师生成或其他联合律 |
+| 概率路径 | $`p_t`$ | 每个时刻的分布，可由扰动核、插值或 SDE 定义 |
+| 学习对象 | $`s_t,u_t,f_t`$ | Score、速度、漂移或可换算的噪声／去噪预测 |
+| 生成算法 | $`\rho_\tau,\ v_\tau,b_\tau`$ | 初始分布、时间方向、ODE／SDE 和数值网格 |
+
+### 先固定时间方向
+
+```math
+\underbrace{t=0\ \text{数据}\ \longrightarrow\ t=1\ \text{噪声}}_{\text{加噪时间}},
+ \qquad \tau=1-t,\qquad
+ \underbrace{\tau=0\ \text{噪声}\ \longrightarrow\ \tau=1\ \text{数据}}_{\text{生成时间}}.
+```
+
+$`\rho_\tau=p_{1-\tau}`$，加噪速度 $`u_t`$ 与生成速度满足
+$`v_\tau=-u_{1-\tau}`$。空间 Score 为
+$`s_t(x)=\nabla_x\log p_t(x)`$，在生成时间中按 $`s_{1-\tau}(x)`$ 求值。
+
+### 两条密度方程构成共同基础
+
+确定性输运使用连续性方程
+
+```math
+\dot X_t=u_t(X_t),\qquad \partial_t p_t=-\nabla\cdot(p_tu_t).
+```
+
+随机扩散使用 It\^o SDE 及 Fokker–Planck 方程
+
+```math
+\mathrm{d}  X_t=f_t(X_t)\mathrm{d}  t+G_t(X_t)\mathrm{d}  W_t,\qquad a_t=G_tG_t^\top,
+```
+
+```math
+\partial_t p_t=-\nabla\cdot(f_tp_t)+\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
+```
+
+在内部正则区间，经典密度推导要求光滑性、可积性和相应边界条件。
+奇异端点可以通过测度弱形式或适当极限处理。
+
+<a name="quick-2"></a>
+
+## 训练统一为条件回归，模型区别落在路径选择
+
+固定时刻，设 $`I_t`$ 为可采样中间状态，$`T_t`$ 为平方可积的可计算标签。平方回归满足
+
+```math
+\mathbb E\lVert F_\theta(I_t,t)-T_t\rVert^2
+ =\mathbb E\lVert F_\theta(I_t,t)-\mathbb E[T_t\mid I_t]\rVert^2+C_t.
+```
+
+$`C_t`$ 是标签的条件剩余方差，与网络参数无关。
+因此总体最优输出是条件均值。生成误差需要控制超出该常数的场误差，
+再结合模型容量、优化和统计泛化条件。
+
+| 训练方式 | 可采样标签 | 总体最优输出 |
+| --- | --- | --- |
+| 噪声回归 | $`\varepsilon`$ | $`\mathbb E[\varepsilon\mid X_t=x]`$ |
+| 去噪回归 | $`D`$ | $`\mathbb E[D\mid X_t=x]`$ |
+| DSM | $`\nabla_x\log q_t(X_t\mid D)`$ | $`s_t(x)`$，条件核求导可与边缘积分交换 |
+| CFM / 随机插值 | $`\dot I_t`$ | $`u_t(x)=\mathbb E[\dot I_t\mid I_t=x]`$ |
+| 桥迭代回归 | 指定方向的漂移监督 | 对应桥迭代所需的场，另需端点投影与迭代条件 |
+
+### 把八个主线对象放入同一张表
+
+| 模型或框架 | 路径如何确定 | 学习与生成的对应关系 |
+| --- | --- | --- |
+| DDPM | 指定离散前向链 | 学习反向核参数，生成时逐步去噪 |
+| DDIM | 保留指定单时刻边缘 | 复用去噪预测，选择隐式递推与随机强度 |
+| Score SDE | 指定前向扩散 | 学习边缘 Score，生成解反向 SDE 或概率流 ODE |
+| CNF | 参数化连续流 | 用变量变换计算似然，生成时解 ODE |
+| FM / CFM | 指定条件概率路径 | 回归边缘速度，生成时解相应 ODE |
+| Rectified Flow | 指定线性插值与耦合 | 回归端点位移；Reflow 重新选择训练耦合 |
+| Schrödinger Bridge | 参考律与两端约束 | 优化路径 KL，学习控制漂移或双势 |
+| 随机插值 | 端点、插值及辅助噪声 | 回归速度／Score，构造共享边缘的 ODE／SDE |
+
+经典 CNF 的似然训练使用密度变化公式。
+FM 提供通过条件回归学习连续流的另一条训练路线。
+桥问题的共同回归步骤还需放回其路径空间优化目标中解释。
+固定边缘路径时可转换场，改变耦合或路径时需要重新确定训练标签。
+
+<a name="quick-3"></a>
+
+## 统一的场转换公式
+
+在 $`p_t>0`$ 的正则内部时段，令 $`s_t=\nabla\log p_t`$。
+一般扩散的概率流速度、反向生成漂移与生成 ODE 速度满足
+
+```math
+\boxed{u_t=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t},
+ \qquad (\operatorname{div}a_t)_i=\sum_j\partial_j a_{ij,t},
+```
+
+```math
+\boxed{b_\tau=-f_t+\operatorname{div}a_t+a_ts_t},\qquad
+ \boxed{v_\tau=-u_t},\quad t=1-\tau.
+```
+
+若 $`a_t=g(t)^2I_d`$，得到 $`u_t=f_t-g^2s_t/2`$、
+$`b_\tau=-f_t+g^2s_t`$、$`v_\tau=-f_t+g^2s_t/2`$。
+状态依赖扩散保留矩阵散度项。
+
+### 高斯路径把常见网络输出接起来
+
+设 $`X_t=\alpha_tD+\sigma_t\varepsilon`$，$`\varepsilon\sim\mathcal N(0,I_d)`$
+与 $`D`$ 独立，记 $`e_t^*=\mathbb E[\varepsilon\mid X_t=x]`$、
+$`d_t^*=\mathbb E[D\mid X_t=x]`$。
+
+| 已知量 | 目标量 | 公式与使用条件 |
+| --- | --- | --- |
+| 噪声均值 | Score | $`s_t=-e_t^*/\sigma_t`$，$`\sigma_t>0`$ |
+| Score | 干净均值 | $`d_t^*=(x+\sigma_t^2s_t)/\alpha_t`$，$`\alpha_t\ne0`$ |
+| 干净均值与噪声均值 | 路径速度 | $`u_t=\dot\alpha_td_t^*+\dot\sigma_te_t^*`$ |
+| Score | 路径速度 | $`u_t=(\dot\alpha_t/\alpha_t)x+K_ts_t`$，$`\alpha_t\ne0`$ |
+| 路径速度 | Score | $`s_t=(\dot\alpha_tx-\alpha_tu_t)/(\sigma_t\Delta_t)`$，$`\sigma_t\Delta_t\ne0`$ |
+
+```math
+K_t=(\dot\alpha_t/\alpha_t)\sigma_t^2-\sigma_t\dot\sigma_t,
+ \qquad \Delta_t=\alpha_t\dot\sigma_t-\sigma_t\dot\alpha_t.
+```
+
+分母很小时误差会放大。相关端点、矩阵噪声或其他扰动核需按实际条件律换算。
+
+### 线性路径的一个直接用法
+
+若 $`X_t=(1-t)D+t\varepsilon`$，则 $`\Delta_t=1`$，内部时刻有
+
+```math
+u_t=-\frac{x+ts_t}{1-t},\qquad
+ s_t=-\frac{x+(1-t)u_t}{t},\qquad v_\tau=-u_{1-\tau}.
+```
+
+扩散 $`v`$-prediction 标签 $`V^{\mathrm{diff}}=\alpha\varepsilon-\sigma D`$
+还需结合路径参数解释。在 $`\alpha=\cos\vartheta,\sigma=\sin\vartheta`$ 时，
+$`u_t=\vartheta'(t)\mathbb E[V_t^{\mathrm{diff}}\mid X_t=x]`$。
+
+<a name="quick-4"></a>
+
+## 生成统一为初值问题，采样器负责离散求解
+
+先指定起点 $`Y_0\sim p_1`$，再在递增的生成时间 $`\tau`$ 中求解。
+有限噪声端用其他先验替代 $`p_1`$ 时，应记录初始分布失配。
+
+| 生成方式 | 连续动力学 | 一个常用离散步 |
+| --- | --- | --- |
+| 确定性流 | $`\dot Z=v_\tau(Z)`$ | Euler，$`Z_{n+1}=Z_n+h_nv_\theta(Z_n,\tau_n)`$ |
+| 随机扩散 | $`\mathrm{d}  Y=b_\tau\mathrm{d} \tau+G\mathrm{d}  W`$ | Euler–Maruyama，$`Y_{n+1}=Y_n+h_nb_\theta+\sqrt{h_n}G\xi_n`$ |
+| 随机插值扩散 | $`b_\tau=v_\tau+\kappa s_{1-\tau}`$ | 噪声尺度为 $`\sqrt{2\kappa h_n}`$，$`\kappa`$ 仅依赖时间 |
+
+其中 $`\xi_n`$ 是独立标准高斯，所有场在当前状态与正确时刻求值。
+Heun 每步通常需两次场评估，RK4 通常需四次。
+随机 Predictor–Corrector 还需计入固定噪声时刻的内部校正调用。
+
+### DDPM 与 DDIM 的离散版本放在哪里
+
+令 $`0<\beta_k<1`$、$`r_k=1-\beta_k`$、$`A_k^2=\prod_{j=1}^kr_j`$、$`S_k^2=1-A_k^2`$。
+DDPM 用当前噪声预测确定反向均值
+
+```math
+Y_{k-1}=\frac{Y_k-\beta_k\varepsilon_\theta(Y_k,k)/S_k}{\sqrt{r_k}}
+                  +\sqrt{\nu_k}\xi_k.
+```
+
+DDIM 先得到 $`\widehat D_k=(Y_k-S_k\varepsilon_\theta)/A_k`$，再跨到 $`j<k`$
+
+```math
+Y_j=A_j\widehat D_k+\sqrt{S_j^2-\delta_{k,j}^2}\,\varepsilon_\theta
+                           +\delta_{k,j}\xi,
+ \qquad
+ \delta_{k,j}^2=\eta^2\frac{S_j^2}{S_k^2}\left(1-\frac{A_k^2}{A_j^2}\right).
+```
+
+常用 $`0\le\eta\le1`$，$`\eta=0`$ 给出确定性更新。用累计系数处理跳步，有限步误差随网格改变。
+
+### 相同边缘的条件
+
+精确场、匹配初始律和密度演化唯一性使概率流 ODE 与对应 SDE 共享边缘。
+它们仍可具有不同的轨迹、端点耦合、二次变差和时间相关性。
+训练时的条件插值线段与积分边缘速度产生的轨迹也需分别计算。
+路径 KL 最优性、OT 最优性和边缘匹配各自对应所定义的优化条件。
+
+<a name="quick-5"></a>
+
+## 用一张误差预算检查理论与实现
+
+将数值输出律记为 $`\widehat\rho_1^h`$，设计的平滑目标为 $`\rho_1^\epsilon`$。
+
+```math
+\begin{aligned}
+ W_2(\widehat\rho_1^h,\mu_0)
+ &\le\underbrace{W_2(\widehat\rho_1^h,\widehat\rho_1)}_{\text{数值离散}}+
+       \underbrace{W_2(\widehat\rho_1,\rho_1^\epsilon)}_{\text{场误差与起点失配}}\\
+ &\quad+\underbrace{W_2(\rho_1^\epsilon,\mu_0)}_{\text{端点平滑／截断}}.
+ \end{aligned}
+```
+
+学习速度的空间 Lipschitz 常数为 $`L`$、参考边缘上场误差范数为 $`e(\tau)`$ 时，
+
+```math
+W_2(\widehat\rho_1,\rho_1)
+ \le e^L W_2(\widehat\rho_0,\rho_0)+\int_0^1e^{L(1-\tau)}e(\tau)\mathrm{d} \tau.
+```
+
+该界要求相关解适定且二阶矩有限。回归风险需要经时间权重换算才能控制 $`e`$。
+
+对同一非退化扩散的两个路径律，在 Girsanov 条件下
+
+```math
+D_{\mathrm{KL}}(P\|\widehat P)
+ =D_{\mathrm{KL}}(P_0\|\widehat P_0)
+ +\tfrac12\mathbb E_P\int_0^1\lVert a_\tau^{-1/2}(b_\tau-\widehat b_\tau)\rVert^2\mathrm{d} \tau.
+```
+
+终点 KL 由路径 KL 上界控制。选择 Wasserstein、KL 或全变差时，需检查各自的矩、
+绝对连续性和端点条件。
+
+| 环节 | 主要条件 | 实际核对量 |
+| --- | --- | --- |
+| 路径与标签 | 联合律正确、标签可积 | 条件均值、后验权重、端点与时间抽样 |
+| ODE | 空间 Lipschitz 与增长控制等 | 初值稳定性、爆破、端点系数 |
+| SDE | 相应存在唯一性与矩条件 | 漂移、协方差、状态依赖修正 |
+| 数值求解 | 求解器阶数与正则性相容 | 网格细化、NFE、均值／协方差、误差容限 |
+| 条件与物理结构 | 正确条件律、可行状态空间 | 条件起点、似然、约束残差和边界通量 |
+
+### 一个能贯穿全部步骤的核对模型
+
+取 $`D\sim\mathcal N(0,cI_d)`$、$`N\sim\mathcal N(0,I_d)`$ 独立，
+$`I_t=(1-t)D+tN`$，$`H_t=c(1-t)^2+t^2`$。则
+
+```math
+s_t=-x/H_t,\qquad u_t=H_t'x/(2H_t),\qquad
+ Z_\tau=\sqrt{H_{1-\tau}}\,Z_0,\quad Z_0\sim\mathcal N(0,I_d).
+```
+
+这组公式可同时检查训练标签、场转换、时间方向和生成方差。
+
+<a name="quick-6"></a>
+
+## 把统一框架用到条件生成与新模型
+
+### 条件生成仍沿用同一个框架
+
+把 $`p_t`$ 换成 $`p_t(\cdot\mid c)`$，对相同条件联合律定义路径与回归标签。
+生成起点应匹配 $`p_1(\cdot\mid c)`$。
+对逆问题 $`y=\mathcal A(D)+\eta`$，精确带噪后验 Score 为
+
+```math
+s_t(x\mid y)=s_t(x)+\nabla_x\log\int p(y\mid d)\,p_0(\mathrm{d}  d\mid X_t=x).
+```
+
+用去噪均值代入干净似然需要分析所引入的近似。
+CFG 在本书的尺度约定下取
+$`s^{(w)}=s+w(s(\cdot\mid c)-s)`$，$`w=1`$ 为普通条件 Score。
+一般 guidance 放大后的终点律需结合整个采样动力学验证。
+
+### 物理约束先落实到状态表示
+
+对线性约束 $`Az=c`$，写成 $`z=z_*(c)+Q\xi`$，其中 $`AQ=0,Q^\top Q=I`$。
+在独立坐标 $`\xi`$ 上设计先验、插值和动力学，可保持该约束。
+非线性约束 $`C(z)=0`$ 下，It\^o SDE 还需满足
+
+```math
+\nabla C\,G=0,\qquad \nabla C\cdot f+\tfrac12a:\nabla^2C=0.
+```
+
+流场可选无散基或 Fourier Leray 投影；涡度场还需核对零均值与速度恢复算子。
+物理时间、生成时间、网格加密与不确定性覆盖分别记录。
+
+### 阅读或提出一个模型时，依次回答六个问题
+
+1. **目标是什么？** 写出数据、先验、条件信息及状态空间。
+1. **概率路径怎么来？** 写出扰动核、端点耦合、插值或参考扩散。
+1. **监督标签能否直接采样？** 推导条件均值及相应总体风险。
+1. **生成解什么方程？** 固定时间方向、输出换算和初始分布。
+1. **数学上是否适定？** 检查正则性、端点、边界、约束及必要的引用定理。
+1. **误差如何验证？** 分析场误差、起点、离散与端点误差，并做解析算例和网格核对。
+
+### 需要展开时回到哪一章
+
+| 阅读目标 | 对应章节 | 使用方式 |
+| --- | --- | --- |
+| 数学与记号 | 第 0 章 | 概率、输运、SDE、时间规范 |
+| 模型全流程 | 第 1 章 | 查训练与生成各自做什么 |
+| 训练目标 | 第 2 章 | 查 ELBO、DSM、CFM 与桥优化推导 |
+| 生成算法 | 第 3 章 | 查离散递推、ODE／SDE 与数值误差 |
+| 输出转换 | 第 4 章 | 查噪声、Score、速度、漂移及退化条件 |
+| 理论与应用 | 第 5 章 | 查统一、适定性、误差、约束与后验生成 |
+
+### 原始文献与阅读边界
+
+[DDPM](https://arxiv.org/abs/2006.11239)；
+[DDIM](https://arxiv.org/abs/2010.02502)；
+[Score SDE](https://arxiv.org/abs/2011.13456)；
+[CNF / Neural ODE](https://arxiv.org/abs/1806.07366)；
+[Flow Matching](https://arxiv.org/abs/2210.02747)；
+[Rectified Flow](https://arxiv.org/abs/2209.03003)；
+[Schrödinger Bridge](https://arxiv.org/abs/1308.0215)；
+[Stochastic Interpolants](https://jmlr.org/papers/v26/23-1605.html)。
+详细文献、推导和假设见全书。本速览为快速阅读版，独立数学审阅待完成。

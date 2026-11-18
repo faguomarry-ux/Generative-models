@@ -1,6 +1,6 @@
 # 第 0 章　统一数学基础与符号体系
 
-[返回项目目录](../README.md#contents) · [PDF 版](../output/pdf/model-study.pdf) · [LaTeX 源码](../chapters/00-foundations.tex)
+[返回项目目录](../README.md#contents) · [PDF 版](../output/pdf/model-study.pdf) · [LaTeX 源码](../chapters/00-foundations.tex) · [下一章：训练与生成框架](chapter-1.md)
 
 [0.1 概率论与条件概率](#sec-0-1) · [0.2 确定性动力系统与概率输运](#sec-0-2) · [0.3 随机过程与随机微分方程](#sec-0-3) · [0.4 Fokker–Planck 方程](#sec-0-4) · [0.5 最优传输与变分方法](#sec-0-5) · [0.6 统一时间与符号约定](#sec-0-6)
 

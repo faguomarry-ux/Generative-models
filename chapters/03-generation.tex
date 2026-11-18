@@ -1,116 +1,901 @@
 \chapter{生成阶段的理论与数学推导}
+\label{ch:generation}
+
+本章把第~\ref{ch:training}~章学到的函数接入采样动力学，依次回答初始样本从哪里来、
+每一步如何更新、何时能得到目标边缘以及误差如何积累。
+连续时间沿用 \(t=0\) 为数据端、\(t=1\) 为噪声端，生成坐标为 \(\tau=1-t\)。
+记 \(p_t\) 为设计路径的密度，\(\rho_\tau=p_{1-\tau}\)，
+\(s_t=\nabla\log p_t\)，\(v_\tau=-u_{1-\tau}\)。带 \(\theta\) 的场表示估计值。
+离散系数为 \(r_k=1-\beta_k\)、\(A_k=\sqrt{\prod_{j=1}^k r_j}\)、
+\(S_k=\sqrt{1-A_k^2}\)，并令 \(A_0=1,S_0=0\)。
+生成的精确性同时涉及初始分布、所用场和积分过程。
+
+\begin{learningobjectives}
+  \item 从条件后验推出 DDPM 均值与 DDIM 跳步更新，核对随机项的尺度。
+  \item 推导反向 SDE 与概率流 ODE，证明其边缘相容性并检查时间反演符号。
+  \item 构造 FM、Rectified Flow、桥过程和随机插值的生成算法与密度计算。
+  \item 用稳定性、强弱收敛和分布距离解释模型误差、积分误差与计算成本。
+\end{learningobjectives}
 
 \section{DDPM 的生成理论}
+\label{sec:generation-ddpm}
 
 \subsection{反向条件概率的形式}
 
+前向链的 Bayes 反转满足
+\[
+ q(\dd x_{0:K})=q_K(\dd x_K)\prod_{k=1}^Kq(\dd x_{k-1}\mid x_k),
+ \qquad q(y\mid x)=\frac{q(x\mid y)q_{k-1}(y)}{q_k(x)}.
+\]
+当数据端没有密度时，最后一式按条件测度理解。
+生成模型选择可采样先验 \(\pi\) 与高斯反向核
+\(p_\theta(y\mid x)=\mathcal N(m_\theta(x,k),\nu_k I_d)\)，
+从 \(Y_K\sim\pi\) 逐步抽取到 \(Y_0\)。如果初始律等于 \(q_K\)，
+且每个核等于真实反向条件律，链式分解立即给出 \(Y_0\sim\mu_0\)。
+有限步高斯前向扩散一般只使 \(q_K\) 接近标准高斯。
+真实反向核是条件于干净数据的高斯后验的混合，其形状由数据后验决定。
+本节公式采用 DDPM 的噪声参数化 \cite{ho2020ddpm}。
+
+对包含全部状态的正反向联合律，KL 链式法则还给出误差分解
+\[
+ D_{\mathrm{KL}}(q_{0:K}\|p_{\theta,0:K})
+ =D_{\mathrm{KL}}(q_K\|\pi)+\sum_{k=1}^K
+ \mathbb E_{q_k}D_{\mathrm{KL}}\bigl(q(\cdot\mid X_k)\|
+                                      p_\theta(\cdot\mid X_k)\bigr).
+\]
+证明是把反向联合密度比写成端点密度比与各转移核密度比的乘积，
+取对数后对联合律积分。各项需满足绝对连续性，允许取值为无穷大。
+由终点投影的数据处理不等式，数据端 KL 受整个右端控制。
+
 \subsection{反向均值的推导\requiredderivation}
+
+由第~\ref{subsec:training-ddpm-posterior}~小节的配方，给定 \((x,x_0)\)，
+\[
+ \widetilde m_k(x,x_0)=c_kx_0+d_kx,\qquad
+ c_k=\frac{A_{k-1}\beta_k}{S_k^2},\quad
+ d_k=\frac{\sqrt{r_k}S_{k-1}^2}{S_k^2}.
+\]
+再对 \(X_0\mid X_k=x\) 取期望。因为
+\(X_k=A_kX_0+S_k\varepsilon\)，有
+\(\mathbb E[X_0\mid x]=(x-S_k\mathbb E[\varepsilon\mid x])/A_k\)。
+利用 \(A_k=\sqrt{r_k}A_{k-1}\)，整理得到
+\begin{equation}
+ \begin{aligned}
+ \mathbb E[X_{k-1}\mid X_k=x]
+  &=\frac1{\sqrt{r_k}}\left(x-\frac{\beta_k}{S_k}
+       \mathbb E[\varepsilon\mid X_k=x]\right),\\
+ m_\theta(x,k)&=\frac1{\sqrt{r_k}}
+       \left(x-\frac{\beta_k}{S_k}\varepsilon_\theta(x,k)\right).
+ \end{aligned}
+ \label{eq:generation-ddpm-mean}
+\end{equation}
+因此最优噪声回归给出真实反向条件均值。
+用 \(s_\theta=-\varepsilon_\theta/S_k\) 也可写成
+\(m_\theta=(x+\beta_k s_\theta)/\sqrt{r_k}\)。
+此处的 Score 对应离散步号 \(k\) 的边缘密度。
 
 \subsection{反向方差与随机噪声}
 
+给定 \(X_0\) 的后验方差是
+\(\widetilde\beta_k=\beta_k S_{k-1}^2/S_k^2\)。
+全协方差公式进一步给出
+\begin{equation}
+ \operatorname{Cov}(X_{k-1}\mid X_k=x)
+ =\widetilde\beta_k I_d+c_k^2\operatorname{Cov}(X_0\mid X_k=x).
+ \label{eq:generation-ddpm-cov}
+\end{equation}
+常用选择 \(\nu_k=\widetilde\beta_k\) 与 \(\nu_k=\beta_k\)
+定义不同的高斯模型。学习方差时还要保证正定，并按训练目标解释其尺度。
+标准差是 \(\sqrt{\nu_k}\)，独立噪声每一步重新采样。
+即使均值精确，固定各向同性方差仍可能留下核近似误差。
+
+\begin{example}[平稳高斯的真实反向方差]
+若 \(X_0\sim\mathcal N(0,I_d)\)，则每个 \(X_k\) 都是标准高斯。
+联合高斯计算给出反向均值 \(\sqrt{r_k}x\)、方差 \(\beta_k I_d\)。
+式~\eqref{eq:generation-ddpm-mean} 中 \(s_k(x)=-x\) 重现该均值，
+式~\eqref{eq:generation-ddpm-cov} 中的第二项补足
+\(\beta_k-\widetilde\beta_k\)。
+\end{example}
+
 \subsection{完整去噪递推公式\requiredderivation}
+
+选定步数、系数表、反向方差及先验后，算法为
+\begin{equation}
+ Y_K\sim\pi,\qquad
+ Y_{k-1}=\frac{Y_k-\beta_k\varepsilon_\theta(Y_k,k)/S_k}{\sqrt{r_k}}
+             +\sqrt{\nu_k}\,\xi_k,
+ \quad k=K,\ldots,1.
+ \label{eq:generation-ddpm-sampler}
+\end{equation}
+其中 \(\xi_k\sim\mathcal N(0,I_d)\) 相互独立。
+常见图像采样实现令最后一步 \(\xi_1=0\)，输出解码均值。
+若目标是严格从已定义的随机解码核取样，应使用该核规定的随机项。
+裁剪 \(\widehat X_0=(Y_k-S_k\varepsilon_\theta)/A_k\) 会改变均值映射，
+要在算法定义中记录。实现时核对步号递减、系数索引以及最终输出所处的数据尺度。
 
 \subsection{DDPM 生成过程与 Langevin Dynamics 的联系}
 
+当 \(\beta_k\) 很小，\(1/\sqrt{1-\beta_k}=1+\beta_k/2+O(\beta_k^2)\)，
+因此在场有界的局部范围
+\[
+ m_\theta(x,k)-x
+   =\beta_k\bigl(x/2+s_\theta(x,k)\bigr)+O(\beta_k^2).
+\]
+取 \(\nu_k\simeq\beta_k\)，即得到 VP 反向 SDE 的 Euler 结构。
+固定密度 \(p\) 的过阻尼 Langevin 动力学为
+\(\dd Z_\ell=\nabla\log p(Z_\ell)\dd\ell+\sqrt2\dd B_\ell\)，
+Euler 更新为 \(Z^+=Z+\delta\nabla\log p(Z)+\sqrt{2\delta}\xi\)。
+DDPM 中目标密度随步号改变，并且漂移含前向收缩的时间反转项。
+两者都利用 Score 将样本移向较高密度区域，其噪声与漂移配比必须按各自方程计算。
+
 \section{DDIM 的生成理论}
+\label{sec:generation-ddim}
 
 \subsection{DDIM 采样更新公式的推导\requiredderivation}
 
+取任意 \(0\le j<k\)，先暂时固定干净端点 \(x_0\)。
+令 \(\delta_{k,j}\) 是目标转移标准差，并设
+\[
+ X_j=A_jx_0+\frac{\sqrt{S_j^2-\delta_{k,j}^2}}{S_k}
+                       (X_k-A_kx_0)+\delta_{k,j}\xi.
+\]
+由于 \((X_k-A_kx_0)/S_k\) 与新噪声 \(\xi\) 独立且均为标准高斯，
+上式的条件均值为 \(A_jx_0\)，方差为 \(S_j^2I_d\)。
+只需 \(0\le\delta_{k,j}^2\le S_j^2\)，它就保持所需的条件边缘。
+在生成时，用预测干净样本替换未知端点，得到 DDIM 更新 \cite{song2021ddim}
+\begin{equation}
+ \begin{aligned}
+ \widehat D_k&=\frac{Y_k-S_k\varepsilon_\theta(Y_k,k)}{A_k},\\
+ Y_j&=A_j\widehat D_k+
+       \sqrt{S_j^2-\delta_{k,j}^2}\,\varepsilon_\theta(Y_k,k)
+       +\delta_{k,j}\xi .
+ \end{aligned}
+ \label{eq:generation-ddim-update}
+\end{equation}
+条件边缘的构造证明使用真实端点。用条件均值网络替换端点后，
+有限步生成是否保持边缘还要检验，条件方差被回归压缩会造成误差。
+
 \subsection{随机参数 \texorpdfstring{\(\eta\)}{η} 的作用}
+
+常用选择为
+\begin{equation}
+ \delta_{k,j}^2=\eta^2\frac{S_j^2}{S_k^2}
+                         \left(1-\frac{A_k^2}{A_j^2}\right).
+ \label{eq:generation-ddim-eta}
+\end{equation}
+取 \(0\le\eta\le1\) 可保证根号内非负。
+对相邻步 \(j=k-1\)、\(\eta=1\)，有
+\(\delta_{k,k-1}^2=\widetilde\beta_k\)，代回均值得到
+式~\eqref{eq:generation-ddpm-mean}，对应采用后验方差的 DDPM 更新。
+在跳步网格上，\(\eta=1\) 使用跨步前向链的后验方差。
+同一初始噪声下，\(\eta\) 控制后续注入的随机性。
 
 \subsection{\texorpdfstring{\(\eta=0\)}{η=0} 时的确定性生成}
 
+此时 \(Y_j=A_j\widehat D_k+S_j\varepsilon_\theta(Y_k,k)\)，
+所以初始噪声与固定的计算过程共同确定输出。
+对同一噪声重跑可复现样本，但不同时间网格会改变离散映射。
+有限步映射的可逆性需要额外检验，连续 ODE 的可逆性结论依赖其适定性。
+特别是最后一步 \(j=0\) 给出 \(Y_0=\widehat D_k\)，
+相当于从当前状态直接做一次干净样本估计。
+
+\begin{example}[精确回归下的一步 DDIM]
+设 \(D,\varepsilon\) 独立标准高斯，\(X_k=A_kD+S_k\varepsilon\)。
+最优噪声预测是 \(S_kx\)，因此 \(\widehat D_k=A_kx\)。
+一步跳到零时，输出方差为 \(A_k^2I_d\)，目标方差为 \(I_d\)。
+该算例明确了有限步代入造成的方差偏差。
+\end{example}
+
 \subsection{时间步子序列与跳步采样}
+
+选取 \(0=k_0<k_1<\cdots<k_M=K\)，逐对使用
+\((k,j)=(k_m,k_{m-1})\) 的式~\eqref{eq:generation-ddim-update}。
+所有系数使用原始累计量 \(A_{k_m},S_{k_m}\)。跨步衰减为
+\(A_k/A_j\)，对应前向条件方差为 \(1-A_k^2/A_j^2\)。
+每步重新计算网络输出，所以一步长跳跃与多次短更新通常不同。
+均匀步号、均匀噪声尺度和均匀对数信噪比给出不同网格。
+当大跳步使场变化显著时，需要加密网格或采用适合该动力学的高阶更新。
 
 \subsection{DDIM 与 Probability Flow ODE 的连续时间联系}
 
+在光滑区间写 \(X_t=\alpha_tD+\sigma_t\varepsilon\)，令
+\(y=x/\alpha_t\)、\(\lambda=\sigma_t/\alpha_t\)，并假设 \(\alpha_t>0\)。
+确定性 DDIM 满足精确的单步代数式
+\[
+ y_j=y_k+(\lambda_j-\lambda_k)\varepsilon_\theta(x_k,t_k).
+\]
+因此它是 \(\dd y/\dd\lambda=\varepsilon_\theta(\alpha_t y,t)\)
+的 Euler 更新。改回 \(t\) 得
+\begin{equation}
+ \frac{\dd x}{\dd t}=\frac{\dot\alpha_t}{\alpha_t}x+
+ \left(\dot\sigma_t-\frac{\dot\alpha_t}{\alpha_t}\sigma_t\right)
+ \varepsilon_\theta(x,t).
+ \label{eq:generation-ddim-ode}
+\end{equation}
+对 VP 路径，\(\dot\alpha/\alpha=-\beta/2\)、
+\(\sigma^2=1-\alpha^2\)、\(\varepsilon_\theta=-\sigma s_\theta\)，
+上式化为 \(\dot x=-\beta x/2-\beta s_\theta/2\)。
+生成沿递减 \(t\) 积分，或对整个右端取负后沿递增 \(\tau\) 积分。
+该联系在系数光滑、网络场足够正则且网格细化的区间成立。
+
 \section{Score-based SDE 的生成理论}
+\label{sec:generation-sde}
 
 \subsection{反向时间扩散过程的数学条件}
 
+考虑 \(\dd X_t=f_t(X_t)\dd t+G_t(X_t)\dd W_t\)，
+记 \(a_t=G_tG_t^\top\)。本节在内部闭区间上假设系数足够光滑、
+至多线性增长、扩散一致椭圆，初始律有足够矩且密度正而光滑，
+并假设有关导数可积、无穷远边界项消失。
+这些条件提供一套使用经典反演公式的正则情形，精细的弱正则条件见
+Haussmann--Pardoux \cite{haussmann1986time}。
+数据端为奇异分布时，先在 \([\epsilon,1]\) 上工作，再讨论
+\(\epsilon\downarrow0\) 的极限。反向 Brownian 运动相对于反向滤过定义。
+前向 Brownian 轨迹的倒放需要结合该滤过下的漂移补偿分析。
+
 \subsection{Reverse-time SDE 的推导\requiredderivation}
+
+设 \(L_t\varphi=f_t\cdot\nabla\varphi+
+\frac12\sum_{ij}a_{ij,t}\partial_{ij}\varphi\)，其密度伴随为 \(L_t^*\)。
+由 Bayes 反向转移核，对光滑测试函数展开短时间转移算子，
+递增生成时间的生成元为
+\[
+ \overline L_\tau\varphi
+   =\frac{L_t^*(p_t\varphi)-\varphi L_t^*p_t}{p_t},
+ \qquad t=1-\tau.
+\]
+上述生成元可直接从 Bayes 核验证。设前向转移密度为 \(q_{t-h,t}(y,x)\)，则
+\[
+ \mathbb E[\varphi(X_{t-h})\mid X_t=x]
+ =\frac{\int q_{t-h,t}(y,x)p_{t-h}(y)\varphi(y)\dd y}{p_t(x)}.
+\]
+用 \(p_{t-h}=p_t-hL_t^*p_t+o(h)\) 和短时伴随转移
+\(I+hL_t^*+o(h)\) 展开分子，减去 \(\varphi(x)\) 并除以 \(h\)，即得上式。
+展开乘积，一阶项给出 \(-f_t\cdot\nabla\varphi\)，二阶项给出
+\[
+ \tfrac12 a_t:\nabla^2\varphi+
+ \frac1{p_t}\sum_{ij}\partial_j(a_{ij,t}p_t)\partial_i\varphi.
+\]
+根据漂移与二阶扩散项的系数，得到
+\begin{equation}
+ \begin{aligned}
+ \dd Y_\tau&=b_\tau(Y_\tau)\dd\tau+G_t(Y_\tau)\dd\overline W_\tau,\\
+ b_\tau&=-f_t+\operatorname{div}a_t+a_ts_t,\qquad t=1-\tau,\\
+ (\operatorname{div}a_t)_i&=\sum_j\partial_j a_{ij,t}.
+ \end{aligned}
+ \label{eq:generation-reverse-sde}
+\end{equation}
+若 \(G_t=g(t)I_d\)，反向漂移为 \(-f_t+g(t)^2s_t\)。
+例如 VP 模型 \(f_t=-\beta(t)x/2\)、\(g^2=\beta(t)\)，
+得到 \(b_\tau=\beta(t)x/2+\beta(t)s_t\)，与 DDPM 的小步展开一致。
 
 \subsection{Probability Flow ODE 的推导\requiredderivation}
 \label{subsec:probability-flow}
 
+前向 Fokker--Planck 方程为
+\[
+ \partial_t p_t=-\nabla\cdot(f_tp_t)+\frac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
+\]
+对每个坐标，\(\sum_j\partial_j(a_{ij}p)
+=p(\operatorname{div}a)_i+p(a s)_i\)，所以方程可写为
+\(\partial_t p_t=-\nabla\cdot(p_tu_t)\)，其中
+\begin{equation}
+ \begin{aligned}
+ u_t&=f_t-\tfrac12\operatorname{div}a_t-\tfrac12a_ts_t,\\
+ \frac{\dd Z_\tau}{\dd\tau}&=v_\tau(Z_\tau)=-u_{1-\tau}(Z_\tau).
+ \end{aligned}
+ \label{eq:generation-probability-ode}
+\end{equation}
+该构造选取前向扩散的概率流速度。连续性方程若允许添加满足
+\(\nabla\cdot(p_tw_t)=0\) 的场，速度还可有其他选择。
+本文后续提到概率流 ODE 时均指式~\eqref{eq:generation-probability-ode}。
+各向同性情形生成速度为 \(-f_t+g^2s_t/2\) \cite{song2021sde}。
+
 \subsection{SDE 与 ODE 共享边缘分布的证明\requiredderivation}
+
+令 \(\rho_\tau=p_t\)，则 \(\partial_\tau\rho_\tau=-\partial_t p_t\)。
+将式~\eqref{eq:generation-reverse-sde} 的漂移代入反向 Fokker--Planck 方程，
+利用 \((\operatorname{div}a+a s)p=\operatorname{div}(ap)\)，得到
+\[
+ -\nabla\cdot(b_\tau p_t)+\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t)
+ =\nabla\cdot(f_tp_t)-\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t).
+\]
+ODE 的右端密度方程 \(-\nabla\cdot(v_\tau p_t)\) 也等于此式。
+因此，在两种方程的初始律均为 \(p_1\)、场精确且相应密度演化唯一时，
+两者在每个时刻都具有边缘 \(p_{1-\tau}\)。
+SDE 具有二次变差 \(\int_0^\tau a_{1-r}(Y_r)\dd r\)，
+正则 ODE 轨迹的二次变差为零，故其路径空间律具有不同性质。
+用任意近似 \(s_\theta\) 替代 \(s_t\) 后，两种动力学的自洽边缘需重新分析。
+
+\begin{example}[平稳 VP 的符号核对]
+取 \(p_t=\mathcal N(0,I_d)\)，则 \(s_t=-x\)。反向 SDE 的漂移为
+\(-\beta x/2\)，其方差满足 \(C'=-\beta C+\beta I_d=0\)。
+概率流 ODE 的速度为零。两者均保持标准高斯，单条样本的运动方式不同。
+\end{example}
 
 \subsection{Predictor--Corrector 采样}
 
+取生成网格 \(\tau_n\)，\(h_n=\tau_{n+1}-\tau_n>0\)。
+Predictor 使用反向漂移估计执行
+\[
+ \widetilde Y_{n+1}=Y_n+h_n b_\theta(Y_n,\tau_n)
+                +\sqrt{h_n}\,G_{1-\tau_n}(Y_n)\xi_n.
+\]
+随后固定目标噪声时刻 \(t=1-\tau_{n+1}\)，执行若干次
+\(Y^{(\ell+1)}=Y^{(\ell)}+\delta_\ell s_\theta(Y^{(\ell)},t)
++\sqrt{2\delta_\ell}\zeta_\ell\)，从 \(\widetilde Y_{n+1}\) 开始。
+Corrector 的内部步保持生成时间固定。
+步数与内部步长共同决定附加网络调用和校正程度。
+每次改动内部状态后通常需要重新评估 Score。
+
 \subsection{Langevin Corrector 的原理}
 
+固定 \(t\) 时，理想 Langevin 生成元的密度伴随作用于 \(p_t\) 为
+\[
+ -\nabla\cdot(s_tp_t)+\Delta p_t=0.
+\]
+因此 \(p_t\) 是该连续动力学的不变密度。在适当遍历和收敛条件下，
+运行充分长时间可将其他初始分布推向 \(p_t\)。
+离散 Euler 链具有步长偏差，有限个内部步也留下混合误差。
+以一维 \(p=\mathcal N(0,c)\) 为例，更新为
+\(Z^+=(1-\delta/c)Z+\sqrt{2\delta}\xi\)。
+稳定条件是 \(0<\delta<2c\)，其平稳方差为
+\(c/(1-\delta/(2c))\)。这个计算展示了有限步长对目标密度的扰动。
+若使用 Metropolis 校正，还需能够计算接受率所需的目标密度比。
+
 \section{CNF 与 Flow Matching 的生成理论}
+\label{sec:generation-fm}
 
 \subsection{从学习的速度场构造初值 ODE}
 
+若训练输出的是加噪时间速度 \(U_\theta(x,t)\)，生成时设
+\(v_\theta(x,\tau)=-U_\theta(x,1-\tau)\)。若训练本来采用生成时间，
+直接使用对应的 \(v_\theta\)。采样问题为
+\begin{equation}
+ Z_0\sim\pi,\qquad \dot Z_\tau=v_\theta(Z_\tau,\tau),\quad 0\le\tau\le1.
+ \label{eq:generation-fm-ode}
+\end{equation}
+求解器每次评估当前状态上的边缘速度。
+CFM 的条件期望投影使条件监督的总体最优场等于指定边缘速度
+\cite{lipman2023fm}。若路径终止于平滑数据分布，输出目标也随该路径确定。
+
 \subsection{流映射与概率密度演化}
+
+记从 \(r\) 到 \(\tau\) 的流映射为 \(\Phi_{\tau\leftarrow r}\)。
+唯一解保证组合律 \(\Phi_{\tau\leftarrow r}\circ\Phi_{r\leftarrow s}
+=\Phi_{\tau\leftarrow s}\)。生成律为
+\(\widehat\rho_\tau=(\Phi_{\tau\leftarrow0})_\#\pi\)。
+对光滑测试函数求导得到
+\(\frac{\dd}{\dd\tau}\mathbb E\varphi(Z_\tau)
+=\mathbb E[\nabla\varphi(Z_\tau)\cdot v_\theta(Z_\tau,\tau)]\)，
+故 \(\partial_\tau\widehat\rho=-\nabla\cdot(v_\theta\widehat\rho)\)。
+若 \(v_\theta=v\)、\(\pi=p_1\)，并有连续性方程唯一性，
+则 \(\widehat\rho_\tau=p_{1-\tau}\)。这是边缘回归到生成分布的推理链。
 
 \subsection{生成轨迹与训练条件插值路径的区别}
 
+训练可用 \(I_\tau=(1-\tau)N+\tau D\)，监督为 \(D-N\)。
+总体最优场为 \(v_\tau(x)=\mathbb E[D-N\mid I_\tau=x]\)。
+给定当前位置通常对应多个端点对，生成轨迹沿其后验平均速度前进。
+因此训练时固定一对端点得到的线段，与积分边缘速度所得轨迹需要分别计算。
+回归定理保证相应的弱连续性方程。若需证明逐轨迹性质，必须进一步研究流映射。
+第~\ref{sec:generation-rf}~节给出可显式求解的高斯算例。
+
 \subsection{密度变化及对数似然计算}
+
+由连续性方程沿特征线求导，得到
+\begin{equation}
+ \begin{aligned}
+ \frac{\dd}{\dd\tau}\log\widehat\rho_\tau(Z_\tau)
+ &=-\nabla\cdot v_\theta(Z_\tau,\tau),\\
+ \log\widehat\rho_1(Z_1)&=\log\pi(Z_0)-
+                  \int_0^1\nabla\cdot v_\theta(Z_\tau,\tau)\dd\tau.
+ \end{aligned}
+ \label{eq:generation-cnf-density}
+\end{equation}
+对给定观测 \(x\)，以 \(Z_1=x\) 为终值反积分获得 \(Z_0\)，再使用同一公式。
+高维时可用 \(\mathbb E[\zeta^\top J_v\zeta]=\operatorname{tr}J_v\)
+估计散度，其中 \(\mathbb E[\zeta\zeta^\top]=I_d\)，见 CNF 与 FFJORD
+\cite{chen2018neuralode,grathwohl2019ffjord}。
+迹估计引入 Monte Carlo 误差，数值积分也有误差。
+该式计算所定义连续流的密度，需要与观测空间的缩放、去量化等预处理一致。
 
 \subsection{流的可逆性、存在性与唯一性}
 
+一种方便的充分条件是 \(v\) 对时间连续、对空间全局 Lipschitz，
+且 \(\norm{v(0,\tau)}\) 可积。Gronwall 不等式给出全区间解与唯一性。
+若空间导数连续，Jacobian 满足
+\(\dot J_\tau=(\nabla v_\tau)(Z_\tau)J_\tau\)，因而
+\(\det J_\tau=\exp(\int_0^\tau\nabla\cdot v_r(Z_r)\dd r)\ne0\)。
+反向求解给出逆映射。局部 Lipschitz 条件还需控制有限时间爆破。
+若端点数据集中在低维流形上，保持正则可逆的全维流无法在有限时刻
+把全维先验精确压到该奇异分布。此时应根据模型讨论端点极限、
+平滑目标或退化动力学，并相应调整可逆性假设。
+
 \section{Rectified Flow 的生成理论}
+\label{sec:generation-rf}
 
 \subsection{速度场定义下的 ODE 生成}
 
+对指定耦合 \((N,D)\)，Rectified Flow 训练
+\(v_\theta(I_\tau,\tau)\) 拟合 \(D-N\)，采样执行
+\(\dot Z_\tau=v_\theta(Z_\tau,\tau)\)、\(Z_0\sim\mu_1\)。
+线性插值固定端点的位移在整个训练路径上相同，便于直接构造监督。
+OT-CFM 改变端点耦合，由此改变条件后验与最优速度。
+二者在生成阶段均需沿各自学到的速度场积分，相关构造见
+\cite{liu2023rectified,tong2024otcfm}。
+
 \subsection{直线插值与非直线真实轨迹}
+
+设独立 \(N,D\sim\mathcal N(0,I_d)\)，令
+\(H_\tau=(1-\tau)^2+\tau^2\)。联合高斯回归给出
+\begin{equation}
+ v_\tau(x)=\frac{2\tau-1}{H_\tau}x,
+ \qquad Z_\tau=\sqrt{H_\tau}\,Z_0.
+ \label{eq:generation-rf-gaussian}
+\end{equation}
+验证只需计算 \(\operatorname{Cov}(D-N,I_\tau)=(2\tau-1)I_d\)，
+再除以 \(H_\tau\)。轨迹先收缩后扩张，\(Z_1=Z_0\)。
+其端点连线是常值曲线，实际运动则在中间时刻偏离该连线。
+这个算例说明线性条件插值允许随时间改变速度的边缘流，
+并且生成端点耦合可以与训练时的独立耦合不同。
 
 \subsection{轨迹曲率与数值积分误差}
 
+对二阶可微轨迹，定义物质加速度
+\begin{equation}
+ \ddot Z_\tau=\partial_\tau v_\tau(Z_\tau)
+                +(\nabla v_\tau)(Z_\tau)v_\tau(Z_\tau).
+ \label{eq:generation-acceleration}
+\end{equation}
+Taylor 展开为 \(Z_{\tau+h}=Z_\tau+h v_\tau(Z_\tau)
++h^2\ddot Z_\tau/2+O(h^3)\)。
+因此 Euler 误差受到时间加速度控制。几何曲率仅描述加速度垂直于速度的分量，
+同一直线上运动的速度变化也会导致积分误差。
+若沿轨迹 \(\ddot Z=0\)，速度恒定，一步 Euler 可精确到达任意时刻。
+少步生成的分析应同时关注时间参数化与轨迹几何。
+
 \subsection{Reflow 后的采样}
+
+先从当前模型生成端点对 \((N,T_\theta(N))\)，再以该耦合训练新的线性插值速度。
+采样时从新抽取的先验样本出发，积分新网络。
+理想精确场和精确求解下，Reflow 保持教师的输出端分布，并改变端点耦合。
+对新流的端点位移 \(\Delta Z=\int_0^1v_\tau(Z_\tau)\dd\tau\)，
+Jensen 不等式与条件投影给出
+\[
+ \mathbb E\norm{\Delta Z}^2
+ \le\int_0^1\mathbb E\norm{v_\tau(I_\tau)}^2\dd\tau
+ \le\mathbb E\norm{D-N}^2.
+\]
+这里用到流边缘与插值边缘一致。该代价比较需要回归准确、积分准确等条件。
+实际 Reflow 的目标端点来自教师，教师已有的分布误差也进入新训练目标。
 
 \subsection{少步生成与一步 Euler 近似的局限}
 
+一步生成写为 \(Z_1^{\mathrm E}=N+v_\theta(N,0)\)。若真实轨迹加速度可积，
+则精确积分的恒等式为
+\[
+ Z_1-Z_0-v_0(Z_0)=\int_0^1(1-r)\ddot Z_r\dd r.
+\]
+因而一步误差可由右端的范数积分控制。
+在式~\eqref{eq:generation-rf-gaussian} 中 \(v_0(x)=-x\)，
+一步 Euler 输出恒为零，精确解输出为 \(N\)。
+这种完全塌缩来自离散化，尽管边缘速度已精确。
+使用少步前需验证所学流在相应网格上的终点误差。
+
 \section{Schrödinger Bridge 的生成理论}
+\label{sec:generation-sb}
 
 \subsection{最优控制漂移的构造}
 
+设参考过程漂移为 \(f_t\)，扩散矩阵为 \(a_t\)，参考边缘为 \(r_t\)。
+第 2 章的桥解满足 \(p_t^\star=r_t\widehat\psi_t\psi_t\)，其中
+\(\psi_t(x)=\mathbb E_R[h(X_1)\mid X_t=x]\)，
+\(\widehat\psi_t(x)=\mathbb E_R[\ell(X_0)\mid X_t=x]\)。
+采用正的光滑势时，正向桥漂移为
+\begin{equation}
+ f_t^\star=f_t+a_t\nabla\log\psi_t.
+ \label{eq:generation-sb-forward}
+\end{equation}
+若控制通过 \(G_tw_t\) 加入漂移，最优噪声坐标控制为
+\(w_t^\star=G_t^\top\nabla\log\psi_t\)。
+其能量来自第 2 章的路径 KL。势函数由参考律与双端约束共同决定
+\cite{leonard2014schrodinger}。
+
 \subsection{Doob \texorpdfstring{\(h\)}{h}-transform 的作用\requiredderivation}
+
+因为 \(\partial_t\psi_t+L_t\psi_t=0\)，核
+\[
+ P_{s,t}^\star(x,\dd y)=R_{s,t}(x,\dd y)\frac{\psi_t(y)}{\psi_s(x)}
+\]
+积分为一，并满足 Chapman--Kolmogorov 关系。
+对光滑函数 \(\varphi\)，短时间展开给出变换生成元
+\[
+ L_t^\star\varphi=\frac{L_t(\psi_t\varphi)-\varphi L_t\psi_t}{\psi_t}
+ =L_t\varphi+(a_t\nabla\log\psi_t)\cdot\nabla\varphi.
+\]
+第一项保留原扩散，交叉导数给出额外漂移，得到
+式~\eqref{eq:generation-sb-forward}。
+初始桥边缘同时由 \(\ell\) 调整，终端权重 \(h\) 通过 \(\psi\) 传播到每个时刻。
+
+\begin{example}[Brownian 参考的固定终点条件化]
+取一维 \(\dd X_t=\sqrt\epsilon\dd W_t\)，将终点条件化为 \(X_1=y\)。
+在 \(t<1\) 时，势正比于转移密度
+\[
+ \psi_t(x)=[2\pi\epsilon(1-t)]^{-1/2}
+       \exp\left[-\frac{(y-x)^2}{2\epsilon(1-t)}\right].
+\]
+故 \(\epsilon\partial_x\log\psi_t=(y-x)/(1-t)\)。
+生成的条件桥满足
+\(\dd X_t=(y-X_t)\dd t/(1-t)+\sqrt\epsilon\dd W_t\)。
+若 \(X_0=x_0\)，均值为 \((1-t)x_0+ty\)，方差为 \(\epsilon t(1-t)\)。
+它们可代入均值与方差微分方程逐项核对。
+这里的固定终点是奇异条件化的例子，漂移在端点附近奇异；
+用普通时间步直接积分到 \(t=1\) 需要处理这个极限。
+\end{example}
 
 \subsection{正向与反向桥过程}
 
+桥的 Score 为 \(s_t^\star=\nabla\log r_t+
+\nabla\log\widehat\psi_t+\nabla\log\psi_t\)。
+代入一般时间反演式，\(\psi\) 的项抵消，得到递增生成时间下
+\begin{equation}
+ \begin{aligned}
+ b_\tau^\star&=-f_t+\operatorname{div}a_t+a_t\nabla\log r_t
+                       +a_t\nabla\log\widehat\psi_t,\\
+ t&=1-\tau.
+ \end{aligned}
+ \label{eq:generation-sb-backward}
+\end{equation}
+从 \(Y_0\sim\mu_1\) 出发，用该漂移和扩散 \(G_t\) 积分到 \(\tau=1\)，
+在精确桥条件下到达 \(\mu_0\)。
+DSB 可通过交替模拟与回归直接拟合两个方向的漂移
+\cite{debortoli2021dsb}。实现时采用网络实际学习的方向和扩散尺度。
+
 \subsection{Schrödinger Bridge 的 Fokker--Planck 方程}
+
+桥边缘满足
+\begin{equation}
+ \begin{aligned}
+ \partial_t p_t^\star&=-\nabla\cdot[(f_t+a_t\nabla\log\psi_t)p_t^\star]
+                  +\tfrac12\sum_{ij}\partial_{ij}(a_{ij,t}p_t^\star),\\
+ p_0^\star&=\mu_0,\qquad p_1^\star=\mu_1.
+ \end{aligned}
+ \label{eq:generation-sb-fp}
+\end{equation}
+端点约束按概率测度理解。有密度时可写成端点密度条件。
+定义 \(u_t^\star=f_t^\star-\operatorname{div}a_t/2-a_ts_t^\star/2\)，
+即可构造与桥共享边缘的确定性 ODE，生成速度为 \(-u_{1-\tau}^\star\)。
+它保持桥的时刻边缘，路径律则由确定性流决定。
+桥相对于参考扩散的最优路径 KL 是对原随机桥提出的优化条件。
 
 \subsection{桥过程与参考扩散过程的区别}
 
+参考律提供转移核、噪声尺度与路径代价的基准。
+双端重加权 \(\dd P^\star/\dd R=\ell(X_0)h(X_1)\)
+在给定两个端点后保持参考条件桥律，并重新选择端点的联合分布。
+因此改变 \(R\) 通常会改变最优桥，即使两端边缘相同。
+以 Brownian 参考为例，\(f=0,a=\epsilon I_d\)，正向桥漂移为
+\(\epsilon\nabla\log\psi_t\)。无控制的参考过程只有在本身满足所需约束时
+才是桥问题的最优解。生成阶段需要使用已求得的势或控制漂移。
+
 \subsection{端点分布约束与生成误差}
 
+精确 IPF 的每次半投影严格匹配一端，另一端一般随之改变。
+有限次迭代、有限样本回归与离散模拟使实际约束出现残差。
+评估时分别检查从指定端点出发所得的终点分布、网格细化后的变化和迭代残差。
+若 \(a_t\) 可逆，精确桥与估计桥具有相同扩散、同一初始律，且 Girsanov 条件成立，
+则在精确桥路径律 \(P^\star\) 下
+\[
+ D_{\mathrm{KL}}(P^\star\|\widehat P)
+ =\frac12\mathbb E_{P^\star}\int_0^1
+ \norm{a_t^{-1/2}(f_t^\star-\widehat f_t)(X_t)}^2\dd t.
+\]
+终点 KL 由路径 KL 上界控制。该界使用连续扩散的路径律，
+数值算法还需估计离散化误差。
+
 \section{Stochastic Interpolants 的生成理论}
+\label{sec:generation-si}
 
 \subsection{从插值边缘分布构造连续性方程}
 
+沿用第 2 章 \(I_t=\mathcal I(t,D,N)+\gamma(t)\zeta\)，其中
+\(\zeta\) 与端点独立。令 \(p_t=\operatorname{Law}(I_t)\)、
+\(u_t(x)=\mathbb E[\partial_t I_t\mid I_t=x]\)。
+对 \(\varphi\in C_c^\infty\)，可交换求导与期望时
+\[
+ \frac{\dd}{\dd t}\int\varphi p_t
+ =\mathbb E[\nabla\varphi(I_t)\cdot\partial_t I_t]
+ =\int\nabla\varphi(x)\cdot u_t(x)p_t(x)\dd x.
+\]
+分部积分得到 \(\partial_t p_t=-\nabla\cdot(u_tp_t)\)。
+它以可采样插值定义边缘，再用条件期望得到输运场
+\cite{albergo2025si}。若 \(\gamma\) 的端点导数奇异，应先验证上述可积性。
+
 \subsection{与相同边缘分布对应的 ODE}
+
+令 \(v_\tau(x)=-u_{1-\tau}(x)\)。在场与密度演化适定的前提下，
+\(\dot Z_\tau=v_\tau(Z_\tau)\)、\(Z_0\sim p_1\)
+给出 \(\operatorname{Law}(Z_\tau)=p_{1-\tau}\)。
+辅助随机变量用于定义条件回归目标，ODE 采样由初始噪声和边缘速度决定。
+若学习的是辅助噪声条件均值 \(Z_\phi\)，则内部时刻
+\(s_\phi=-Z_\phi/\gamma(t)\)。
+端点 \(\gamma=0\) 时需从端点密度、极限或截断策略定义所需场。
 
 \subsection{可调扩散强度下的 SDE 构造}
 
+设 \(\kappa(t)\ge0\) 仅依赖时间，构造
+\begin{equation}
+ \dd X_t=[u_t(X_t)+\kappa(t)s_t(X_t)]\dd t
+                           +\sqrt{2\kappa(t)}\dd W_t.
+ \label{eq:generation-si-forward}
+\end{equation}
+其密度方程右端为
+\(-\nabla\cdot(u_tp_t)-\kappa\nabla\cdot(s_tp_t)+\kappa\Delta p_t\)。
+由于 \(s_tp_t=\nabla p_t\)，后两项抵消，恢复给定边缘的连续性方程。
+若扩散协方差改成状态依赖的 \(a_t(x)\)，对应漂移需取
+\(u_t+\operatorname{div}a_t/2+a_ts_t/2\)，才能保持同一密度演化。
+选择扩散时还需保证所定义 SDE 有解且其密度方程唯一。
+
 \subsection{正向与反向随机生成过程}
+
+对式~\eqref{eq:generation-si-forward} 应用时间反演，得到
+\begin{equation}
+ \begin{aligned}
+ \dd Y_\tau&=[-u_t(Y_\tau)+\kappa(t)s_t(Y_\tau)]\dd\tau
+                              +\sqrt{2\kappa(t)}\dd\overline W_\tau,\\
+ t&=1-\tau.
+ \end{aligned}
+ \label{eq:generation-si-reverse}
+\end{equation}
+因此生成时间的漂移为 \(v_\tau+\kappa(1-\tau)\nabla\log\rho_\tau\)。
+Score 在此式前的符号为正，可直接由生成 Fokker--Planck 方程的抵消核对。
+实际算法在递增 \(\tau\) 的网格上执行 Euler--Maruyama，
+用 \(u_\theta,s_\phi\) 替换精确场，噪声系数为 \(\sqrt{2\kappa h}\)。
 
 \subsection{确定性生成与随机生成的统一}
 
+\(\kappa=0\) 给出确定性生成流；正的 \(\kappa\) 给出一族随机采样器。
+精确场、匹配的起点和适定性使它们共享设计边缘。
+以中心高斯路径 \(p_t=\mathcal N(0,H_tI_d)\) 为例，
+\(u_t=H_t'x/(2H_t)\)、\(s_t=-x/H_t\)。
+令 \(C_\tau\) 是生成 SDE 的单坐标方差，代入得到
+\[
+ C_\tau'=2\left(-\frac{H_t'}{2H_t}-\frac{\kappa(t)}{H_t}\right)C_\tau
+                       +2\kappa(t).
+\]
+取 \(C_\tau=H_{1-\tau}\) 后，右端恰为 \(-H_t'\)。
+当速度和 Score 都有估计误差时，改变 \(\kappa\) 会改变误差传播和数值稳定性，
+其效果应结合实际训练精度与计算预算判断。
+
 \section{生成算法的数值分析}
+\label{sec:generation-numerics}
 
 \subsection{Euler、Heun、Runge--Kutta 方法}
 
+对 \(\dot z=v(z,\tau)\)，步长 \(h>0\)，Euler 与 Heun 分别为
+\begin{equation}
+ \begin{aligned}
+ z_{n+1}^{\mathrm E}&=z_n+h v(z_n,\tau_n),\\
+ k_1&=v(z_n,\tau_n),\quad k_2=v(z_n+h k_1,\tau_n+h),\\
+ z_{n+1}^{\mathrm H}&=z_n+\tfrac h2(k_1+k_2).
+ \end{aligned}
+ \label{eq:generation-euler-heun}
+\end{equation}
+经典 RK4 取 \(k_1=v(z_n,\tau_n)\)、
+\(k_2=v(z_n+h k_1/2,\tau_n+h/2)\)、
+\(k_3=v(z_n+h k_2/2,\tau_n+h/2)\)、
+\(k_4=v(z_n+h k_3,\tau_n+h)\)，更新
+\(z_{n+1}=z_n+h(k_1+2k_2+2k_3+k_4)/6\)。
+光滑条件下它们的全局阶依次为 \(1,2,4\)，每个标准步通常需要 \(1,2,4\) 次场评估。
+高阶精度依赖场的时空正则性，也受浮点误差、端点奇异性和步长稳定域影响。
+
 \subsection{Euler--Maruyama 与随机数值方法}
+
+对 \(\dd Y=b(Y,\tau)\dd\tau+G(Y,\tau)\dd W\)，Euler--Maruyama 为
+\begin{equation}
+ Y_{n+1}=Y_n+h_n b(Y_n,\tau_n)+G(Y_n,\tau_n)\Delta W_n,
+ \qquad\Delta W_n\sim\mathcal N(0,h_nI).
+ \label{eq:generation-em}
+\end{equation}
+一维 Milstein 在此基础上增加
+\(\frac12 GG_x[(\Delta W_n)^2-h_n]\)。
+多维乘性噪声的高阶方法可能需要迭代随机积分，须检查交换噪声等附加条件。
+当噪声对状态为常系数时，Milstein 的这项修正为零。
+该修正来自 It\^o--Taylor 展开中的二重随机积分
+\[
+ \int_{\tau_n}^{\tau_n+h}\int_{\tau_n}^{s}\dd W_r\dd W_s
+ =\tfrac12[(\Delta W_n)^2-h],
+\]
+由 It\^o 公式作用于 \((W_s-W_{\tau_n})^2\) 即可得到。
+它的均值为零，但其均方尺度会影响逐路径精度。
+随机项的尺度随 \(\sqrt h\) 变化，数值噪声增量需服从对应的 Brownian 协方差。
+比较两个网格的强误差时，粗步增量应由对应细步增量求和构造。
 
 \subsection{局部截断误差与全局误差}
 
+对 ODE，局部截断误差定义为从精确状态出发执行一个离散步所得误差。
+Euler 的局部误差是 \(O(h^2)\)，Heun 为 \(O(h^3)\)。
+若单步稳定性给出
+\(e_{n+1}\le(1+Lh)e_n+Ch^{p+1}\)，反复展开可得
+\[
+ e_M\le (1+Lh)^M e_0+Ch^{p+1}\sum_{j=0}^{M-1}(1+Lh)^j
+ \le e^{LT}e_0+\frac C L(e^{LT}-1)h^p.
+\]
+\(L=0\) 时第二项取极限 \(CT h^p\)。
+这说明全局误差通常比单步局部误差少一阶。
+常数依赖导数界与时间长度，同一阶数的方法仍可产生不同实际采样误差。
+
 \subsection{SDE 的强收敛与弱收敛}
+
+在同一 Brownian 驱动下，若
+\(\max_n(\mathbb E\norm{Y_{\tau_n}-Y_n}^2)^{1/2}\le Ch^p\)，
+称网格点均方强阶为 \(p\)。
+若对足够光滑的测试函数 \(\varphi\)，
+\(\left|\mathbb E\varphi(Y_T)-\mathbb E\varphi(Y_M)\right|\le C_\varphi h^q\)，
+称弱阶为 \(q\)。全局 Lipschitz、增长和相应光滑矩条件下，
+一般 Euler--Maruyama 的强阶为 \(1/2\)、弱阶为 \(1\)，
+Milstein 在适当条件下有强阶 \(1\)。
+加性噪声情形在进一步正则条件下可改善强阶。
+端点奇异漂移、超线性增长或非光滑观测需重新验证这些结论的适用性。
+弱误差结论直接控制指定测试函数，推广到某类分布距离还需统一常数。
+数值方法的阶数与条件可参阅 Higham 的算法性介绍 \cite{higham2001sde}。
 
 \subsection{求解器误差与模型估计误差}
 
+令 \(Z\) 解精确场 \(v\)，\(\widehat Z\) 解学习场 \(v_\theta\)，
+\(Z^h\) 为学习场的数值解。取相同初始耦合，先用三角不等式
+\(\norm{Z_1-Z_1^h}\le\norm{Z_1-\widehat Z_1}+
+\norm{\widehat Z_1-Z_1^h}\)。
+若 \(v_\theta\) 的空间 Lipschitz 常数为 \(L(\tau)\)，
+Minkowski 与 Gronwall 给出
+\begin{equation}
+ \begin{aligned}
+ W_2(\rho_1,\widehat\rho_1)
+ &\le e^{\int_0^1 L(r)\dd r}W_2(\rho_0,\widehat\rho_0)\\
+ &\quad+\int_0^1 e^{\int_s^1L(r)\dd r}
+       \norm{v_\theta-v}_{L^2(\rho_s)}\dd s.
+ \end{aligned}
+ \label{eq:generation-w2-stability}
+\end{equation}
+此处对参考轨迹上的误差取期望，要求二阶矩有限，并选取最优或近最优初始耦合。
+数值误差再按相应阶加入。式中若有较大的 Lipschitz 放大因子，
+较小的平均回归误差也可能产生明显的终点偏差。
+
+具体地，令 \(E_\tau=\widehat Z_\tau-Z_\tau\)，在两条轨迹上加减
+\(v_\theta(Z_\tau,\tau)\)，便有
+\[
+ \norm{\dot E_\tau}\le L(\tau)\norm{E_\tau}
+       +\norm{v_\theta(Z_\tau,\tau)-v(Z_\tau,\tau)}.
+\]
+对其积分形式取 \(L^2\) 范数，再使用 Gronwall，得到上述耦合误差上界。
+最后对所有初始耦合取下确界，即得 Wasserstein 界。
+这也说明误差项可沿已知参考边缘计算。
+
 \subsection{时间步选择与自适应求解}
 
+嵌入式 Runge--Kutta 用两种阶数的更新差估计局部误差，常用归一化量
+\[
+ E=\left\|\frac{z^{\mathrm{high}}-z^{\mathrm{low}}}
+ {\mathrm{atol}+\mathrm{rtol}\,\max(|z_n|,|z^{\mathrm{high}}|)}\right\|.
+\]
+按 \(E\le1\) 接受步，否则缩小步长重试。
+网络场在端点变化快时，自适应方法会增加调用。
+若终止于 \(t=\epsilon>0\)，输出对应带噪分布或指定去噪映射的推前律，
+需将截断误差计入目标端误差。
+SDE 拒步后应通过 Brownian bridge 一致拆分已抽增量，
+直接重新抽取会改变噪声路径与接受机制。确定性求解器的拒步逻辑需要适配随机积分。
+
 \section{生成质量及计算复杂度}
+\label{sec:generation-quality}
 
 \subsection{采样步数、NFE 与计算成本}
 
+NFE 指网络场评估次数。固定 \(M\) 个 Euler、Heun、经典 RK4 步通常分别消耗
+\(M,2M,4M\) 次评估。每个 Predictor 后若有 \(J\) 次 Score Corrector，
+一个单评估 Predictor 的总调用通常为 \(M(1+J)\)。
+自适应求解器的拒绝步也计入 NFE，共用阶段值的实现需按实际调用计数。
+若漂移和 Score 由两个独立网络提供，还应分别记录其调用。
+壁钟时间还受 batch size、网络结构、精度、设备同步和散度自动微分影响。
+报告质量时同时写明网格、NFE、硬件与实际耗时，才能解释计算预算。
+
 \subsection{训练目标误差对生成分布的影响}
+
+CFM 的平方回归误差等于边缘速度误差加条件剩余方差，
+所以应以损失超出总体最优值的部分连接式~\eqref{eq:generation-w2-stability}。
+若训练时间密度为 \(q(\tau)\)、权重为 \(w(\tau)>0\)，设
+\(\mathcal E=\int_0^1 q w\norm{v_\theta-v}_{L^2(\rho_\tau)}^2\dd\tau\)。
+在 Lipschitz 常数由 \(L\) 上界控制时，Cauchy--Schwarz 给出
+\[
+ \int_0^1e^{L(1-\tau)}\norm{v_\theta-v}_{L^2(\rho_\tau)}\dd\tau
+ \le\sqrt{\mathcal E}
+ \left(\int_0^1\frac{e^{2L(1-\tau)}}{q(\tau)w(\tau)}\dd\tau\right)^{1/2}.
+\]
+该积分需有限，尤其要覆盖采样经过的时间区间。
+SDE 可在同扩散与绝对连续条件下用 Girsanov 将漂移均方误差转换成路径 KL。
+两种估计都要求明确误差取期望所用的分布与训练损失的关系。
+
+例如各向同性反向扩散的 Score 误差 \(e_s=s_\theta-s\)
+产生漂移误差 \(g^2e_s\)。若两种连续扩散满足 Girsanov 条件，
+以精确反向路径为参考，路径 KL 的漂移项为
+\[
+ \frac12\int_0^1g(1-\tau)^2
+       \mathbb E_{\rho_\tau}\norm{e_s(Y_\tau,1-\tau)}^2\dd\tau.
+\]
+若初始律也有偏差，还需加上其 KL。
+证明中，Girsanov 对数密度比的随机积分在参考律下均值为零，
+剩余项为噪声坐标漂移差的二次能量。
+因此该界中的时间权重由扩散系数决定。
 
 \subsection{KL、Wasserstein、MMD 等分布误差}
 
+对 \(P\ll Q\)，\(D_{\mathrm{KL}}(P\|Q)=\int\log(\dd P/\dd Q)\dd P\)。
+KL 具有方向性，绝对连续性失败时可为无穷大。终点评价映射的数据处理不等式给出
+\(D_{\mathrm{KL}}(P_1\|Q_1)\le D_{\mathrm{KL}}(P\|Q)\)。
+有限二阶矩下
+\(W_2^2(P,Q)=\inf_{\pi\in\Pi(P,Q)}\mathbb E_\pi\norm{X-Y}^2\)，
+适合由同初值或同噪声耦合建立上界。
+对核 \(k\)，独立 \(X,X'\sim P\)、\(Y,Y'\sim Q\)，
+\begin{equation}
+ \operatorname{MMD}_k^2(P,Q)=\mathbb E k(X,X')+\mathbb E k(Y,Y')
+                                     -2\mathbb E k(X,Y).
+ \label{eq:generation-mmd}
+\end{equation}
+特征核可使 MMD 为零等价于分布相等。样本估计仍依赖样本数、核带宽与方差。
+一维高斯满足
+\(W_2^2(\mathcal N(m,c),\mathcal N(\widehat m,\widehat c))
+=(m-\widehat m)^2+(\sqrt c-\sqrt{\widehat c})^2\)，可用作可计算的核对模型。
+
 \subsection{确定性与随机生成的质量比较}
 
+在精确场、相同初始律与方程适定时，本章构造的概率流 ODE 和对应 SDE
+可以有相同终点分布。有限预算下，ODE 的截断误差、SDE 的随机积分误差、
+Score 与速度的估计误差共同影响结果。
+Corrector 还增加内部混合误差与调用成本。
+比较时应固定目标路径、先验、网络、预处理与预算，
+同时报告重复运行的统计不确定性。
+对没有建立共同边缘构造的两个模型，需要先写清各自的目标分布再比较样本指标。
+
 \subsection{生成稳定性、似然与样本多样性}
+
+稳定性描述初值、场或数值扰动对输出的放大，可由 Jacobian 或
+式~\eqref{eq:generation-w2-stability} 的常数刻画。
+似然评价模型对观测密度的分配，需包含变量变换与预处理的 Jacobian。
+多样性涉及生成分布对数据各区域的覆盖，需要结合覆盖指标或可解释的测试分布。
+即使采样过程确定，随机先验也能产生多样样本。
+随机递推也可能因场估计或离散化误差而集中到有限区域。
+用高斯路径检查均值、协方差与网格收敛，用更复杂数据检查覆盖和视觉质量，
+可以分别定位这些性质。
+
+\begin{chaptersummary}
+ \item DDPM 的均值来自条件后验平均，方差选择与先验近似共同决定生成链。
+ \item DDIM 在重参数坐标中具有 Euler 结构，跳步采样需要累计系数并引入有限步误差。
+ \item 反向 SDE 与概率流 ODE 在精确场、匹配初始律及适定条件下共享时刻边缘。
+ \item FM、RF、桥与随机插值各自指定场的来源，生成阶段都要落实成可求解动力学。
+ \item 回归误差、先验误差、端点截断与积分误差需要合并到终点分布误差中解释。
+\end{chaptersummary}
+
+\subsection*{本章练习与核对}
+
+\begin{enumerate}
+ \item 对平稳标准高斯 DDPM，证明采用反向均值 \(\sqrt{r_k}x\)
+ 与方差 \(\beta_kI_d\) 可在每一步保持边缘。\\
+ \textbf{核对}\quad 协方差递推为 \(r_kI_d+\beta_kI_d=I_d\)。
+ \item 取 \(A_j^2=4/5,A_k^2=2/5\)，计算 \(\eta=1\) 的 DDIM 跨步方差。\\
+ \textbf{核对}\quad \(\delta_{k,j}^2=1/6\)，方向项方差为 \(1/30\)。
+ \item 对 VP 路径验证式~\eqref{eq:generation-ddim-ode} 中的噪声系数为
+ \(\beta/(2\sigma)\)，并换成 Score。\\
+ \textbf{核对}\quad \(\dot\sigma=\beta\alpha^2/(2\sigma)\)，
+ 右端是 \(-\beta x/2-\beta s/2\)。
+ \item 对一维状态依赖扩散 \(a(x)>0\)，写出递增生成时间的反向漂移与概率流速度。\\
+ \textbf{核对}\quad 分别为 \(-f+a'+a s\) 与 \(-f+a'/2+a s/2\)。
+ \item 用 \(\dot z=cz\) 核对 Euler 与 Heun 的单步因子并展开到三阶。\\
+ \textbf{核对}\quad 因子为 \(1+ch\) 与 \(1+ch+(ch)^2/2\)。
+ \item 对式~\eqref{eq:generation-rf-gaussian} 求二阶导数并检查一步 Euler。\\
+ \textbf{核对}\quad \(\ddot Z_\tau=H_\tau^{-3/2}Z_0\)，一步输出为零。
+ \item 对中心高斯 SI 路径，将 \(\kappa\) 从零改为正数，验证方差方程保持
+ \(C_\tau=H_{1-\tau}\)。\\
+ \textbf{核对}\quad Score 漂移产生的 \(-2\kappa\) 与扩散的 \(+2\kappa\) 抵消。
+ \item 某采样器用 20 个 Heun 步，每步后做 2 次单调用 Corrector，求总 NFE。\\
+ \textbf{核对}\quad 若所有调用独立且无缓存，共 \(20(2+2)=80\) 次。
+\end{enumerate}
